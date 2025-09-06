@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   authors: [
     {
       name: 'Al-Hussein A.',
-      url: 'https://al-husayn.vercel.app/',
+      url: 'https://www.al-husayn.dev/',
     },
   ],
   creator: 'Al-Hussein A.',
