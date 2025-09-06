@@ -82,15 +82,15 @@ Add your author details to the `lib/authors.ts` file.
 ```tsx
 // lib/authors.ts
 export const authors: Record<string, Author> = {
-  dillion: {
-    name: "Dillion Verma",
+  al: {
+    name: "Al-Hussein A.",
     position: "Software Engineer",
-    avatar: "/authors/dillion.png",
+    avatar: "/authors/AL.png",
   },
-  arghya: {
-    name: "Arghya Das",
+  hamdan: {
+    name: "AL Drake",
     position: "Design System Engineer",
-    avatar: "/authors/arghya.png",
+    avatar: "/authors/Hamdan.jpeg",
   },
   // Add your author details here
   yourname: {
