@@ -22,7 +22,7 @@ export function PromoContent({
           />
           <div className='flex-1 min-w-0'>
             <p className='text-xs font-medium text-foreground/90 truncate'>
-              Learn. Build. Share
+              Learn. Build. Share.
             </p>
             <p className='text-xs text-muted-foreground truncate'>
               → A space for developers to grow their skills, build real
@@ -51,7 +51,7 @@ export function PromoContent({
         />
         <div className='flex flex-col gap-1'>
           <h3 className='text-lg font-semibold tracking-tighter'>
-            Learn. Build. Share
+            Learn. Build. Share.
           </h3>
           <p className='text-sm text-muted-foreground'>
             → A space for developers to grow their skills, build real projects,

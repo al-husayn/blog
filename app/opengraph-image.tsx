@@ -112,7 +112,7 @@ export default async function Image() {
               width={100}
               height={100}
             />
-            <h1 style={styles.title}>Learn. Build. Share</h1>
+            <h1 style={styles.title}>Learn. Build. Share.</h1>
             <p style={styles.description}>
               → A space for developers to grow their skills, build real
               projects, and share stories that inspire others.
