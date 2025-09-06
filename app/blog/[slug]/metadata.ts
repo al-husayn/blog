@@ -51,12 +51,12 @@ export async function generateMetadata({
       ],
       authors: [
         {
-          name: page.data.author || "Magic UI",
+          name: page.data.author || "Al-Hussein A.",
           url: siteConfig.url,
         },
       ],
-      creator: page.data.author || "Magic UI",
-      publisher: "Magic UI",
+      creator: page.data.author || "Al-Hussein A.",
+      publisher: "Al-Hussein A.",
       robots: {
         index: true,
         follow: true,
@@ -74,7 +74,7 @@ export async function generateMetadata({
         type: "article",
         url: ogUrl,
         publishedTime: page.data.date,
-        authors: [page.data.author || "Magic UI"],
+        authors: [page.data.author || "Al-Hussein A."],
         tags: page.data.tags,
         images: [
           {

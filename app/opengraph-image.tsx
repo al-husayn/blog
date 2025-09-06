@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Blog - Magic UI";
+export const alt = 'Blog - Learn. Build. Share';
 export const size = {
   width: 1200,
   height: 630,
@@ -15,7 +15,7 @@ const getAssetData = async () => {
     const fontUrls = {
       clashDisplay: `${baseUrl}/fonts/ClashDisplay-Semibold.ttf`,
       cabinetGrotesk: `${baseUrl}/fonts/CabinetGrotesk-Medium.ttf`,
-      logo: `${baseUrl}/magicui-logo.png`,
+      logo: `${baseUrl}/logo.png`,
     };
 
     const [clashDisplayRes, cabinetGroteskRes, logoRes] = await Promise.all([
@@ -100,22 +100,22 @@ export default async function Image() {
         <div
           style={{
             ...styles.wrapper,
-            fontFamily: assetData ? "Clash Display" : "system-ui",
-          }}
-        >
+            fontFamily: assetData ? 'Clash Display' : 'system-ui',
+          }}>
           <div style={styles.container}>
             <img
               src={
                 assetData?.logoBase64 ||
-                `${process.env.NEXT_PUBLIC_SITE_URL}/magicui-logo.png`
+                `${process.env.NEXT_PUBLIC_SITE_URL}/logo.png`
               }
-              alt="MagicUI Logo"
+              alt='Logo'
               width={100}
               height={100}
             />
-            <h1 style={styles.title}>Blog</h1>
+            <h1 style={styles.title}>Learn. Build. Share</h1>
             <p style={styles.description}>
-              A blog about design, development, and other things.
+              → A space for developers to grow their skills, build real
+              projects, and share stories that inspire others.
             </p>
           </div>
         </div>
@@ -125,16 +125,16 @@ export default async function Image() {
         fonts: assetData
           ? [
               {
-                name: "Clash Display",
+                name: 'Clash Display',
                 data: assetData.clashDisplay,
                 weight: 500,
-                style: "normal",
+                style: 'normal',
               },
               {
-                name: "Cabinet Grotesk",
+                name: 'Cabinet Grotesk',
                 data: assetData.cabinetGrotesk,
                 weight: 500,
-                style: "normal",
+                style: 'normal',
               },
             ]
           : undefined,
