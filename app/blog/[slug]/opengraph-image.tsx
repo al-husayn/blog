@@ -1,30 +1,30 @@
-import { ImageResponse } from "next/og";
-import { docs, meta } from "@/.source";
-import { loader } from "fumadocs-core/source";
-import { createMDXSource } from "fumadocs-mdx";
-import { getAuthor, isValidAuthor, type AuthorKey } from "@/lib/authors";
+import { ImageResponse } from 'next/og';
+import { docs, meta } from '@/.source';
+import { loader } from 'fumadocs-core/source';
+import { createMDXSource } from 'fumadocs-mdx';
+import { getAuthor, isValidAuthor, type AuthorKey } from '@/lib/authors';
 
-export const runtime = "nodejs";
-export const alt = "Blog Post";
+export const runtime = 'nodejs';
+export const alt = 'Blog Post';
 export const size = {
   width: 1200,
   height: 630,
 };
-export const contentType = "image/png";
+export const contentType = 'image/png';
 
 const blogSource = loader({
-  baseUrl: "/blog",
+  baseUrl: '/blog',
   source: createMDXSource(docs, meta),
 });
 
 const getAssetData = async (authorAvatar?: string) => {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+    const baseUrl = process.env.SITE_URL || 'http://localhost:3000';
 
     const assetUrls = {
       clashDisplay: `${baseUrl}/fonts/ClashDisplay-Semibold.ttf`,
       cabinetGrotesk: `${baseUrl}/fonts/CabinetGrotesk-Medium.ttf`,
-      logo: `${baseUrl}/magicui-logo.png`,
+      logo: `${baseUrl}/logo.png`,
       ...(authorAvatar && { authorAvatar: `${baseUrl}${authorAvatar}` }),
     };
 
@@ -61,14 +61,14 @@ const getAssetData = async (authorAvatar?: string) => {
       assetBuffers;
 
     const logoBase64 = `data:image/png;base64,${Buffer.from(logoImage).toString(
-      "base64"
+      'base64'
     )}`;
 
     let authorAvatarBase64: string | undefined;
     if (authorAvatarImage) {
       authorAvatarBase64 = `data:image/png;base64,${Buffer.from(
         authorAvatarImage
-      ).toString("base64")}`;
+      ).toString('base64')}`;
     }
 
     return {
@@ -78,88 +78,88 @@ const getAssetData = async (authorAvatar?: string) => {
       authorAvatarBase64,
     };
   } catch (error) {
-    console.error("Error loading assets:", error);
+    console.error('Error loading assets:', error);
     return null;
   }
 };
 
 const styles = {
   wrapper: {
-    height: "100%",
-    width: "100%",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "white",
-    padding: "40px",
+    height: '100%',
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'white',
+    padding: '40px',
   },
   container: {
-    display: "flex",
-    height: "100%",
-    width: "100%",
-    border: "4px solid black",
-    flexDirection: "column",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    padding: "60px",
+    display: 'flex',
+    height: '100%',
+    width: '100%',
+    border: '4px solid black',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    padding: '60px',
   },
   titleContainer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
   },
   logo: {
-    marginBottom: "20px",
-    alignSelf: "flex-start",
+    marginBottom: '20px',
+    alignSelf: 'flex-start',
   },
   title: {
-    fontSize: "40px",
+    fontSize: '40px',
     fontWeight: 700,
-    color: "black",
+    color: 'black',
     lineHeight: 1.2,
-    marginBottom: "10px",
-    letterSpacing: "0.5px",
+    marginBottom: '10px',
+    letterSpacing: '0.5px',
   },
   summary: {
-    fontSize: "25px",
+    fontSize: '25px',
     fontWeight: 500,
-    color: "#4A4A4A",
+    color: '#4A4A4A',
     lineHeight: 1.5,
-    letterSpacing: "0.5px",
+    letterSpacing: '0.5px',
   },
   metaContainer: {
-    display: "flex",
-    gap: "15px",
-    marginTop: "20px",
-    alignItems: "center",
+    display: 'flex',
+    gap: '15px',
+    marginTop: '20px',
+    alignItems: 'center',
   },
   metaBase: {
-    fontSize: "19px",
+    fontSize: '19px',
     fontWeight: 500,
     lineHeight: 1.4,
-    padding: "4px 0px",
+    padding: '4px 0px',
   },
   authorMeta: {
-    color: "black",
-    backgroundColor: "white",
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
+    color: 'black',
+    backgroundColor: 'white',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
   },
   authorAvatar: {
-    width: "32px",
-    height: "32px",
-    borderRadius: "50%",
-    border: "2px solid black",
+    width: '32px',
+    height: '32px',
+    borderRadius: '50%',
+    border: '2px solid black',
   },
   dateMeta: {
-    color: "black",
+    color: 'black',
   },
   dotSeparator: {
-    fontSize: "19px",
-    color: "black",
+    fontSize: '19px',
+    color: 'black',
     fontWeight: 500,
   },
 } as const;
@@ -169,7 +169,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
     const page = await blogSource.getPage([params.slug]);
 
     if (!page) {
-      return new Response("Blog post not found", { status: 404 });
+      return new Response('Blog post not found', { status: 404 });
     }
 
     const authorKey = page.data.author as string;
@@ -182,10 +182,10 @@ export default async function Image({ params }: { params: { slug: string } }) {
 
     const formatDate = (dateString: string) => {
       const date = new Date(dateString);
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
       });
     };
 
@@ -194,17 +194,15 @@ export default async function Image({ params }: { params: { slug: string } }) {
         <div
           style={{
             ...styles.wrapper,
-            fontFamily: assetData ? "Clash Display" : "system-ui",
-          }}
-        >
+            fontFamily: assetData ? 'Clash Display' : 'system-ui',
+          }}>
           <div style={styles.container}>
             <div style={styles.titleContainer}>
               <img
                 src={
-                  assetData?.logoBase64 ||
-                  `${process.env.NEXT_PUBLIC_SITE_URL}/logo.png`
+                  assetData?.logoBase64 || `${process.env.SITE_URL}/logo.png`
                 }
-                alt="Logo"
+                alt='Logo'
                 width={80}
                 height={80}
                 style={styles.logo}
@@ -221,7 +219,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
                     <img
                       src={
                         assetData?.authorAvatarBase64 ||
-                        `${process.env.NEXT_PUBLIC_SITE_URL}${authorDetails.avatar}`
+                        `${process.env.SITE_URL}${authorDetails.avatar}`
                       }
                       alt={authorDetails.name}
                       width={32}
@@ -250,16 +248,16 @@ export default async function Image({ params }: { params: { slug: string } }) {
         fonts: assetData
           ? [
               {
-                name: "Clash Display",
+                name: 'Clash Display',
                 data: assetData.clashDisplay,
                 weight: 500,
-                style: "normal",
+                style: 'normal',
               },
               {
-                name: "Cabinet Grotesk",
+                name: 'Cabinet Grotesk',
                 data: assetData.cabinetGrotesk,
                 weight: 500,
-                style: "normal",
+                style: 'normal',
               },
             ]
           : undefined,
@@ -268,7 +266,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
   } catch (error) {
     return new Response(
       `Failed to generate image: ${
-        error instanceof Error ? error.message : "Unknown error"
+        error instanceof Error ? error.message : 'Unknown error'
       }`,
       {
         status: 500,
