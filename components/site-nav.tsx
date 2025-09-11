@@ -1,10 +1,7 @@
-"use client";
-import Link from "next/link";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { useState } from "react";
+import Link from 'next/link';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export function SiteNav() {
-  const [mobileOpen, setMobileOpen] = useState(false);
   return (
     <header className='sticky top-0 z-20 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
       <div className='max-w-7xl mx-auto w-full flex h-14 items-center justify-between px-6'>
@@ -41,29 +38,26 @@ export function SiteNav() {
           </Link>
           <ThemeToggle />
         </nav>
-        {/* Mobile hamburger */}
-        <button
-          className='md:hidden flex items-center px-2 py-1'
-          onClick={() => setMobileOpen((v) => !v)}
-          aria-label='Open menu'>
-          <svg
-            className='w-7 h-7 text-muted-foreground'
-            fill='none'
-            stroke='currentColor'
-            strokeWidth={2}
-            viewBox='0 0 24 24'>
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              d='M4 6h16M4 12h16M4 18h16'
-            />
-          </svg>
-        </button>
-      </div>
-      {/* Mobile menu */}
-      {mobileOpen && (
-        <div className='md:hidden bg-background border-b border-border/40 px-6 py-4'>
-          <nav className='flex flex-col gap-4'>
+
+        {/* Mobile nav using <details> */}
+        <details className='md:hidden relative'>
+          <summary
+            className='list-none flex items-center px-2 py-1 cursor-pointer'
+            aria-label='Open menu'>
+            <svg
+              className='w-7 h-7 text-muted-foreground'
+              fill='none'
+              stroke='currentColor'
+              strokeWidth={2}
+              viewBox='0 0 24 24'>
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M4 6h16M4 12h16M4 18h16'
+              />
+            </svg>
+          </summary>
+          <div className='absolute right-0 mt-2 bg-background border border-border rounded shadow-lg p-4 flex flex-col gap-4 z-50 min-w-[150px]'>
             <a
               href='https://www.al-husayn.dev'
               className='text-sm font-medium text-muted-foreground hover:text-foreground'
@@ -82,9 +76,9 @@ export function SiteNav() {
               RSS
             </Link>
             <ThemeToggle />
-          </nav>
-        </div>
-      )}
+          </div>
+        </details>
+      </div>
     </header>
   );
 }
