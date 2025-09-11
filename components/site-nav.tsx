@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 export function SiteNav() {
@@ -9,9 +10,11 @@ export function SiteNav() {
           <Link
             href='/'
             className='mr-6 flex items-center space-x-2 font-medium text-lg tracking-tighter h-32 w-32 rounded-md overflow-hidden'>
-            <img
+            <Image
               src='/logo.png'
               alt='Logo'
+              width={128}
+              height={128}
               className='w-32 h-32 object-cover'
             />
           </Link>
