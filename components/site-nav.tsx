@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useState } from "react";
