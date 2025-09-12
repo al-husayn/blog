@@ -13,7 +13,7 @@ export const authors: Record<string, Author> = {
   hamdan: {
     name: "Hamdan W.A",
     position: "Design System Engineer",
-    avatar: "/authors/hamdan.jpeg",
+    avatar: "/authors/Hamdan.jpeg",
   },
 } as const;
 
