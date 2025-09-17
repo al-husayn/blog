@@ -1,0 +1,147 @@
+---
+title: "Understanding Typing in JavaScript: Implicit, Explicit, Nominal, Structural, and Duck Typing"
+description: "A deep dive into JavaScript’s typing approaches: implicit, explicit, nominal, structural, and duck typing. Learn what they mean, how they appear in practice, and why they matter for developers."
+date: "2025-09-18"
+tags: ["JavaScript"]
+featured: true
+readTime: "18 min read"
+author: "al-hussein"
+thumbnail: "/thumbnails/js-image.png"
+---
+
+JavaScript is a **dynamically typed language**, which means you don’t declare variable types up front. However, JavaScript (and tools built on top of it, like TypeScript) often demonstrate different *typing approaches*.  
+In this article, we’ll break down **Implicit, Explicit, Nominal, Structural, and Duck Typing**, with clear explanations and code examples.
+
+---
+
+## Implicit Typing
+
+**Implicit typing** happens when the type of a value is inferred by the language at runtime.  
+In JavaScript, this means variables take on the type of whatever value they’re assigned.
+
+```js
+let name = "Hussein"; // implicitly a string
+let count = 42;       // implicitly a number
+````
+
+Here, we never declared `name` as a string or `count` as a number, but JavaScript knows based on the values.
+
+💡 **Takeaway**: Implicit typing makes code shorter and flexible but can cause confusion when values change unexpectedly.
+
+---
+
+## Explicit Typing
+
+**Explicit typing** is when the developer defines the type directly.
+JavaScript itself doesn’t support this natively, but TypeScript (a superset of JS) does.
+
+```ts
+let age: number = 30;
+let username: string = "Al-Hussein";
+```
+
+In plain JavaScript, you often mimic explicit typing through **runtime checks**:
+
+```js
+function greet(name) {
+  if (typeof name !== "string") {
+    throw new Error("Name must be a string");
+  }
+  console.log(`Hello, ${name}`);
+}
+
+greet("Hussein"); // works
+greet(123);       // throws error
+```
+
+💡 **Takeaway**: Explicit typing improves safety and readability, especially in large codebases.
+
+---
+
+## Nominal Typing
+
+**Nominal typing** means types are distinct by their names, not just their shape.
+JavaScript doesn’t natively use nominal typing, but TypeScript can simulate it using `brand` patterns.
+
+```ts
+type USD = number & { readonly brand: unique symbol };
+type EUR = number & { readonly brand: unique symbol };
+
+function payInUSD(amount: USD) { /* ... */ }
+
+let dollars = 100 as USD;
+let euros = 100 as EUR;
+
+payInUSD(dollars); // ✅ works
+payInUSD(euros);   // ❌ error: type mismatch
+```
+
+💡 **Takeaway**: Nominal typing is useful for domain-specific rules, like distinguishing currencies.
+
+---
+
+## Structural Typing
+
+**Structural typing** says that two types are compatible if their **shapes** (properties and methods) match, regardless of their names.
+This is the default model in TypeScript.
+
+```ts
+type Point = { x: number; y: number };
+type Coordinate = { x: number; y: number };
+
+let p: Point = { x: 1, y: 2 };
+let c: Coordinate = p; // ✅ works (same structure)
+```
+
+In plain JavaScript, object shapes matter more than their labels:
+
+```js
+function logPoint(point) {
+  console.log(`x: ${point.x}, y: ${point.y}`);
+}
+
+const coord = { x: 10, y: 20 };
+logPoint(coord); // ✅ works because it has x and y
+```
+
+💡 **Takeaway**: Structural typing is flexible, but can sometimes allow unintended matches.
+
+---
+
+## Duck Typing
+
+**Duck typing** is a form of structural typing in dynamic languages like JavaScript.
+The idea: *“If it walks like a duck and quacks like a duck, it’s a duck.”*
+
+```js
+function quack(duck) {
+  if (typeof duck.quack === "function") {
+    duck.quack();
+  } else {
+    console.log("Not a duck!");
+  }
+}
+
+const realDuck = { quack: () => console.log("Quack!") };
+const person = { quack: () => console.log("I can quack too!") };
+
+quack(realDuck); // Quack!
+quack(person);   // I can quack too!
+```
+
+Here, both objects are treated as “ducks” because they have a `quack` method.
+
+💡 **Takeaway**: Duck typing is very common in JavaScript, but it can lead to subtle bugs if two different objects just happen to have the same property names.
+
+---
+
+## Final Thoughts
+
+* **Implicit typing** → JS infers types for you.
+* **Explicit typing** → You define types (often in TS or via runtime checks).
+* **Nominal typing** → Types are distinct by name.
+* **Structural typing** → Types are compatible if they share structure.
+* **Duck typing** → Objects are judged by behavior, not inheritance.
+
+Understanding these helps you reason about **JavaScript’s dynamic nature** and also bridges the gap to **TypeScript’s type system**.
+
