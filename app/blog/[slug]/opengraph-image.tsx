@@ -3,6 +3,7 @@ import { docs, meta } from '@/.source';
 import { loader } from 'fumadocs-core/source';
 import { createMDXSource } from 'fumadocs-mdx';
 import { getAuthor, isValidAuthor, type AuthorKey } from '@/lib/authors';
+import { siteConfig } from '@/lib/site';
 
 export const runtime = 'nodejs';
 export const alt = 'Blog Post';
@@ -19,7 +20,8 @@ const blogSource = loader({
 
 const getAssetData = async (authorAvatar?: string) => {
   try {
-    const baseUrl = process.env.SITE_URL || 'http://localhost:3000';
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || siteConfig.url;
 
     const assetUrls = {
       clashDisplay: `${baseUrl}/fonts/ClashDisplay-Semibold.ttf`,
@@ -200,7 +202,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
             <div style={styles.titleContainer}>
               <img
                 src={
-                  assetData?.logoBase64 || `${process.env.SITE_URL}/logo.png`
+                  assetData?.logoBase64 || `${siteConfig.url}/logo.png`
                 }
                 alt='Logo'
                 width={80}
@@ -219,7 +221,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
                     <img
                       src={
                         assetData?.authorAvatarBase64 ||
-                        `${process.env.SITE_URL}${authorDetails.avatar}`
+                        `${siteConfig.url}${authorDetails.avatar}`
                       }
                       alt={authorDetails.name}
                       width={32}

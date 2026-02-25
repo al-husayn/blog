@@ -1,6 +1,34 @@
+import type { Metadata } from 'next';
 import { HashScrollHandler } from '@/components/hash-scroll-handler';
 import { FlickeringGrid } from '@/components/magicui/flickering-grid';
 import Image from 'next/image';
+import { siteConfig } from '@/lib/site';
+import { getAbsoluteUrl } from '@/lib/seo';
+
+export const metadata: Metadata = {
+  title: 'About',
+  description:
+    'Learn more about Al-Hussein and the mission behind Learn. Build. Share.',
+  alternates: {
+    canonical: '/about',
+  },
+  openGraph: {
+    title: `About | ${siteConfig.name}`,
+    description:
+      'Learn more about Al-Hussein A. and the mission behind Learn. Build. Share.',
+    type: 'profile',
+    url: getAbsoluteUrl('/about'),
+    images: [getAbsoluteUrl('/authors/AL.png')],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `About | ${siteConfig.name}`,
+    description:
+      'Learn more about Al-Hussein and the mission behind Learn. Build. Share.',
+    creator: siteConfig.twitterHandle,
+    images: [getAbsoluteUrl('/authors/AL.png')],
+  },
+};
 
 export default function AboutPage() {
   return (
