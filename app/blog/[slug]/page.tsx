@@ -16,6 +16,7 @@ import { PromoContent } from "@/components/promo-content";
 import { getAuthor, isValidAuthor } from "@/lib/authors";
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
 import { HashScrollHandler } from "@/components/hash-scroll-handler";
+import { ArticleEngagement } from "@/components/article-engagement";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -123,6 +124,7 @@ export default async function BlogPost({ params }: PageProps) {
               </DocsBody>
             </div>
           </div>
+          <ArticleEngagement slug={slug} />
           <div className="mt-10">
             <ReadMoreSection
               currentSlug={[slug]}
