@@ -37,6 +37,11 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
+# vscode
+.vscode
+#kombai
+.kombai
+
 # vercel
 .vercel
 
