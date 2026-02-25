@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { siteConfig } from "@/lib/site";
 
 export const runtime = "edge";
 export const alt = 'Blog - Learn. Build. Share';
@@ -10,7 +11,7 @@ export const contentType = "image/png";
 
 const getAssetData = async () => {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || siteConfig.url;
 
     const fontUrls = {
       clashDisplay: `${baseUrl}/fonts/ClashDisplay-Semibold.ttf`,
@@ -106,7 +107,7 @@ export default async function Image() {
             <img
               src={
                 assetData?.logoBase64 ||
-                `${process.env.NEXT_PUBLIC_SITE_URL}/logo.png`
+                `${siteConfig.url}/logo.png`
               }
               alt='Logo'
               width={100}
