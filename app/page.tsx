@@ -297,7 +297,7 @@ export default async function HomePage({
                         ) : (
                             <div className='col-span-full p-6 text-sm text-muted-foreground'>
                                 No articles found for
-                                <span className='font-medium text-foreground'> "{searchQuery}"</span>.
+                                <span className='font-medium text-foreground'> {searchQuery}</span>
                             </div>
                         )}
                     </div>
