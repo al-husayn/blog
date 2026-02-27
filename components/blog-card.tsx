@@ -7,6 +7,9 @@ interface BlogCardProps {
   title: string;
   description: string;
   date: string;
+  authorName?: string;
+  authorAvatar?: string;
+  readTime?: string;
   thumbnail?: string;
   showRightBorder?: boolean;
 }
@@ -16,6 +19,9 @@ export function BlogCard({
   title,
   description,
   date,
+  authorName,
+  authorAvatar,
+  readTime,
   thumbnail,
   showRightBorder = true,
 }: BlogCardProps) {
@@ -45,6 +51,30 @@ export function BlogCard({
             {title}
           </h3>
           <p className="text-muted-foreground text-sm">{description}</p>
+          {(authorName || readTime) && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              {authorName && (
+                <div className="flex items-center gap-2">
+                  {authorAvatar && (
+                    <Image
+                      src={authorAvatar}
+                      alt=""
+                      aria-hidden="true"
+                      width={20}
+                      height={20}
+                      sizes="20px"
+                      className="rounded-full border border-border object-cover"
+                    />
+                  )}
+                  <span className="font-medium text-muted-foreground">
+                    {authorName}
+                  </span>
+                </div>
+              )}
+              {authorName && readTime && <span aria-hidden="true">•</span>}
+              {readTime && <span>{readTime}</span>}
+            </div>
+          )}
           <time className="block text-sm font-medium text-muted-foreground">
             {date}
           </time>

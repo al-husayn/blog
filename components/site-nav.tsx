@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { MenuIcon } from '@/components/menu';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTrigger } from '@/components/ui/drawer';
 
 export function SiteNav() {
@@ -48,18 +49,7 @@ export function SiteNav() {
           <DrawerTrigger
             className='md:hidden list-none flex items-center px-2 py-1 cursor-pointer'
             aria-label='Open menu'>
-            <svg
-              className='w-7 h-7 text-muted-foreground'
-              fill='none'
-              stroke='currentColor'
-              strokeWidth={2}
-              viewBox='0 0 24 24'>
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M4 6h16M4 12h16M4 18h16'
-              />
-            </svg>
+            <MenuIcon size={28} className='text-muted-foreground' aria-hidden='true' />
           </DrawerTrigger>
           <DrawerContent className='md:hidden bottom-auto top-16 left-auto right-6 w-56 max-h-none border border-border'>
             <DrawerHeader>
