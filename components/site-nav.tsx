@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTrigger } from '@/components/ui/drawer';
 
 export function SiteNav() {
   return (
@@ -42,10 +43,10 @@ export function SiteNav() {
           <ThemeToggle />
         </nav>
 
-        {/* Mobile nav using <details> */}
-        <details className='md:hidden relative'>
-          <summary
-            className='list-none flex items-center px-2 py-1 cursor-pointer'
+        {/* Mobile nav */}
+        <Drawer>
+          <DrawerTrigger
+            className='md:hidden list-none flex items-center px-2 py-1 cursor-pointer'
             aria-label='Open menu'>
             <svg
               className='w-7 h-7 text-muted-foreground'
@@ -59,28 +60,36 @@ export function SiteNav() {
                 d='M4 6h16M4 12h16M4 18h16'
               />
             </svg>
-          </summary>
-          <div className='absolute right-0 mt-2 bg-background border border-border rounded shadow-lg p-4 flex flex-col gap-4 z-50 min-w-[150px]'>
-            <a
-              href='https://www.al-husayn.dev'
-              className='text-sm font-medium text-muted-foreground hover:text-foreground'
-              target='_blank'
-              rel='noopener noreferrer'>
-              Portfolio
-            </a>
-            <Link
-              href='/about'
-              className='text-sm font-medium text-muted-foreground hover:text-foreground'>
-              About
-            </Link>
-            <Link
-              href='/rss.xml'
-              className='text-sm font-medium text-muted-foreground hover:text-foreground'>
-              RSS
-            </Link>
-            <ThemeToggle />
-          </div>
-        </details>
+          </DrawerTrigger>
+          <DrawerContent className='md:hidden bottom-auto top-16 left-auto right-6 w-56 max-h-none border border-border'>
+            <DrawerHeader>
+              <h2 className='text-sm font-semibold'>Menu</h2>
+            </DrawerHeader>
+            <nav className='flex flex-col gap-4 p-4'>
+              <a
+                href='https://www.al-husayn.dev'
+                data-drawer-close='true'
+                className='text-sm font-medium text-muted-foreground hover:text-foreground'
+                target='_blank'
+                rel='noopener noreferrer'>
+                Portfolio
+              </a>
+              <Link
+                href='/about'
+                data-drawer-close='true'
+                className='text-sm font-medium text-muted-foreground hover:text-foreground'>
+                About
+              </Link>
+              <Link
+                href='/rss.xml'
+                data-drawer-close='true'
+                className='text-sm font-medium text-muted-foreground hover:text-foreground'>
+                RSS
+              </Link>
+              <ThemeToggle />
+            </nav>
+          </DrawerContent>
+        </Drawer>
       </div>
     </header>
   );
