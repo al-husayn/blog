@@ -18,7 +18,7 @@ export function TableOfContents({ className }: TableOfContentsProps) {
   const [activeId, setActiveId] = useState<string>("");
 
   useEffect(() => {
-    const headingElements = document.querySelectorAll("h1, h2");
+    const headingElements = document.querySelectorAll("article h2, article h3, article h4");
     const headingsArray: Heading[] = [];
 
     headingElements.forEach((element) => {
@@ -157,6 +157,21 @@ export function TableOfContents({ className }: TableOfContentsProps) {
   };
 
   if (headings.length === 0) return null;
+  const minLevel = Math.min(...headings.map((heading) => heading.level));
+
+  const getIndentClass = (level: number) => {
+    const depth = Math.max(0, level - minLevel);
+
+    if (depth === 0) return "pl-0";
+    if (depth === 1) return "pl-4";
+    if (depth === 2) return "pl-8";
+    return "pl-10";
+  };
+
+  const getTextClass = (level: number) => {
+    const depth = Math.max(0, level - minLevel);
+    return depth > 0 ? "text-xs" : "text-sm";
+  };
 
   return (
     <div className={cn("space-y-2", className)}>
@@ -166,14 +181,17 @@ export function TableOfContents({ className }: TableOfContentsProps) {
       <nav>
         <ul className="space-y-2">
           {headings.map((heading) => (
-            <li key={heading.id}>
+            <li key={heading.id} className={getIndentClass(heading.level)}>
               <button
                 onClick={() => handleClick(heading.id)}
+                aria-current={activeId === heading.id ? "location" : undefined}
                 className={cn(
-                  "block w-full text-left text-sm transition-colors hover:text-foreground text-muted-foreground",
+                  "block w-full text-left border-l-2 pl-3 py-0.5 transition-colors text-muted-foreground hover:text-foreground hover:border-border/70",
+                  getTextClass(heading.level),
                   {
-                    "text-primary font-medium underline underline-offset-4":
+                    "text-primary font-medium border-primary":
                       activeId === heading.id,
+                    "border-transparent": activeId !== heading.id,
                   }
                 )}
               >
