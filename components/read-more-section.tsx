@@ -1,21 +1,7 @@
-/* eslint-disable @next/next/no-img-element */
-import { docs, meta } from "@/.source";
-import { loader } from "fumadocs-core/source";
-import { createMDXSource } from "fumadocs-mdx";
+import Image from "next/image";
 import Link from "next/link";
-
-const blogSource = loader({
-  baseUrl: "/blog",
-  source: createMDXSource(docs, meta),
-});
-
-const formatDate = (date: Date): string => {
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
+import { blogSource } from "@/lib/blog-source";
+import { formatDate } from "@/lib/utils";
 
 interface BlogData {
   title: string;
@@ -89,11 +75,13 @@ export function ReadMoreSection({
               >
                 {post.data.thumbnail && (
                   <div className="flex-shrink-0 col-span-1 lg:col-span-4">
-                    <div className="relative w-full h-full">
-                      <img
+                    <div className="relative w-full aspect-[16/10]">
+                      <Image
                         src={post.data.thumbnail}
                         alt={post.data.title}
-                        className="w-full h-full object-cover rounded-lg group-hover:opacity-80 transition-opacity"
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 33vw"
+                        className="object-cover rounded-lg group-hover:opacity-80 transition-opacity"
                       />
                     </div>
                   </div>

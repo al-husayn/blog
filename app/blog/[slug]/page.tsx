@@ -1,7 +1,4 @@
-import { docs, meta } from '@/.source';
 import { DocsBody } from 'fumadocs-ui/page';
-import { loader } from 'fumadocs-core/source';
-import { createMDXSource } from 'fumadocs-mdx';
 import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,11 +11,13 @@ import { AuthorCard } from '@/components/author-card';
 import { ReadMoreSection } from '@/components/read-more-section';
 import { PromoContent } from '@/components/promo-content';
 import { getAuthor, isValidAuthor } from '@/lib/authors';
+import { blogSource } from '@/lib/blog-source';
 import { FlickeringGrid } from '@/components/magicui/flickering-grid';
 import { HashScrollHandler } from '@/components/hash-scroll-handler';
 import { ArticleEngagement } from '@/components/article-engagement';
 import { getAbsoluteUrl, getIsoDate, toJsonLd } from '@/lib/seo';
 import { siteConfig } from '@/lib/site';
+import { formatDate } from '@/lib/utils';
 
 interface PageProps {
     params: Promise<{ slug: string }>;
@@ -37,19 +36,6 @@ interface BlogPostData {
 interface BlogPage {
     data: BlogPostData;
 }
-
-const blogSource = loader({
-    baseUrl: '/blog',
-    source: createMDXSource(docs, meta),
-});
-
-const formatDate = (date: Date): string => {
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
-};
 
 export default async function BlogPost({ params }: PageProps) {
     const { slug } = await params;

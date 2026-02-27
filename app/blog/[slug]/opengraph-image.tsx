@@ -1,9 +1,11 @@
+/* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from 'next/og';
 import { docs, meta } from '@/.source';
 import { loader } from 'fumadocs-core/source';
 import { createMDXSource } from 'fumadocs-mdx';
 import { getAuthor, isValidAuthor, type AuthorKey } from '@/lib/authors';
 import { siteConfig } from '@/lib/site';
+import { formatDate } from '@/lib/utils';
 
 export const runtime = 'nodejs';
 export const alt = 'Blog Post';
@@ -182,15 +184,6 @@ export default async function Image({ params }: { params: { slug: string } }) {
 
     const assetData = await getAssetData(authorDetails?.avatar);
 
-    const formatDate = (dateString: string) => {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
-    };
-
     return new ImageResponse(
       (
         <div
@@ -237,7 +230,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
               )}
               {page.data.date && (
                 <p style={{ ...styles.metaBase, ...styles.dateMeta }}>
-                  {formatDate(page.data.date)}
+                  {formatDate(new Date(page.data.date))}
                 </p>
               )}
             </div>
