@@ -267,6 +267,10 @@ export function ArticleEngagement({ slug }: ArticleEngagementProps) {
         <p className="text-sm text-muted-foreground">
           Share your thoughts, react to this post, and upvote helpful comments.
         </p>
+        <p className="text-xs text-muted-foreground">
+          Reactions and comments are stored only in your browser on this device.
+          They are not published publicly and will not sync across devices.
+        </p>
       </div>
 
       <div className="flex flex-wrap gap-3">
@@ -361,6 +365,9 @@ export function ArticleEngagement({ slug }: ArticleEngagementProps) {
           <Button type="submit" className="w-full sm:w-auto">
             Post comment
           </Button>
+          <p className="text-xs text-muted-foreground">
+            Local-only draft: this comment will remain on this device.
+          </p>
         </form>
 
         <div className="space-y-4">

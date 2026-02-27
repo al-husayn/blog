@@ -29,11 +29,11 @@ export function BlogCard({
     <Link
       href={url}
       className={cn(
-        "group block relative before:absolute before:-left-0.5 before:top-0 before:z-10 before:h-screen before:w-px before:bg-border before:content-[''] after:absolute after:-top-0.5 after:left-0 after:z-0 after:h-px after:w-screen after:bg-border after:content-['']",
+        "group block relative focus-visible:outline-none before:absolute before:-left-0.5 before:top-0 before:z-10 before:h-screen before:w-px before:bg-border before:content-[''] after:absolute after:-top-0.5 after:left-0 after:z-0 after:h-px after:w-screen after:bg-border after:content-['']",
         showRightBorder && "md:border-r border-border border-b-0"
       )}
     >
-      <div className="flex flex-col">
+      <div className="flex h-full flex-col bg-background transition-[background-color,box-shadow] duration-200 group-hover:bg-muted/30 group-hover:shadow-sm group-focus-visible:bg-muted/30 group-focus-visible:shadow-sm">
         {thumbnail && (
           <div className="relative w-full h-48 overflow-hidden">
             <Image
