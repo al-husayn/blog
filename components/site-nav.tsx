@@ -11,13 +11,14 @@ export function SiteNav() {
         <div className='mr-4 flex'>
           <Link
             href='/'
-            className='mr-6 flex items-center space-x-2 font-medium text-lg tracking-tighter h-32 w-32 rounded-md overflow-hidden'>
+            className='mr-6 flex h-11 w-11 items-center rounded-md overflow-hidden shrink-0'>
             <Image
               src='/logo.png'
               alt='Logo'
-              width={128}
-              height={128}
-              className='w-32 h-32 object-cover'
+              width={44}
+              height={44}
+              sizes='44px'
+              className='h-11 w-11 object-cover'
             />
           </Link>
         </div>
