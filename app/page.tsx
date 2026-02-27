@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { BlogCard } from '@/components/blog-card';
 import { TagFilter } from '@/components/tag-filter';
 import { FlickeringGrid } from '@/components/magicui/flickering-grid';
@@ -30,7 +31,10 @@ interface BlogPage {
 interface HomeSearchParams {
     tag?: string;
     q?: string;
+    page?: string;
 }
+
+const POSTS_PER_PAGE = 9;
 
 const getTagFilter = (tag?: string): string | undefined => {
     if (!tag) {
@@ -58,6 +62,46 @@ const getSearchQuery = (query?: string): string | undefined => {
     return normalizedQuery;
 };
 
+const getPageNumber = (page?: string): number => {
+    if (!page) {
+        return 1;
+    }
+
+    const parsedPage = Number.parseInt(page, 10);
+    if (Number.isNaN(parsedPage) || parsedPage < 1) {
+        return 1;
+    }
+
+    return parsedPage;
+};
+
+const buildPaginationItems = (totalPages: number, currentPage: number): Array<number | 'ellipsis'> => {
+    if (totalPages <= 7) {
+        return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    const items: Array<number | 'ellipsis'> = [1];
+
+    if (currentPage > 3) {
+        items.push('ellipsis');
+    }
+
+    const windowStart = Math.max(2, currentPage - 1);
+    const windowEnd = Math.min(totalPages - 1, currentPage + 1);
+
+    for (let page = windowStart; page <= windowEnd; page += 1) {
+        items.push(page);
+    }
+
+    if (currentPage < totalPages - 2) {
+        items.push('ellipsis');
+    }
+
+    items.push(totalPages);
+
+    return items;
+};
+
 export async function generateMetadata({
     searchParams,
 }: {
@@ -66,32 +110,47 @@ export async function generateMetadata({
     const resolvedSearchParams = await searchParams;
     const selectedTag = getTagFilter(resolvedSearchParams.tag);
     const searchQuery = getSearchQuery(resolvedSearchParams.q);
+    const pageNumber = getPageNumber(resolvedSearchParams.page);
     const hasTagFilter = Boolean(selectedTag);
     const hasSearchFilter = Boolean(searchQuery);
-    const hasFilters = hasTagFilter || hasSearchFilter;
+    const hasPagination = pageNumber > 1;
+    const hasFilters = hasTagFilter || hasSearchFilter || hasPagination;
 
-    const title = hasSearchFilter
+    const baseTitle = hasSearchFilter
         ? `Search Results for "${searchQuery}"`
         : hasTagFilter
           ? `${selectedTag} Articles`
           : 'Modern JavaScript, TypeScript, React, and Next.js Tutorials';
+    const title = hasPagination ? `${baseTitle} - Page ${pageNumber}` : baseTitle;
     const description = hasSearchFilter
         ? `Browse search results for "${searchQuery}" on ${siteConfig.name}.`
         : hasTagFilter
           ? `Browse ${selectedTag} articles and practical coding tutorials on ${siteConfig.name}.`
           : siteConfig.description;
+    const canonicalParams = new URLSearchParams();
+    if (selectedTag) {
+        canonicalParams.set('tag', selectedTag);
+    }
+    if (searchQuery) {
+        canonicalParams.set('q', searchQuery);
+    }
+    if (pageNumber > 1) {
+        canonicalParams.set('page', String(pageNumber));
+    }
+
+    const canonicalPath = canonicalParams.toString() ? `/?${canonicalParams.toString()}` : '/';
 
     return {
         title,
         description,
         alternates: {
-            canonical: '/',
+            canonical: canonicalPath,
         },
         openGraph: {
             title,
             description,
             type: 'website',
-            url: getAbsoluteUrl('/'),
+            url: getAbsoluteUrl(canonicalPath),
             images: [getAbsoluteUrl(siteConfig.ogImage)],
         },
         twitter: {
@@ -150,6 +209,43 @@ export default async function HomePage({
 
                   return searchableContent.includes(searchQuery.toLowerCase());
               });
+    const requestedPage = getPageNumber(resolvedSearchParams.page);
+    const featuredBlog = filteredBlogs.find((blog) => blog.data.featured) ?? filteredBlogs[0];
+    const showFeaturedPost = Boolean(featuredBlog) && requestedPage === 1;
+    const listBlogs =
+        showFeaturedPost && featuredBlog ? filteredBlogs.filter((blog) => blog.url !== featuredBlog.url) : filteredBlogs;
+    const totalPages = Math.max(1, Math.ceil(listBlogs.length / POSTS_PER_PAGE));
+    const currentPage = Math.min(requestedPage, totalPages);
+    const paginatedBlogs = listBlogs.slice((currentPage - 1) * POSTS_PER_PAGE, currentPage * POSTS_PER_PAGE);
+    const paginationItems = buildPaginationItems(totalPages, currentPage);
+    const newsletterCtaUrl = process.env.NEXT_PUBLIC_NEWSLETTER_URL;
+    const emptyStateLabel = searchQuery ? `"${searchQuery}"` : selectedTag !== 'All' ? selectedTag : 'the selected filters';
+
+    const resolveAuthorMetadata = (blog: BlogPage): { authorName?: string; authorAvatar?: string } => {
+        const authorKey = blog.data.author;
+        const authorRecord = authorKey && isValidAuthor(authorKey) ? getAuthor(authorKey) : undefined;
+
+        return {
+            authorName: authorRecord?.name,
+            authorAvatar: blog.data.authorImage || authorRecord?.avatar,
+        };
+    };
+
+    const buildPageHref = (page: number): string => {
+        const params = new URLSearchParams();
+        if (searchQuery) {
+            params.set('q', searchQuery);
+        }
+        if (selectedTag !== 'All') {
+            params.set('tag', selectedTag);
+        }
+        if (page > 1) {
+            params.set('page', String(page));
+        }
+
+        const queryString = params.toString();
+        return queryString ? `/?${queryString}` : '/';
+    };
 
     const tagCounts = allTags.reduce(
         (acc, tag) => {
@@ -162,6 +258,7 @@ export default async function HomePage({
         },
         {} as Record<string, number>,
     );
+    const visibleBlogs = [...(showFeaturedPost && featuredBlog ? [featuredBlog] : []), ...paginatedBlogs];
 
     const blogListJsonLd = {
         '@context': 'https://schema.org',
@@ -171,7 +268,7 @@ export default async function HomePage({
         name: siteConfig.name,
         description: siteConfig.description,
         inLanguage: siteConfig.language,
-        blogPost: filteredBlogs.map((blog) => {
+        blogPost: visibleBlogs.map((blog) => {
             const publishedTime = getIsoDate(blog.data.date);
 
             return {
@@ -259,6 +356,53 @@ export default async function HomePage({
                 )}
             </section>
 
+            {showFeaturedPost && featuredBlog && (
+                <section aria-labelledby='featured-post-heading' className='max-w-7xl mx-auto w-full px-6 lg:px-0 py-8'>
+                    <div className='space-y-4'>
+                        <div>
+                            <p className='text-xs uppercase tracking-wide text-primary font-semibold'>Featured</p>
+                            <h2 id='featured-post-heading' className='text-2xl font-medium tracking-tight'>
+                                Featured Post
+                            </h2>
+                        </div>
+                        <Link
+                            href={featuredBlog.url}
+                            className='group block rounded-xl border border-border bg-card overflow-hidden transition-[background-color,box-shadow] duration-200 hover:bg-muted/20 hover:shadow-sm'>
+                            <div className='grid gap-0 md:grid-cols-2'>
+                                {featuredBlog.data.thumbnail && (
+                                    <div className='relative min-h-[220px] md:min-h-[300px]'>
+                                        <Image
+                                            src={featuredBlog.data.thumbnail}
+                                            alt={featuredBlog.data.title}
+                                            fill
+                                            className='object-cover transition-transform duration-300 group-hover:scale-[1.02]'
+                                            sizes='(max-width: 768px) 100vw, 50vw'
+                                        />
+                                    </div>
+                                )}
+                                <div className='p-6 flex flex-col gap-3 justify-center'>
+                                    <span className='inline-flex w-fit items-center rounded-full border border-primary/50 bg-primary/10 px-2.5 py-1 text-[11px] font-semibold tracking-wide text-primary'>
+                                        FEATURED
+                                    </span>
+                                    <h3 className='text-2xl font-semibold tracking-tight group-hover:underline underline-offset-4'>
+                                        {featuredBlog.data.title}
+                                    </h3>
+                                    <p className='text-muted-foreground text-sm md:text-base'>{featuredBlog.data.description}</p>
+                                    <div className='text-xs text-muted-foreground flex flex-wrap items-center gap-2'>
+                                        {(() => {
+                                            const { authorName } = resolveAuthorMetadata(featuredBlog);
+                                            return authorName ? <span className='font-medium'>{authorName}</span> : null;
+                                        })()}
+                                        {featuredBlog.data.readTime && <span>• {featuredBlog.data.readTime}</span>}
+                                        <span>• {formatDate(new Date(featuredBlog.data.date))}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </Link>
+                    </div>
+                </section>
+            )}
+
             <section aria-labelledby='latest-articles-heading' className='max-w-7xl mx-auto w-full px-6 lg:px-0'>
                 <h2 id='latest-articles-heading' className='sr-only'>
                     Latest articles
@@ -267,17 +411,13 @@ export default async function HomePage({
                     <div
                         id='filtered-articles-panel'
                         className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 relative overflow-hidden border-x border-border ${
-                            filteredBlogs.length < 4 ? 'border-b' : 'border-b-0'
+                            paginatedBlogs.length < 4 ? 'border-b' : 'border-b-0'
                         }`}>
-                        {filteredBlogs.length > 0 ? (
-                            filteredBlogs.map((blog) => {
+                        {paginatedBlogs.length > 0 ? (
+                            paginatedBlogs.map((blog) => {
                                 const date = new Date(blog.data.date);
                                 const formattedDate = formatDate(date);
-                                const authorKey = blog.data.author;
-                                const authorRecord =
-                                    authorKey && isValidAuthor(authorKey) ? getAuthor(authorKey) : undefined;
-                                const authorName = authorRecord?.name;
-                                const authorAvatar = blog.data.authorImage || authorRecord?.avatar;
+                                const { authorName, authorAvatar } = resolveAuthorMetadata(blog);
 
                                 return (
                                     <BlogCard
@@ -286,23 +426,91 @@ export default async function HomePage({
                                         title={blog.data.title}
                                         description={blog.data.description}
                                         date={formattedDate}
+                                        tags={blog.data.tags}
                                         authorName={authorName}
                                         authorAvatar={authorAvatar}
                                         readTime={blog.data.readTime}
                                         thumbnail={blog.data.thumbnail}
-                                        showRightBorder={filteredBlogs.length < 3}
+                                        showRightBorder={paginatedBlogs.length < 3}
                                     />
                                 );
                             })
                         ) : (
                             <div className='col-span-full p-6 text-sm text-muted-foreground'>
-                                No articles found for
-                                <span className='font-medium text-foreground'> {searchQuery}</span>
+                                No articles found for <span className='font-medium text-foreground'>{emptyStateLabel}</span>.
                             </div>
                         )}
                     </div>
                 </Suspense>
+
+                {totalPages > 1 && (
+                    <nav aria-label='Pagination' className='mt-6 flex items-center justify-between gap-3'>
+                        <Link
+                            href={buildPageHref(Math.max(1, currentPage - 1))}
+                            aria-disabled={currentPage === 1}
+                            className={`h-9 px-3 rounded-md border text-sm font-medium transition-colors ${
+                                currentPage === 1
+                                    ? 'pointer-events-none opacity-50 border-border'
+                                    : 'border-border hover:bg-muted'
+                            }`}>
+                            Previous
+                        </Link>
+
+                        <div className='flex items-center gap-2'>
+                            {paginationItems.map((item, index) =>
+                                item === 'ellipsis' ? (
+                                    <span key={`ellipsis-${index}`} className='text-sm text-muted-foreground px-1'>
+                                        ...
+                                    </span>
+                                ) : (
+                                    <Link
+                                        key={item}
+                                        href={buildPageHref(item)}
+                                        aria-current={item === currentPage ? 'page' : undefined}
+                                        className={`h-9 min-w-9 px-2 rounded-md border text-sm font-medium inline-flex items-center justify-center transition-colors ${
+                                            item === currentPage
+                                                ? 'border-primary bg-primary text-primary-foreground'
+                                                : 'border-border hover:bg-muted'
+                                        }`}>
+                                        {item}
+                                    </Link>
+                                ),
+                            )}
+                        </div>
+
+                        <Link
+                            href={buildPageHref(Math.min(totalPages, currentPage + 1))}
+                            aria-disabled={currentPage === totalPages}
+                            className={`h-9 px-3 rounded-md border text-sm font-medium transition-colors ${
+                                currentPage === totalPages
+                                    ? 'pointer-events-none opacity-50 border-border'
+                                    : 'border-border hover:bg-muted'
+                            }`}>
+                            Next
+                        </Link>
+                    </nav>
+                )}
             </section>
+
+            {newsletterCtaUrl && (
+                <section className='max-w-7xl mx-auto w-full px-6 lg:px-0 py-10'>
+                    <div className='rounded-xl border border-border bg-card p-6 md:p-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
+                        <div className='space-y-1'>
+                            <h2 className='text-xl font-medium tracking-tight'>Get new posts in your inbox</h2>
+                            <p className='text-sm text-muted-foreground'>
+                                Optional newsletter for JavaScript, React, and Next.js deep dives.
+                            </p>
+                        </div>
+                        <a
+                            href={newsletterCtaUrl}
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            className='inline-flex h-10 items-center justify-center rounded-md border border-border px-4 text-sm font-medium hover:bg-muted transition-colors'>
+                            Subscribe
+                        </a>
+                    </div>
+                </section>
+            )}
         </main>
     );
 }

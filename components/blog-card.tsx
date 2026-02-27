@@ -7,6 +7,7 @@ interface BlogCardProps {
   title: string;
   description: string;
   date: string;
+  tags?: string[];
   authorName?: string;
   authorAvatar?: string;
   readTime?: string;
@@ -19,6 +20,7 @@ export function BlogCard({
   title,
   description,
   date,
+  tags,
   authorName,
   authorAvatar,
   readTime,
@@ -47,14 +49,26 @@ export function BlogCard({
         )}
 
         <div className="p-6 flex flex-col gap-2">
+          {tags && tags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {tags.slice(0, 3).map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center rounded-full border border-border px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
           <h3 className="text-xl font-semibold text-card-foreground group-hover:underline underline-offset-4">
             {title}
           </h3>
           <p className="text-muted-foreground text-sm">{description}</p>
-          {(authorName || readTime) && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="mt-1 flex items-center justify-between gap-3">
+            <div className="min-w-0 flex items-center gap-2 text-xs text-muted-foreground">
               {authorName && (
-                <div className="flex items-center gap-2">
+                <div className="min-w-0 flex items-center gap-2">
                   {authorAvatar && (
                     <Image
                       src={authorAvatar}
@@ -66,18 +80,18 @@ export function BlogCard({
                       className="rounded-full border border-border object-cover"
                     />
                   )}
-                  <span className="font-medium text-muted-foreground">
+                  <span className="truncate font-medium text-muted-foreground">
                     {authorName}
                   </span>
                 </div>
               )}
               {authorName && readTime && <span aria-hidden="true">•</span>}
-              {readTime && <span>{readTime}</span>}
+              {readTime && <span className="shrink-0">{readTime}</span>}
             </div>
-          )}
-          <time className="block text-sm font-medium text-muted-foreground">
-            {date}
-          </time>
+            <time className="shrink-0 text-xs font-medium text-muted-foreground">
+              {date}
+            </time>
+          </div>
         </div>
       </div>
     </Link>
