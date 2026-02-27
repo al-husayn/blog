@@ -161,14 +161,16 @@ export default async function HomePage({
     };
 
     return (
-        <main className='min-h-screen bg-background relative'>
+        <main role='main' className='min-h-screen bg-background relative'>
             <script
                 type='application/ld+json'
                 dangerouslySetInnerHTML={{
                     __html: toJsonLd(blogListJsonLd),
                 }}
             />
-            <div className='absolute top-0 left-0 z-0 w-full h-[200px] [mask-image:linear-gradient(to_top,transparent_25%,black_95%)]'>
+            <div
+                aria-hidden='true'
+                className='absolute top-0 left-0 z-0 w-full h-[200px] [mask-image:linear-gradient(to_top,transparent_25%,black_95%)]'>
                 <FlickeringGrid
                     className='absolute top-0 left-0 size-full'
                     squareSize={4}
@@ -178,10 +180,14 @@ export default async function HomePage({
                     flickerChance={0.05}
                 />
             </div>
-            <div className='p-6 border-b border-border flex flex-col gap-6 min-h-[250px] justify-center relative z-10'>
+            <section
+                aria-labelledby='home-hero-heading'
+                className='p-6 border-b border-border flex flex-col gap-6 min-h-[250px] justify-center relative z-10'>
                 <div className='max-w-7xl mx-auto w-full'>
                     <div className='flex flex-col gap-2'>
-                        <h1 className='font-medium text-4xl md:text-5xl tracking-tighter'>Learn. Build. Share.</h1>
+                        <h1 id='home-hero-heading' className='font-medium text-4xl md:text-5xl tracking-tighter'>
+                            Learn. Build. Share.
+                        </h1>
                         <p className='text-muted-foreground text-sm md:text-base lg:text-lg'>
                             A space for developers to grow their skills, build real projects, and share stories that
                             inspire others.
@@ -193,9 +199,12 @@ export default async function HomePage({
                         <TagFilter tags={allTags} selectedTag={selectedTag} tagCounts={tagCounts} />
                     </div>
                 )}
-            </div>
+            </section>
 
-            <div className='max-w-7xl mx-auto w-full px-6 lg:px-0'>
+            <section aria-labelledby='latest-articles-heading' className='max-w-7xl mx-auto w-full px-6 lg:px-0'>
+                <h2 id='latest-articles-heading' className='sr-only'>
+                    Latest articles
+                </h2>
                 <Suspense fallback={<div>Loading articles...</div>}>
                     <div
                         className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 relative overflow-hidden border-x border-border ${
@@ -219,7 +228,7 @@ export default async function HomePage({
                         })}
                     </div>
                 </Suspense>
-            </div>
+            </section>
         </main>
     );
 }

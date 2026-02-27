@@ -122,7 +122,7 @@ export default async function BlogPost({ params }: PageProps) {
     };
 
     return (
-        <div className='min-h-screen bg-background relative'>
+        <main className='min-h-screen bg-background relative'>
             <script
                 type='application/ld+json'
                 dangerouslySetInnerHTML={{
@@ -150,7 +150,7 @@ export default async function BlogPost({ params }: PageProps) {
             <div className='space-y-4 border-b border-border relative z-10'>
                 <div className='max-w-7xl mx-auto flex flex-col gap-6 p-6'>
                     <div className='flex flex-wrap items-center gap-3 gap-y-5 text-sm text-muted-foreground'>
-                        <Button variant='outline' asChild className='h-6 w-6'>
+                        <Button variant='outline' asChild className='h-11 w-11 p-0'>
                             <Link href='/'>
                                 <ArrowLeft className='w-4 h-4' />
                                 <span className='sr-only'>Back to all articles</span>
@@ -183,7 +183,7 @@ export default async function BlogPost({ params }: PageProps) {
             </div>
             <div className='flex divide-x divide-border relative max-w-7xl mx-auto px-4 md:px-0 z-10'>
                 <div className='absolute max-w-7xl mx-auto left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] lg:w-full h-full border-x border-border p-0 pointer-events-none' />
-                <main className='w-full p-0 overflow-hidden'>
+                <div className='w-full p-0 overflow-hidden'>
                     {page.data.thumbnail && (
                         <div className='relative w-full h-[500px] overflow-hidden object-cover border border-transparent'>
                             <Image
@@ -206,7 +206,7 @@ export default async function BlogPost({ params }: PageProps) {
                     <div className='mt-10'>
                         <ReadMoreSection currentSlug={[slug]} currentTags={page.data.tags} />
                     </div>
-                </main>
+                </div>
 
                 <aside className='hidden lg:block w-[350px] flex-shrink-0 p-6 lg:p-10 bg-muted/60 dark:bg-muted/20'>
                     <div className='sticky top-20 space-y-8'>
@@ -222,6 +222,6 @@ export default async function BlogPost({ params }: PageProps) {
             </div>
 
             <MobileTableOfContents />
-        </div>
+        </main>
     );
 }
