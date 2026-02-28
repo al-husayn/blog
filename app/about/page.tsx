@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { HashScrollHandler } from '@/components/hash-scroll-handler';
 import { FlickeringGrid } from '@/components/magicui/flickering-grid';
 import Image from 'next/image';
-import { ArrowRight, ArrowUpRight, Code2, Globe, Layers, Rss, Send } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Code2, Globe, Layers, Send } from 'lucide-react';
 import { siteConfig } from '@/lib/site';
 import { getAbsoluteUrl } from '@/lib/seo';
 import { blogSource } from '@/lib/blog-source';
