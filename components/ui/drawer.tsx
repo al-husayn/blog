@@ -117,7 +117,7 @@ export function DrawerContent({ children, className, onClick }: DrawerContentPro
                             }
                         }}
                         className={cn(
-                            "fixed bottom-3 left-0 right-0 bg-background border-t border-border rounded-lg z-50 max-h-[70vh] overflow-hidden w-[95%] mx-auto flex flex-col",
+                            "fixed bottom-3 left-0 right-0 bg-background border-t border-border rounded-lg z-[60] max-h-[70vh] overflow-hidden w-[95%] mx-auto flex flex-col",
                             className
                         )}
                     >
