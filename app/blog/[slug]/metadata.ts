@@ -1,10 +1,8 @@
 import type { Metadata } from 'next';
-import { docs, meta } from '@/.source';
-import { loader } from 'fumadocs-core/source';
-import { createMDXSource } from 'fumadocs-mdx';
 import { siteConfig } from '@/lib/site';
 import { getAuthor, isValidAuthor } from '@/lib/authors';
 import { getAbsoluteUrl, getIsoDate } from '@/lib/seo';
+import { blogSource } from '@/lib/blog-source';
 import { metadataKeywords } from '@/app/metadata';
 
 interface BlogMetadataData {
@@ -21,11 +19,6 @@ interface BlogMetadataData {
 interface BlogMetadataPage {
     data: BlogMetadataData;
 }
-
-const blogSource = loader({
-    baseUrl: '/blog',
-    source: createMDXSource(docs, meta),
-});
 
 const getAuthorName = (authorKey?: string): string => {
     if (authorKey && isValidAuthor(authorKey)) {

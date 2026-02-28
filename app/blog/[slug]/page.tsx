@@ -14,7 +14,7 @@ import { getAuthor, isValidAuthor } from '@/lib/authors';
 import { blogSource } from '@/lib/blog-source';
 import { FlickeringGrid } from '@/components/magicui/flickering-grid';
 import { HashScrollHandler } from '@/components/hash-scroll-handler';
-import { ArticleEngagement } from '@/components/article-engagement';
+import { DeferredArticleEngagement } from '@/components/deferred-article-engagement';
 import { getAbsoluteUrl, getIsoDate, toJsonLd } from '@/lib/seo';
 import { siteConfig } from '@/lib/site';
 import { formatDate } from '@/lib/utils';
@@ -34,7 +34,40 @@ interface BlogPostData {
 }
 
 interface BlogPage {
+    url: string;
     data: BlogPostData;
+}
+
+const BLOG_PATH_PREFIX = '/blog/';
+
+const getSlugFromPageUrl = (url: string): string | null => {
+    if (!url.startsWith(BLOG_PATH_PREFIX)) {
+        return null;
+    }
+
+    const slug = url.slice(BLOG_PATH_PREFIX.length).replace(/\/$/, '');
+    if (!slug || slug.includes('/')) {
+        return null;
+    }
+
+    return slug;
+};
+
+export const revalidate = 3600;
+export const dynamicParams = false;
+
+export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
+    const pages = blogSource.getPages() as BlogPage[];
+    const uniqueSlugs = new Set<string>();
+
+    pages.forEach((page) => {
+        const slug = getSlugFromPageUrl(page.url);
+        if (slug) {
+            uniqueSlugs.add(slug);
+        }
+    });
+
+    return Array.from(uniqueSlugs).map((slug) => ({ slug }));
 }
 
 export default async function BlogPost({ params }: PageProps) {
@@ -187,7 +220,7 @@ export default async function BlogPost({ params }: PageProps) {
                             </DocsBody>
                         </article>
                     </div>
-                    <ArticleEngagement slug={slug} />
+                    <DeferredArticleEngagement slug={slug} />
                     <div className='mt-10'>
                         <ReadMoreSection currentSlug={[slug]} currentTags={page.data.tags} />
                     </div>
