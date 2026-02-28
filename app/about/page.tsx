@@ -52,13 +52,16 @@ export default function AboutPage() {
         </div>
         <div className='max-w-7xl mx-auto p-6 min-h-[250px] flex items-center relative z-10'>
           <div className='flex flex-col md:flex-row items-center gap-8'>
-            <Image
-              src='/authors/AL.png'
-              alt='al-husayn'
-              width={120}
-              height={120}
-              className='rounded-full border-4 border-border shadow-lg'
-            />
+            <div className='relative h-32 w-32 overflow-hidden rounded-full border-4 border-border bg-muted shadow-lg'>
+              <Image
+                src='/authors/AL.png'
+                alt='Al-Hussein'
+                fill
+                sizes='128px'
+                priority
+                className='object-cover object-top scale-110'
+              />
+            </div>
             <div className='max-w-3xl'>
               <h1
                 id='about-hero-heading'
