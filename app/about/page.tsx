@@ -72,6 +72,20 @@ const connectLinks: ConnectLink[] = [
     external: true,
   },
   {
+    label: 'LinkedIn',
+    href: siteConfig.linkedinUrl,
+    description: 'Connect professionally and follow career updates.',
+    icon: Globe,
+    external: true,
+  },
+  {
+    label: 'GitHub',
+    href: siteConfig.githubUrl,
+    description: 'Explore source code, experiments, and open repositories.',
+    icon: Code2,
+    external: true,
+  },
+  {
     label: 'RSS Feed',
     href: '/rss.xml',
     description: 'Subscribe in your reader and never miss a post.',

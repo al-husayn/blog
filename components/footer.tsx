@@ -11,6 +11,8 @@ const footerLinks = {
   social: [
     { label: 'Portfolio', href: siteConfig.creatorUrl },
     { label: 'Twitter', href: `https://x.com/${siteConfig.twitterHandle.replace('@', '')}` },
+    { label: 'LinkedIn', href: siteConfig.linkedinUrl },
+    { label: 'GitHub', href: siteConfig.githubUrl },
   ],
 } as const;
 
