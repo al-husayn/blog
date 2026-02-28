@@ -11,10 +11,13 @@ export function SiteNav() {
         <div className='mr-4 flex'>
           <Link
             href='/'
+            aria-label='Go to home page'
+            title='Home'
             className='mr-6 flex h-11 w-11 items-center rounded-md overflow-hidden shrink-0'>
             <Image
               src='/logo.png'
-              alt='Logo'
+              alt=''
+              aria-hidden='true'
               width={44}
               height={44}
               sizes='44px'
@@ -24,10 +27,15 @@ export function SiteNav() {
         </div>
 
         {/* Desktop nav */}
-        <nav className='hidden md:flex items-center flex-1 w-full justify-end'>
+        <nav aria-label='Primary navigation' className='hidden md:flex items-center flex-1 w-full justify-end gap-6'>
+          <Link
+            href='/'
+            className='text-sm font-medium text-muted-foreground hover:text-foreground'>
+            Home
+          </Link>
           <a
             href='https://www.al-husayn.dev'
-            className='ml-6 text-sm font-medium text-muted-foreground hover:text-foreground mr-6'
+            className='text-sm font-medium text-muted-foreground hover:text-foreground'
             target='_blank'
             rel='noopener noreferrer'>
             Portfolio
@@ -39,7 +47,7 @@ export function SiteNav() {
           </Link>
           <Link
             href='/rss.xml'
-            className='ml-6 text-sm font-medium text-muted-foreground hover:text-foreground mr-6'>
+            className='text-sm font-medium text-muted-foreground hover:text-foreground'>
             RSS
           </Link>
           <ThemeToggle />
@@ -52,11 +60,17 @@ export function SiteNav() {
             aria-label='Open menu'>
             <MenuIcon size={28} className='text-muted-foreground' aria-hidden='true' />
           </DrawerTrigger>
-          <DrawerContent className='md:hidden bottom-auto top-16 left-auto right-6 w-56 max-h-none border border-border'>
+          <DrawerContent className='md:hidden bottom-0 left-0 right-0 w-full mx-0 max-h-[85vh] rounded-t-2xl rounded-b-none border-x-0 border-b-0'>
             <DrawerHeader>
               <h2 className='text-sm font-semibold'>Menu</h2>
             </DrawerHeader>
-            <nav className='flex flex-col gap-4 p-4'>
+            <nav aria-label='Mobile navigation' className='flex flex-col gap-4 p-4'>
+              <Link
+                href='/'
+                data-drawer-close='true'
+                className='text-sm font-medium text-muted-foreground hover:text-foreground'>
+                Home
+              </Link>
               <a
                 href='https://www.al-husayn.dev'
                 data-drawer-close='true'

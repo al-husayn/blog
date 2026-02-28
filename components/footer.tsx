@@ -14,6 +14,8 @@ const footerLinks = {
 } as const;
 
 export default function Footer() {
+  const currentYear = new Date().getUTCFullYear();
+
   return (
       <footer className='bg-background border-t border-border'>
           <div className='max-w-7xl mx-auto p-6 space-y-6'>
@@ -27,7 +29,7 @@ export default function Footer() {
 
                   <div className='space-y-2'>
                       <h3 className='text-sm font-semibold'>Navigate</h3>
-                      <nav className='flex flex-col gap-2 text-sm text-muted-foreground'>
+                      <nav aria-label='Footer navigation' className='flex flex-col gap-2 text-sm text-muted-foreground'>
                           {footerLinks.navigate.map((link) => (
                               <Link
                                   key={link.href}
@@ -42,7 +44,7 @@ export default function Footer() {
 
                   <div className='space-y-2'>
                       <h3 className='text-sm font-semibold'>Elsewhere</h3>
-                      <nav className='flex flex-col gap-2 text-sm text-muted-foreground'>
+                      <nav aria-label='Footer social links' className='flex flex-col gap-2 text-sm text-muted-foreground'>
                           {footerLinks.social.map((link) => (
                               <a
                                   key={link.href}
@@ -60,7 +62,7 @@ export default function Footer() {
 
               <div className='pt-4 border-t border-border flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between'>
                   <p className='text-sm text-muted-foreground'>
-                      &copy; {new Date().getFullYear()} {siteConfig.creator}.
+                      &copy; <span suppressHydrationWarning>{currentYear}</span> {siteConfig.creator}.
                   </p>
                   <p className='text-xs text-muted-foreground'>Built with ❤️ by {siteConfig.creator}.</p>
               </div>

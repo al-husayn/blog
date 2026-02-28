@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { blogSource } from "@/lib/blog-source";
-import { formatDate } from "@/lib/utils";
+import { formatDate, parseDate } from "@/lib/utils";
 
 interface BlogData {
   title: string;
@@ -43,14 +43,14 @@ export function ReadMoreSection({
       return {
         ...page,
         relevanceScore: tagOverlap,
-        date: new Date(page.data.date),
+        timestamp: parseDate(page.data.date)?.getTime() ?? 0,
       };
     })
     .sort((a, b) => {
       if (a.relevanceScore !== b.relevanceScore) {
         return b.relevanceScore - a.relevanceScore;
       }
-      return b.date.getTime() - a.date.getTime();
+      return b.timestamp - a.timestamp;
     })
     .slice(0, 3);
 
@@ -65,7 +65,7 @@ export function ReadMoreSection({
 
         <div className="flex flex-col gap-8">
           {otherPosts.map((post) => {
-            const formattedDate = formatDate(post.date);
+            const formattedDate = formatDate(post.data.date);
 
             return (
               <Link
@@ -75,13 +75,17 @@ export function ReadMoreSection({
               >
                 {post.data.thumbnail && (
                   <div className="flex-shrink-0 col-span-1 lg:col-span-4">
-                    <div className="relative w-full aspect-[16/10]">
+                    <div className="relative w-full aspect-[16/10] overflow-hidden rounded-lg">
                       <Image
                         src={post.data.thumbnail}
                         alt={post.data.title}
                         fill
                         sizes="(max-width: 1024px) 100vw, 33vw"
-                        className="object-cover rounded-lg group-hover:opacity-80 transition-opacity"
+                        className="object-cover transition-opacity dark:brightness-[0.86] dark:contrast-110 dark:saturate-90 group-hover:opacity-80"
+                      />
+                      <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 bg-black/0 dark:bg-black/20 transition-colors duration-300 group-hover:dark:bg-black/10"
                       />
                     </div>
                   </div>

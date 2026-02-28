@@ -9,7 +9,7 @@ import { getAuthor, isValidAuthor } from '@/lib/authors';
 import { blogSource } from '@/lib/blog-source';
 import { getAbsoluteUrl, getIsoDate, toJsonLd } from '@/lib/seo';
 import { siteConfig } from '@/lib/site';
-import { formatDate } from '@/lib/utils';
+import { formatDate, parseDate } from '@/lib/utils';
 
 interface BlogData {
     title: string;
@@ -102,6 +102,39 @@ const buildPaginationItems = (totalPages: number, currentPage: number): Array<nu
     return items;
 };
 
+const SKELETON_CARD_COUNT = 6;
+
+function ArticlesGridSkeleton({ count = SKELETON_CARD_COUNT }: { count?: number }) {
+    return (
+        <div role='status' aria-live='polite' aria-busy='true'>
+            <span className='sr-only'>Loading articles...</span>
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 relative overflow-hidden border-l border-t border-border'>
+                {Array.from({ length: count }, (_, index) => (
+                    <article key={index} className='border-r border-b border-border bg-background'>
+                        <div className='h-48 w-full animate-pulse bg-muted/50' />
+                        <div className='p-6 space-y-3'>
+                            <div className='flex gap-2'>
+                                <div className='h-5 w-16 animate-pulse rounded-full bg-muted/60' />
+                                <div className='h-5 w-20 animate-pulse rounded-full bg-muted/60' />
+                            </div>
+                            <div className='h-6 w-11/12 animate-pulse rounded-md bg-muted/60' />
+                            <div className='h-6 w-7/12 animate-pulse rounded-md bg-muted/60' />
+                            <div className='space-y-2 pt-1'>
+                                <div className='h-4 w-full animate-pulse rounded-md bg-muted/50' />
+                                <div className='h-4 w-10/12 animate-pulse rounded-md bg-muted/50' />
+                            </div>
+                            <div className='flex items-center justify-between pt-2'>
+                                <div className='h-4 w-24 animate-pulse rounded-md bg-muted/50' />
+                                <div className='h-4 w-16 animate-pulse rounded-md bg-muted/50' />
+                            </div>
+                        </div>
+                    </article>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 export async function generateMetadata({
     searchParams,
 }: {
@@ -179,8 +212,8 @@ export default async function HomePage({
     const resolvedSearchParams = await searchParams;
     const allPages = blogSource.getPages() as BlogPage[];
     const sortedBlogs = [...allPages].sort((a, b) => {
-        const dateA = new Date(a.data.date).getTime();
-        const dateB = new Date(b.data.date).getTime();
+        const dateA = parseDate(a.data.date)?.getTime() ?? 0;
+        const dateB = parseDate(b.data.date)?.getTime() ?? 0;
         return dateB - dateA;
     });
 
@@ -375,8 +408,12 @@ export default async function HomePage({
                                             src={featuredBlog.data.thumbnail}
                                             alt={featuredBlog.data.title}
                                             fill
-                                            className='object-cover transition-transform duration-300 group-hover:scale-[1.02]'
+                                            className='object-cover transition-transform duration-300 group-hover:scale-[1.02] dark:brightness-[0.86] dark:contrast-110 dark:saturate-90'
                                             sizes='(max-width: 768px) 100vw, 50vw'
+                                        />
+                                        <div
+                                            aria-hidden='true'
+                                            className='pointer-events-none absolute inset-0 bg-black/0 dark:bg-black/20 transition-colors duration-300 group-hover:dark:bg-black/10'
                                         />
                                     </div>
                                 )}
@@ -394,7 +431,7 @@ export default async function HomePage({
                                             return authorName ? <span className='font-medium'>{authorName}</span> : null;
                                         })()}
                                         {featuredBlog.data.readTime && <span>• {featuredBlog.data.readTime}</span>}
-                                        <span>• {formatDate(new Date(featuredBlog.data.date))}</span>
+                                        <span>• {formatDate(featuredBlog.data.date)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -407,16 +444,13 @@ export default async function HomePage({
                 <h2 id='latest-articles-heading' className='sr-only'>
                     Latest articles
                 </h2>
-                <Suspense fallback={<div>Loading articles...</div>}>
+                <Suspense fallback={<ArticlesGridSkeleton />}>
                     <div
                         id='filtered-articles-panel'
-                        className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 relative overflow-hidden border-x border-border ${
-                            paginatedBlogs.length < 4 ? 'border-b' : 'border-b-0'
-                        }`}>
+                        className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 relative overflow-hidden border-l border-t border-border'>
                         {paginatedBlogs.length > 0 ? (
                             paginatedBlogs.map((blog) => {
-                                const date = new Date(blog.data.date);
-                                const formattedDate = formatDate(date);
+                                const formattedDate = formatDate(blog.data.date);
                                 const { authorName, authorAvatar } = resolveAuthorMetadata(blog);
 
                                 return (
@@ -431,12 +465,11 @@ export default async function HomePage({
                                         authorAvatar={authorAvatar}
                                         readTime={blog.data.readTime}
                                         thumbnail={blog.data.thumbnail}
-                                        showRightBorder={paginatedBlogs.length < 3}
                                     />
                                 );
                             })
                         ) : (
-                            <div className='col-span-full p-6 text-sm text-muted-foreground'>
+                            <div className='col-span-full border-r border-b border-border p-6 text-sm text-muted-foreground'>
                                 No articles found for <span className='font-medium text-foreground'>{emptyStateLabel}</span>.
                             </div>
                         )}
@@ -448,7 +481,7 @@ export default async function HomePage({
                         <Link
                             href={buildPageHref(Math.max(1, currentPage - 1))}
                             aria-disabled={currentPage === 1}
-                            className={`h-9 px-3 rounded-md border text-sm font-medium transition-colors ${
+                            className={`inline-flex h-9 min-w-[96px] items-center justify-center rounded-md border px-3 text-center text-sm font-medium leading-none transition-colors ${
                                 currentPage === 1
                                     ? 'pointer-events-none opacity-50 border-border'
                                     : 'border-border hover:bg-muted'
@@ -481,7 +514,7 @@ export default async function HomePage({
                         <Link
                             href={buildPageHref(Math.min(totalPages, currentPage + 1))}
                             aria-disabled={currentPage === totalPages}
-                            className={`h-9 px-3 rounded-md border text-sm font-medium transition-colors ${
+                            className={`inline-flex h-9 min-w-[96px] items-center justify-center rounded-md border px-3 text-center text-sm font-medium leading-none transition-colors ${
                                 currentPage === totalPages
                                     ? 'pointer-events-none opacity-50 border-border'
                                     : 'border-border hover:bg-muted'

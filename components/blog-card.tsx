@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
 
 interface BlogCardProps {
   url: string;
@@ -12,7 +11,6 @@ interface BlogCardProps {
   authorAvatar?: string;
   readTime?: string;
   thumbnail?: string;
-  showRightBorder?: boolean;
 }
 
 export function BlogCard({
@@ -25,25 +23,25 @@ export function BlogCard({
   authorAvatar,
   readTime,
   thumbnail,
-  showRightBorder = true,
 }: BlogCardProps) {
   return (
     <Link
       href={url}
-      className={cn(
-        "group block relative focus-visible:outline-none before:absolute before:-left-0.5 before:top-0 before:z-10 before:h-screen before:w-px before:bg-border before:content-[''] after:absolute after:-top-0.5 after:left-0 after:z-0 after:h-px after:w-screen after:bg-border after:content-['']",
-        showRightBorder && "md:border-r border-border border-b-0"
-      )}
+      className="group relative block h-full border-r border-b border-border transition-[transform,border-color,box-shadow] duration-200 ease-out hover:z-10 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_14px_28px_-18px_rgba(0,0,0,0.55)] focus-visible:z-10 focus-visible:-translate-y-1 focus-visible:border-primary/40 focus-visible:shadow-[0_14px_28px_-18px_rgba(0,0,0,0.55)] focus-visible:outline-none dark:hover:shadow-[0_18px_36px_-20px_rgba(0,0,0,0.85)] dark:focus-visible:shadow-[0_18px_36px_-20px_rgba(0,0,0,0.85)]"
     >
-      <div className="flex h-full flex-col bg-background transition-[background-color,box-shadow] duration-200 group-hover:bg-muted/30 group-hover:shadow-sm group-focus-visible:bg-muted/30 group-focus-visible:shadow-sm">
+      <div className="flex h-full flex-col bg-background transition-colors duration-200 group-hover:bg-muted/40 group-focus-visible:bg-muted/40">
         {thumbnail && (
           <div className="relative w-full h-48 overflow-hidden">
             <Image
               src={thumbnail}
               alt={title}
               fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-cover transition-transform duration-300 group-hover:scale-105 dark:brightness-[0.86] dark:contrast-110 dark:saturate-90"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 bg-black/0 dark:bg-black/20 transition-colors duration-300 group-hover:dark:bg-black/10"
             />
           </div>
         )}
