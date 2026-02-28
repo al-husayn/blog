@@ -9,7 +9,7 @@ import { getAuthor, isValidAuthor } from '@/lib/authors';
 import { blogSource } from '@/lib/blog-source';
 import { getAbsoluteUrl, getIsoDate, toJsonLd } from '@/lib/seo';
 import { siteConfig } from '@/lib/site';
-import { formatDate } from '@/lib/utils';
+import { formatDate, parseDate } from '@/lib/utils';
 
 interface BlogData {
     title: string;
@@ -179,8 +179,8 @@ export default async function HomePage({
     const resolvedSearchParams = await searchParams;
     const allPages = blogSource.getPages() as BlogPage[];
     const sortedBlogs = [...allPages].sort((a, b) => {
-        const dateA = new Date(a.data.date).getTime();
-        const dateB = new Date(b.data.date).getTime();
+        const dateA = parseDate(a.data.date)?.getTime() ?? 0;
+        const dateB = parseDate(b.data.date)?.getTime() ?? 0;
         return dateB - dateA;
     });
 
@@ -394,7 +394,7 @@ export default async function HomePage({
                                             return authorName ? <span className='font-medium'>{authorName}</span> : null;
                                         })()}
                                         {featuredBlog.data.readTime && <span>• {featuredBlog.data.readTime}</span>}
-                                        <span>• {formatDate(new Date(featuredBlog.data.date))}</span>
+                                        <span>• {formatDate(featuredBlog.data.date)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -415,8 +415,7 @@ export default async function HomePage({
                         }`}>
                         {paginatedBlogs.length > 0 ? (
                             paginatedBlogs.map((blog) => {
-                                const date = new Date(blog.data.date);
-                                const formattedDate = formatDate(date);
+                                const formattedDate = formatDate(blog.data.date);
                                 const { authorName, authorAvatar } = resolveAuthorMetadata(blog);
 
                                 return (

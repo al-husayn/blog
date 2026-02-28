@@ -51,8 +51,7 @@ export default async function BlogPost({ params }: PageProps) {
     }
 
     const MDX = page.data.body;
-    const date = new Date(page.data.date);
-    const formattedDate = formatDate(date);
+    const formattedDate = formatDate(page.data.date);
     const authorName =
         page.data.author && isValidAuthor(page.data.author)
             ? getAuthor(page.data.author).name

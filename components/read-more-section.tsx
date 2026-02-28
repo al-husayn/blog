@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { blogSource } from "@/lib/blog-source";
-import { formatDate } from "@/lib/utils";
+import { formatDate, parseDate } from "@/lib/utils";
 
 interface BlogData {
   title: string;
@@ -43,14 +43,14 @@ export function ReadMoreSection({
       return {
         ...page,
         relevanceScore: tagOverlap,
-        date: new Date(page.data.date),
+        timestamp: parseDate(page.data.date)?.getTime() ?? 0,
       };
     })
     .sort((a, b) => {
       if (a.relevanceScore !== b.relevanceScore) {
         return b.relevanceScore - a.relevanceScore;
       }
-      return b.date.getTime() - a.date.getTime();
+      return b.timestamp - a.timestamp;
     })
     .slice(0, 3);
 
@@ -65,7 +65,7 @@ export function ReadMoreSection({
 
         <div className="flex flex-col gap-8">
           {otherPosts.map((post) => {
-            const formattedDate = formatDate(post.date);
+            const formattedDate = formatDate(post.data.date);
 
             return (
               <Link

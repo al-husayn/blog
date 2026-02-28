@@ -24,7 +24,7 @@ export function SiteNav() {
         </div>
 
         {/* Desktop nav */}
-        <nav className='hidden md:flex items-center flex-1 w-full justify-end'>
+        <nav aria-label='Primary navigation' className='hidden md:flex items-center flex-1 w-full justify-end'>
           <a
             href='https://www.al-husayn.dev'
             className='ml-6 text-sm font-medium text-muted-foreground hover:text-foreground mr-6'
@@ -56,7 +56,7 @@ export function SiteNav() {
             <DrawerHeader>
               <h2 className='text-sm font-semibold'>Menu</h2>
             </DrawerHeader>
-            <nav className='flex flex-col gap-4 p-4'>
+            <nav aria-label='Mobile navigation' className='flex flex-col gap-4 p-4'>
               <a
                 href='https://www.al-husayn.dev'
                 data-drawer-close='true'

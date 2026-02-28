@@ -230,7 +230,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
               )}
               {page.data.date && (
                 <p style={{ ...styles.metaBase, ...styles.dateMeta }}>
-                  {formatDate(new Date(page.data.date))}
+                  {formatDate(page.data.date)}
                 </p>
               )}
             </div>
