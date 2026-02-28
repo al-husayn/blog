@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { HashScrollHandler } from '@/components/hash-scroll-handler';
 import { FlickeringGrid } from '@/components/magicui/flickering-grid';
 import Image from 'next/image';
-import { ArrowRight, ArrowUpRight, Code2, Globe, Layers, Rss, Send } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Code2, Globe, Layers, Send } from 'lucide-react';
 import { siteConfig } from '@/lib/site';
 import { getAbsoluteUrl } from '@/lib/seo';
 import { blogSource } from '@/lib/blog-source';
@@ -72,11 +72,20 @@ const connectLinks: ConnectLink[] = [
     external: true,
   },
   {
-    label: 'RSS Feed',
-    href: '/rss.xml',
-    description: 'Subscribe in your reader and never miss a post.',
-    icon: Rss,
+    label: 'LinkedIn',
+    href: siteConfig.linkedinUrl,
+    description: 'Connect professionally and follow career updates.',
+    icon: Globe,
+    external: true,
   },
+  {
+    label: 'GitHub',
+    href: siteConfig.githubUrl,
+    description: 'Explore source code, experiments, and open repositories.',
+    icon: Code2,
+    external: true,
+  }
+  
 ];
 
 const focusAreas = [
@@ -113,7 +122,7 @@ export default function AboutPage() {
             className='absolute top-0 left-0 size-full'
             squareSize={4}
             gridGap={6}
-            color='#6B7280'
+            color='var(--muted-foreground)'
             maxOpacity={0.2}
             flickerChance={0.05}
           />

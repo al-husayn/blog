@@ -159,7 +159,7 @@ export default async function BlogPost({ params }: PageProps) {
                     className='absolute top-0 left-0 size-full'
                     squareSize={4}
                     gridGap={6}
-                    color='#6B7280'
+                    color='var(--muted-foreground)'
                     maxOpacity={0.2}
                     flickerChance={0.05}
                 />

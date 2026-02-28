@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ExternalLink } from 'lucide-react';
 import { siteConfig } from '@/lib/site';
 
 const footerLinks = {
@@ -10,6 +11,8 @@ const footerLinks = {
   social: [
     { label: 'Portfolio', href: siteConfig.creatorUrl },
     { label: 'Twitter', href: `https://x.com/${siteConfig.twitterHandle.replace('@', '')}` },
+    { label: 'LinkedIn', href: siteConfig.linkedinUrl },
+    { label: 'GitHub', href: siteConfig.githubUrl },
   ],
 } as const;
 
@@ -51,9 +54,11 @@ export default function Footer() {
                                   href={link.href}
                                   target='_blank'
                                   rel='noopener noreferrer'
-                                  className='hover:text-foreground transition-colors'
+                                  className='inline-flex items-center gap-1.5 hover:text-foreground transition-colors'
                               >
-                                  {link.label}
+                                  <span>{link.label}</span>
+                                  <ExternalLink className='h-3.5 w-3.5' aria-hidden='true' />
+                                  <span className='sr-only'>(opens in a new tab)</span>
                               </a>
                           ))}
                       </nav>
