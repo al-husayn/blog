@@ -52,7 +52,7 @@ export function SiteNav() {
             aria-label='Open menu'>
             <MenuIcon size={28} className='text-muted-foreground' aria-hidden='true' />
           </DrawerTrigger>
-          <DrawerContent className='md:hidden bottom-auto top-16 left-auto right-6 w-56 max-h-none border border-border'>
+          <DrawerContent className='md:hidden bottom-0 left-0 right-0 w-full mx-0 max-h-[85vh] rounded-t-2xl rounded-b-none border-x-0 border-b-0'>
             <DrawerHeader>
               <h2 className='text-sm font-semibold'>Menu</h2>
             </DrawerHeader>
