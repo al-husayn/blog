@@ -19,6 +19,8 @@ import { getAbsoluteUrl, getIsoDate, toJsonLd } from '@/lib/seo';
 import { siteConfig } from '@/lib/site';
 import { formatDate } from '@/lib/utils';
 
+export { generateMetadata } from './metadata';
+
 interface PageProps {
     params: Promise<{ slug: string }>;
 }

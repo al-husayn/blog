@@ -46,7 +46,7 @@ export default function Footer() {
                   </div>
 
                   <div className='space-y-2'>
-                      <h3 className='text-sm font-semibold'>Elsewhere</h3>
+                      <h3 className='text-sm font-semibold'>Social</h3>
                       <nav aria-label='Footer social links' className='flex flex-col gap-2 text-sm text-muted-foreground'>
                           {footerLinks.social.map((link) => (
                               <a
