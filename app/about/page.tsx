@@ -123,7 +123,7 @@ export default function AboutPage() {
             <div className='relative h-32 w-32 overflow-hidden rounded-full border-4 border-border bg-muted shadow-lg'>
               <Image
                 src='/authors/AL.png'
-                alt='Al-Hussein'
+                alt='Photo of Al-Hussein, blog author'
                 fill
                 sizes='128px'
                 priority

@@ -27,17 +27,21 @@ export function BlogCard({
   return (
     <Link
       href={url}
-      className="group block h-full border-r border-b border-border focus-visible:outline-none"
+      className="group relative block h-full border-r border-b border-border transition-[transform,border-color,box-shadow] duration-200 ease-out hover:z-10 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_14px_28px_-18px_rgba(0,0,0,0.55)] focus-visible:z-10 focus-visible:-translate-y-1 focus-visible:border-primary/40 focus-visible:shadow-[0_14px_28px_-18px_rgba(0,0,0,0.55)] focus-visible:outline-none dark:hover:shadow-[0_18px_36px_-20px_rgba(0,0,0,0.85)] dark:focus-visible:shadow-[0_18px_36px_-20px_rgba(0,0,0,0.85)]"
     >
-      <div className="flex h-full flex-col bg-background transition-[background-color,box-shadow] duration-200 group-hover:bg-muted/30 group-hover:shadow-sm group-focus-visible:bg-muted/30 group-focus-visible:shadow-sm">
+      <div className="flex h-full flex-col bg-background transition-colors duration-200 group-hover:bg-muted/40 group-focus-visible:bg-muted/40">
         {thumbnail && (
           <div className="relative w-full h-48 overflow-hidden">
             <Image
               src={thumbnail}
               alt={title}
               fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-cover transition-transform duration-300 group-hover:scale-105 dark:brightness-[0.86] dark:contrast-110 dark:saturate-90"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 bg-black/0 dark:bg-black/20 transition-colors duration-300 group-hover:dark:bg-black/10"
             />
           </div>
         )}

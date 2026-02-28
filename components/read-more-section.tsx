@@ -75,13 +75,17 @@ export function ReadMoreSection({
               >
                 {post.data.thumbnail && (
                   <div className="flex-shrink-0 col-span-1 lg:col-span-4">
-                    <div className="relative w-full aspect-[16/10]">
+                    <div className="relative w-full aspect-[16/10] overflow-hidden rounded-lg">
                       <Image
                         src={post.data.thumbnail}
                         alt={post.data.title}
                         fill
                         sizes="(max-width: 1024px) 100vw, 33vw"
-                        className="object-cover rounded-lg group-hover:opacity-80 transition-opacity"
+                        className="object-cover transition-opacity dark:brightness-[0.86] dark:contrast-110 dark:saturate-90 group-hover:opacity-80"
+                      />
+                      <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 bg-black/0 dark:bg-black/20 transition-colors duration-300 group-hover:dark:bg-black/10"
                       />
                     </div>
                   </div>
