@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
 
 interface BlogCardProps {
   url: string;
@@ -12,7 +11,6 @@ interface BlogCardProps {
   authorAvatar?: string;
   readTime?: string;
   thumbnail?: string;
-  showRightBorder?: boolean;
 }
 
 export function BlogCard({
@@ -25,15 +23,11 @@ export function BlogCard({
   authorAvatar,
   readTime,
   thumbnail,
-  showRightBorder = true,
 }: BlogCardProps) {
   return (
     <Link
       href={url}
-      className={cn(
-        "group block relative focus-visible:outline-none before:absolute before:-left-0.5 before:top-0 before:z-10 before:h-screen before:w-px before:bg-border before:content-[''] after:absolute after:-top-0.5 after:left-0 after:z-0 after:h-px after:w-screen after:bg-border after:content-['']",
-        showRightBorder && "md:border-r border-border border-b-0"
-      )}
+      className="group block h-full border-r border-b border-border focus-visible:outline-none"
     >
       <div className="flex h-full flex-col bg-background transition-[background-color,box-shadow] duration-200 group-hover:bg-muted/30 group-hover:shadow-sm group-focus-visible:bg-muted/30 group-focus-visible:shadow-sm">
         {thumbnail && (

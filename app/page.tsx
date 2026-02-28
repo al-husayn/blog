@@ -410,9 +410,7 @@ export default async function HomePage({
                 <Suspense fallback={<div>Loading articles...</div>}>
                     <div
                         id='filtered-articles-panel'
-                        className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 relative overflow-hidden border-x border-border ${
-                            paginatedBlogs.length < 4 ? 'border-b' : 'border-b-0'
-                        }`}>
+                        className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 relative overflow-hidden border-l border-t border-border'>
                         {paginatedBlogs.length > 0 ? (
                             paginatedBlogs.map((blog) => {
                                 const formattedDate = formatDate(blog.data.date);
@@ -430,12 +428,11 @@ export default async function HomePage({
                                         authorAvatar={authorAvatar}
                                         readTime={blog.data.readTime}
                                         thumbnail={blog.data.thumbnail}
-                                        showRightBorder={paginatedBlogs.length < 3}
                                     />
                                 );
                             })
                         ) : (
-                            <div className='col-span-full p-6 text-sm text-muted-foreground'>
+                            <div className='col-span-full border-r border-b border-border p-6 text-sm text-muted-foreground'>
                                 No articles found for <span className='font-medium text-foreground'>{emptyStateLabel}</span>.
                             </div>
                         )}
