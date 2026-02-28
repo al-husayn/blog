@@ -84,13 +84,8 @@ const connectLinks: ConnectLink[] = [
     description: 'Explore source code, experiments, and open repositories.',
     icon: Code2,
     external: true,
-  },
-  {
-    label: 'RSS Feed',
-    href: '/rss.xml',
-    description: 'Subscribe in your reader and never miss a post.',
-    icon: Rss,
-  },
+  }
+  
 ];
 
 const focusAreas = [
