@@ -15,6 +15,7 @@ import { blogSource } from '@/lib/blog-source';
 import { FlickeringGrid } from '@/components/magicui/flickering-grid';
 import { HashScrollHandler } from '@/components/hash-scroll-handler';
 import { DeferredArticleEngagement } from '@/components/deferred-article-engagement';
+import { DeferredBlogPostAssistant } from '@/components/deferred-blog-post-assistant';
 import { getAbsoluteUrl, getIsoDate, toJsonLd } from '@/lib/seo';
 import { siteConfig } from '@/lib/site';
 import { formatDate } from '@/lib/utils';
@@ -222,6 +223,7 @@ export default async function BlogPost({ params }: PageProps) {
                             </DocsBody>
                         </article>
                     </div>
+                    <DeferredBlogPostAssistant slug={slug} title={page.data.title} />
                     <DeferredArticleEngagement slug={slug} />
                     <div className='mt-10'>
                         <ReadMoreSection currentSlug={[slug]} currentTags={page.data.tags} />

@@ -11,6 +11,7 @@ A modern, responsive blog built with Next.js 15, Fumadocs MDX, and Tailwind CSS.
 - ⭐ **Featured Posts** - Highlight your best articles
 - 📱 **Mobile Responsive** - Perfect on all devices
 - 🚀 **Fast Performance** - Optimized with Next.js 15
+- 🤖 **Post AI Assistant** - Ask context-aware questions inside each article
 
 ## 🚀 Getting Started
 
@@ -28,6 +29,23 @@ pnpm dev
 # Build for production
 pnpm build
 ```
+
+## 🤖 AI Assistant Setup
+
+The blog includes an embedded assistant on each post page. It is grounded in the active article and tailored to the current reader's question.
+
+1. Use a cloud inference provider that serves open-source models (default config uses OpenRouter).
+2. Add env variables:
+
+```bash
+AI_API_BASE_URL=https://openrouter.ai/api/v1
+AI_API_KEY=your_cloud_api_key_here
+AI_MODEL=deepseek/deepseek-r1:free
+```
+
+3. Restart the dev server after updating env values.
+
+You can swap to any OpenAI-compatible cloud endpoint and open-source model by changing `AI_API_BASE_URL` and `AI_MODEL`.
 
 ## ✍️ Adding Blog Posts
 
