@@ -6,27 +6,10 @@ import { BlogCard } from '@/components/blog-card';
 import { TagFilter } from '@/components/tag-filter';
 import { FlickeringGrid } from '@/components/magicui/flickering-grid';
 import { getAuthor, isValidAuthor } from '@/lib/authors';
-import { blogSource } from '@/lib/blog-source';
+import { getBlogPages, sortBlogPagesByDateDesc, type BlogPage } from '@/lib/blog';
 import { getAbsoluteUrl, getIsoDate, toJsonLd } from '@/lib/seo';
 import { siteConfig } from '@/lib/site';
-import { formatDate, parseDate } from '@/lib/utils';
-
-interface BlogData {
-    title: string;
-    description: string;
-    date: string;
-    tags?: string[];
-    featured?: boolean;
-    readTime?: string;
-    author?: string;
-    authorImage?: string;
-    thumbnail?: string;
-}
-
-interface BlogPage {
-    url: string;
-    data: BlogData;
-}
+import { formatDate } from '@/lib/utils';
 
 interface HomeSearchParams {
     tag?: string;
@@ -35,6 +18,7 @@ interface HomeSearchParams {
 }
 
 const POSTS_PER_PAGE = 9;
+const ALL_TAG = 'All';
 
 const getTagFilter = (tag?: string): string | undefined => {
     if (!tag) {
@@ -100,6 +84,74 @@ const buildPaginationItems = (totalPages: number, currentPage: number): Array<nu
     items.push(totalPages);
 
     return items;
+};
+
+const collectTagMetadata = (blogs: BlogPage[]): { allTags: string[]; tagCounts: Record<string, number> } => {
+    const tagCounts: Record<string, number> = { [ALL_TAG]: blogs.length };
+
+    blogs.forEach((blog) => {
+        blog.data.tags?.forEach((tag) => {
+            tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
+        });
+    });
+
+    const allTags = [
+        ALL_TAG,
+        ...Object.keys(tagCounts)
+            .filter((tag) => tag !== ALL_TAG)
+            .sort((a, b) => a.localeCompare(b)),
+    ];
+
+    return { allTags, tagCounts };
+};
+
+const matchesSearchQuery = (blog: BlogPage, normalizedQuery: string): boolean => {
+    const searchableContent = [
+        blog.data.title,
+        blog.data.description,
+        ...(blog.data.tags ?? []),
+        blog.data.author,
+        blog.data.readTime,
+    ]
+        .filter((value): value is string => Boolean(value))
+        .join(' ')
+        .toLowerCase();
+
+    return searchableContent.includes(normalizedQuery);
+};
+
+const resolveAuthorMetadata = (blog: BlogPage): { authorName?: string; authorAvatar?: string } => {
+    const authorKey = blog.data.author;
+    const authorRecord = authorKey && isValidAuthor(authorKey) ? getAuthor(authorKey) : undefined;
+
+    return {
+        authorName: authorRecord?.name,
+        authorAvatar: blog.data.authorImage || authorRecord?.avatar,
+    };
+};
+
+const buildPageHref = ({
+    page,
+    searchQuery,
+    selectedTag,
+}: {
+    page: number;
+    searchQuery?: string;
+    selectedTag: string;
+}): string => {
+    const params = new URLSearchParams();
+    if (searchQuery) {
+        params.set('q', searchQuery);
+    }
+    if (selectedTag !== ALL_TAG) {
+        params.set('tag', selectedTag);
+    }
+    if (page > 1) {
+        params.set('page', String(page));
+    }
+
+    const queryString = params.toString();
+    return queryString ? `/?${queryString}` : '/';
 };
 
 const SKELETON_CARD_COUNT = 6;
@@ -210,38 +262,20 @@ export default async function HomePage({
     searchParams: Promise<HomeSearchParams>;
 }) {
     const resolvedSearchParams = await searchParams;
-    const allPages = blogSource.getPages() as BlogPage[];
-    const sortedBlogs = [...allPages].sort((a, b) => {
-        const dateA = parseDate(a.data.date)?.getTime() ?? 0;
-        const dateB = parseDate(b.data.date)?.getTime() ?? 0;
-        return dateB - dateA;
-    });
-
-    const allTags = ['All', ...Array.from(new Set(sortedBlogs.flatMap((blog) => blog.data.tags || []))).sort()];
+    const sortedBlogs = sortBlogPagesByDateDesc(getBlogPages());
+    const { allTags, tagCounts } = collectTagMetadata(sortedBlogs);
 
     const searchQuery = getSearchQuery(resolvedSearchParams.q);
-    const selectedTag = resolvedSearchParams.tag || 'All';
+    const normalizedSearchQuery = searchQuery?.toLowerCase();
+    const selectedTag = getTagFilter(resolvedSearchParams.tag) ?? ALL_TAG;
     const blogsByTag =
-        selectedTag === 'All'
+        selectedTag === ALL_TAG
             ? sortedBlogs
             : sortedBlogs.filter((blog) => blog.data.tags?.includes(selectedTag));
     const filteredBlogs =
-        !searchQuery
+        !normalizedSearchQuery
             ? blogsByTag
-            : blogsByTag.filter((blog) => {
-                  const searchableContent = [
-                      blog.data.title,
-                      blog.data.description,
-                      ...(blog.data.tags || []),
-                      blog.data.author,
-                      blog.data.readTime,
-                  ]
-                      .filter(Boolean)
-                      .join(' ')
-                      .toLowerCase();
-
-                  return searchableContent.includes(searchQuery.toLowerCase());
-              });
+            : blogsByTag.filter((blog) => matchesSearchQuery(blog, normalizedSearchQuery));
     const requestedPage = getPageNumber(resolvedSearchParams.page);
     const featuredBlog = filteredBlogs.find((blog) => blog.data.featured) ?? filteredBlogs[0];
     const showFeaturedPost = Boolean(featuredBlog) && requestedPage === 1;
@@ -252,46 +286,9 @@ export default async function HomePage({
     const paginatedBlogs = listBlogs.slice((currentPage - 1) * POSTS_PER_PAGE, currentPage * POSTS_PER_PAGE);
     const paginationItems = buildPaginationItems(totalPages, currentPage);
     const newsletterCtaUrl = process.env.NEXT_PUBLIC_NEWSLETTER_URL;
-    const emptyStateLabel = searchQuery ? `"${searchQuery}"` : selectedTag !== 'All' ? selectedTag : 'the selected filters';
-
-    const resolveAuthorMetadata = (blog: BlogPage): { authorName?: string; authorAvatar?: string } => {
-        const authorKey = blog.data.author;
-        const authorRecord = authorKey && isValidAuthor(authorKey) ? getAuthor(authorKey) : undefined;
-
-        return {
-            authorName: authorRecord?.name,
-            authorAvatar: blog.data.authorImage || authorRecord?.avatar,
-        };
-    };
-
-    const buildPageHref = (page: number): string => {
-        const params = new URLSearchParams();
-        if (searchQuery) {
-            params.set('q', searchQuery);
-        }
-        if (selectedTag !== 'All') {
-            params.set('tag', selectedTag);
-        }
-        if (page > 1) {
-            params.set('page', String(page));
-        }
-
-        const queryString = params.toString();
-        return queryString ? `/?${queryString}` : '/';
-    };
-
-    const tagCounts = allTags.reduce(
-        (acc, tag) => {
-            if (tag === 'All') {
-                acc[tag] = sortedBlogs.length;
-            } else {
-                acc[tag] = sortedBlogs.filter((blog) => blog.data.tags?.includes(tag)).length;
-            }
-            return acc;
-        },
-        {} as Record<string, number>,
-    );
+    const emptyStateLabel = searchQuery ? `"${searchQuery}"` : selectedTag !== ALL_TAG ? selectedTag : 'the selected filters';
     const visibleBlogs = [...(showFeaturedPost && featuredBlog ? [featuredBlog] : []), ...paginatedBlogs];
+    const featuredAuthorName = featuredBlog ? resolveAuthorMetadata(featuredBlog).authorName : undefined;
 
     const blogListJsonLd = {
         '@context': 'https://schema.org',
@@ -365,16 +362,16 @@ export default async function HomePage({
                                 placeholder='Search articles...'
                                 className='h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
                             />
-                            {selectedTag !== 'All' && <input type='hidden' name='tag' value={selectedTag} />}
+                            {selectedTag !== ALL_TAG && <input type='hidden' name='tag' value={selectedTag} />}
                             <button
                                 type='submit'
-                                className='h-10 rounded-lg border border-border px-4 text-sm font-medium hover:bg-muted transition-colors'>
+                                className='h-10 rounded-lg border border-border px-4 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'>
                                 Search
                             </button>
                             {searchQuery && (
                                 <Link
-                                    href={selectedTag === 'All' ? '/' : `/?tag=${encodeURIComponent(selectedTag)}`}
-                                    className='text-sm text-muted-foreground hover:text-foreground'>
+                                    href={selectedTag === ALL_TAG ? '/' : `/?tag=${encodeURIComponent(selectedTag)}`}
+                                    className='rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'>
                                     Clear
                                 </Link>
                             )}
@@ -400,7 +397,7 @@ export default async function HomePage({
                         </div>
                         <Link
                             href={featuredBlog.url}
-                            className='group block rounded-xl border border-border bg-card overflow-hidden transition-[background-color,box-shadow] duration-200 hover:bg-muted/20 hover:shadow-sm'>
+                            className='group block rounded-xl border border-border bg-card overflow-hidden transition-[background-color,box-shadow] duration-200 hover:bg-muted/20 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'>
                             <div className='grid gap-0 md:grid-cols-2'>
                                 {featuredBlog.data.thumbnail && (
                                     <div className='relative min-h-[220px] md:min-h-[300px]'>
@@ -426,10 +423,7 @@ export default async function HomePage({
                                     </h3>
                                     <p className='text-muted-foreground text-sm md:text-base'>{featuredBlog.data.description}</p>
                                     <div className='text-xs text-muted-foreground flex flex-wrap items-center gap-2'>
-                                        {(() => {
-                                            const { authorName } = resolveAuthorMetadata(featuredBlog);
-                                            return authorName ? <span className='font-medium'>{authorName}</span> : null;
-                                        })()}
+                                        {featuredAuthorName ? <span className='font-medium'>{featuredAuthorName}</span> : null}
                                         {featuredBlog.data.readTime && <span>• {featuredBlog.data.readTime}</span>}
                                         <span>• {formatDate(featuredBlog.data.date)}</span>
                                     </div>
@@ -479,12 +473,12 @@ export default async function HomePage({
                 {totalPages > 1 && (
                     <nav aria-label='Pagination' className='mt-6 flex items-center justify-between gap-3'>
                         <Link
-                            href={buildPageHref(Math.max(1, currentPage - 1))}
+                            href={buildPageHref({ page: Math.max(1, currentPage - 1), searchQuery, selectedTag })}
                             aria-disabled={currentPage === 1}
                             className={`inline-flex h-9 min-w-[96px] items-center justify-center rounded-md border px-3 text-center text-sm font-medium leading-none transition-colors ${
                                 currentPage === 1
                                     ? 'pointer-events-none opacity-50 border-border'
-                                    : 'border-border hover:bg-muted'
+                                    : 'border-border hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
                             }`}>
                             Previous
                         </Link>
@@ -498,12 +492,12 @@ export default async function HomePage({
                                 ) : (
                                     <Link
                                         key={item}
-                                        href={buildPageHref(item)}
+                                        href={buildPageHref({ page: item, searchQuery, selectedTag })}
                                         aria-current={item === currentPage ? 'page' : undefined}
                                         className={`h-9 min-w-9 px-2 rounded-md border text-sm font-medium inline-flex items-center justify-center transition-colors ${
                                             item === currentPage
                                                 ? 'border-primary bg-primary text-primary-foreground'
-                                                : 'border-border hover:bg-muted'
+                                                : 'border-border hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
                                         }`}>
                                         {item}
                                     </Link>
@@ -512,12 +506,12 @@ export default async function HomePage({
                         </div>
 
                         <Link
-                            href={buildPageHref(Math.min(totalPages, currentPage + 1))}
+                            href={buildPageHref({ page: Math.min(totalPages, currentPage + 1), searchQuery, selectedTag })}
                             aria-disabled={currentPage === totalPages}
                             className={`inline-flex h-9 min-w-[96px] items-center justify-center rounded-md border px-3 text-center text-sm font-medium leading-none transition-colors ${
                                 currentPage === totalPages
                                     ? 'pointer-events-none opacity-50 border-border'
-                                    : 'border-border hover:bg-muted'
+                                    : 'border-border hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
                             }`}>
                             Next
                         </Link>
@@ -538,7 +532,7 @@ export default async function HomePage({
                             href={newsletterCtaUrl}
                             target='_blank'
                             rel='noopener noreferrer'
-                            className='inline-flex h-10 items-center justify-center rounded-md border border-border px-4 text-sm font-medium hover:bg-muted transition-colors'>
+                            className='inline-flex h-10 items-center justify-center rounded-md border border-border px-4 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'>
                             Subscribe
                         </a>
                     </div>

@@ -1,24 +1,10 @@
 import type { Metadata } from 'next';
 import { siteConfig } from '@/lib/site';
 import { getAuthor, isValidAuthor } from '@/lib/authors';
+import { type BlogPage } from '@/lib/blog';
 import { getAbsoluteUrl, getIsoDate } from '@/lib/seo';
 import { blogSource } from '@/lib/blog-source';
 import { metadataKeywords } from '@/app/metadata';
-
-interface BlogMetadataData {
-    title: string;
-    description: string;
-    date: string;
-    tags?: string[];
-    author?: string;
-    thumbnail?: string;
-    'article:section'?: string;
-    'article:tag'?: string;
-}
-
-interface BlogMetadataPage {
-    data: BlogMetadataData;
-}
 
 const getAuthorName = (authorKey?: string): string => {
     if (authorKey && isValidAuthor(authorKey)) {
@@ -57,7 +43,7 @@ export async function generateMetadata({
             };
         }
 
-        const page = blogSource.getPage([slug]) as BlogMetadataPage | undefined;
+        const page = blogSource.getPage([slug]) as BlogPage | undefined;
         if (!page) {
             return {
                 title: 'Blog Not Found',
