@@ -155,15 +155,16 @@ const buildPageHref = ({
 };
 
 const SKELETON_CARD_COUNT = 6;
+const getResultsLabel = (count: number): string => `${count} ${count === 1 ? 'article' : 'articles'}`;
 
 function ArticlesGridSkeleton({ count = SKELETON_CARD_COUNT }: { count?: number }) {
     return (
         <div role='status' aria-live='polite' aria-busy='true'>
             <span className='sr-only'>Loading articles...</span>
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 relative overflow-hidden border-l border-t border-border'>
+            <div className='grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6'>
                 {Array.from({ length: count }, (_, index) => (
-                    <article key={index} className='border-r border-b border-border bg-background'>
-                        <div className='h-48 w-full animate-pulse bg-muted/50' />
+                    <article key={index} className='rounded-xl border border-border bg-background'>
+                        <div className='aspect-[16/10] w-full animate-pulse bg-muted/50' />
                         <div className='p-6 space-y-3'>
                             <div className='flex gap-2'>
                                 <div className='h-5 w-16 animate-pulse rounded-full bg-muted/60' />
@@ -289,6 +290,11 @@ export default async function HomePage({
     const emptyStateLabel = searchQuery ? `"${searchQuery}"` : selectedTag !== ALL_TAG ? selectedTag : 'the selected filters';
     const visibleBlogs = [...(showFeaturedPost && featuredBlog ? [featuredBlog] : []), ...paginatedBlogs];
     const featuredAuthorName = featuredBlog ? resolveAuthorMetadata(featuredBlog).authorName : undefined;
+    const resultsSummaryLabel = `${getResultsLabel(filteredBlogs.length)} found`;
+    const resultsContextLabel =
+        searchQuery || selectedTag !== ALL_TAG
+            ? `Filtered by ${searchQuery ? `"${searchQuery}"` : selectedTag}`
+            : 'Latest posts';
 
     const blogListJsonLd = {
         '@context': 'https://schema.org',
@@ -405,6 +411,7 @@ export default async function HomePage({
                                             src={featuredBlog.data.thumbnail}
                                             alt={featuredBlog.data.title}
                                             fill
+                                            style={{ objectFit: 'cover' }}
                                             className='object-cover transition-transform duration-300 group-hover:scale-[1.02] dark:brightness-[0.86] dark:contrast-110 dark:saturate-90'
                                             sizes='(max-width: 768px) 100vw, 50vw'
                                         />
@@ -435,13 +442,19 @@ export default async function HomePage({
             )}
 
             <section aria-labelledby='latest-articles-heading' className='max-w-7xl mx-auto w-full px-6 lg:px-0'>
-                <h2 id='latest-articles-heading' className='sr-only'>
-                    Latest articles
-                </h2>
+                <div className='mb-5 flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3'>
+                    <h2 id='latest-articles-heading' className='text-sm font-semibold tracking-wide text-foreground/90 md:text-base'>
+                        {resultsSummaryLabel}
+                    </h2>
+                    <p className='text-xs text-muted-foreground md:text-sm'>
+                        {resultsContextLabel}
+                        {totalPages > 1 ? ` • Page ${currentPage} of ${totalPages}` : ''}
+                    </p>
+                </div>
                 <Suspense fallback={<ArticlesGridSkeleton />}>
                     <div
                         id='filtered-articles-panel'
-                        className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 relative overflow-hidden border-l border-t border-border'>
+                        className='grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6'>
                         {paginatedBlogs.length > 0 ? (
                             paginatedBlogs.map((blog) => {
                                 const formattedDate = formatDate(blog.data.date);
@@ -463,7 +476,7 @@ export default async function HomePage({
                                 );
                             })
                         ) : (
-                            <div className='col-span-full border-r border-b border-border p-6 text-sm text-muted-foreground'>
+                            <div className='col-span-full rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground'>
                                 No articles found for <span className='font-medium text-foreground'>{emptyStateLabel}</span>.
                             </div>
                         )}
@@ -471,11 +484,11 @@ export default async function HomePage({
                 </Suspense>
 
                 {totalPages > 1 && (
-                    <nav aria-label='Pagination' className='mt-6 flex items-center justify-between gap-3'>
+                    <nav aria-label='Pagination' className='mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4 md:flex-nowrap'>
                         <Link
                             href={buildPageHref({ page: Math.max(1, currentPage - 1), searchQuery, selectedTag })}
                             aria-disabled={currentPage === 1}
-                            className={`inline-flex h-9 min-w-[96px] items-center justify-center rounded-md border px-3 text-center text-sm font-medium leading-none transition-colors ${
+                            className={`inline-flex h-9 min-w-[84px] items-center justify-center rounded-md border px-3 text-center text-sm font-medium leading-none transition-colors md:min-w-[96px] ${
                                 currentPage === 1
                                     ? 'pointer-events-none opacity-50 border-border'
                                     : 'border-border hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
@@ -483,7 +496,7 @@ export default async function HomePage({
                             Previous
                         </Link>
 
-                        <div className='flex items-center gap-2'>
+                        <div className='order-3 w-full justify-center flex items-center gap-2 md:order-none md:w-auto'>
                             {paginationItems.map((item, index) =>
                                 item === 'ellipsis' ? (
                                     <span key={`ellipsis-${index}`} className='text-sm text-muted-foreground px-1'>
@@ -508,7 +521,7 @@ export default async function HomePage({
                         <Link
                             href={buildPageHref({ page: Math.min(totalPages, currentPage + 1), searchQuery, selectedTag })}
                             aria-disabled={currentPage === totalPages}
-                            className={`inline-flex h-9 min-w-[96px] items-center justify-center rounded-md border px-3 text-center text-sm font-medium leading-none transition-colors ${
+                            className={`inline-flex h-9 min-w-[84px] items-center justify-center rounded-md border px-3 text-center text-sm font-medium leading-none transition-colors md:min-w-[96px] ${
                                 currentPage === totalPages
                                     ? 'pointer-events-none opacity-50 border-border'
                                     : 'border-border hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'

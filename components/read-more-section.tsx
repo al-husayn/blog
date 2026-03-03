@@ -63,6 +63,7 @@ export function ReadMoreSection({
                         src={post.data.thumbnail}
                         alt={post.data.title}
                         fill
+                        style={{ objectFit: "cover" }}
                         sizes="(max-width: 1024px) 100vw, 33vw"
                         className="object-cover transition-opacity dark:brightness-[0.86] dark:contrast-110 dark:saturate-90 group-hover:opacity-80"
                       />

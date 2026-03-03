@@ -187,6 +187,7 @@ export default async function BlogPost({ params }: PageProps) {
                                 src={page.data.thumbnail}
                                 alt={page.data.title}
                                 fill
+                                style={{ objectFit: 'cover' }}
                                 className='object-cover'
                                 priority
                             />
