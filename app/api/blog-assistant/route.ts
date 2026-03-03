@@ -1,263 +1,258 @@
-import { promises as fs } from "node:fs";
-import path from "node:path";
-import { NextResponse } from "next/server";
-import { z } from "zod";
-import { blogSource } from "@/lib/blog-source";
-import { siteConfig } from "@/lib/site";
-
-interface BlogPostData {
-  title: string;
-  description: string;
-  date: string;
-  tags?: string[];
-}
-
-interface BlogPage {
-  url: string;
-  data: BlogPostData;
-}
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import { getBlogPages, getBlogSlugs, sortBlogPagesByDateDesc, type BlogPage } from '@/lib/blog';
+import { blogSource } from '@/lib/blog-source';
+import { siteConfig } from '@/lib/site';
 
 interface CloudChatCompletionResponse {
-  choices?: Array<{
-    message?: {
-      role?: string;
-      content?: string | Array<{ type?: string; text?: string }>;
+    choices?: Array<{
+        message?: {
+            role?: string;
+            content?: string | Array<{ type?: string; text?: string }>;
+        };
+    }>;
+    error?: {
+        message?: string;
     };
-  }>;
-  error?: {
-    message?: string;
-  };
 }
 
-const BLOG_PATH_PREFIX = "/blog/";
+interface ArticleContext {
+    title: string;
+    description: string;
+    tags: string[];
+    body: string;
+}
+
 const MAX_HISTORY_MESSAGES = 8;
 const MAX_HISTORY_ITEM_CHARS = 4000;
 const MAX_ARTICLE_CONTEXT_CHARS = 16000;
+const ARTICLE_CONTEXT_CACHE_TTL_MS = 5 * 60 * 1000;
+const POPULAR_POST_LIMIT = 3;
 
 // Defaults target an open-source cloud model via OpenRouter.
-const DEFAULT_AI_API_BASE_URL = "https://openrouter.ai/api/v1";
-const DEFAULT_AI_MODEL = "openrouter/free";
-const FALLBACK_AI_MODEL = "openrouter/free";
+const DEFAULT_AI_API_BASE_URL = 'https://openrouter.ai/api/v1';
+const DEFAULT_AI_MODEL = 'openrouter/free';
+const FALLBACK_AI_MODEL = 'openrouter/free';
 
 const requestSchema = z.object({
-  slug: z
-    .string()
-    .trim()
-    .min(1)
-    .max(120)
-    .regex(/^[a-z0-9-]+$/i, "Invalid slug format"),
-  message: z.string().trim().min(1).max(3000),
-  userName: z.string().trim().min(1).max(80).optional(),
-  history: z
-    .array(
-      z.object({
-        role: z.enum(["user", "assistant"]),
-        content: z.string().trim().min(1).max(12000),
-      })
-    )
-    .max(40)
-    .optional(),
+    slug: z
+        .string()
+        .trim()
+        .min(1)
+        .max(120)
+        .regex(/^[a-z0-9-]+$/i, 'Invalid slug format'),
+    message: z.string().trim().min(1).max(3000),
+    userName: z.string().trim().min(1).max(80).optional(),
+    history: z
+        .array(
+            z.object({
+                role: z.enum(['user', 'assistant']),
+                content: z.string().trim().min(1).max(12000),
+            }),
+        )
+        .max(40)
+        .optional(),
 });
 
+const articleContextCache = new Map<string, { value: ArticleContext; expiresAt: number }>();
+const inFlightArticleContextLoads = new Map<string, Promise<ArticleContext | null>>();
+
 const stripFrontmatter = (content: string): string => {
-  return content.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, "");
+    return content.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '');
 };
 
 const normalizeArticleContent = (content: string): string => {
-  return stripFrontmatter(content).trim().slice(0, MAX_ARTICLE_CONTEXT_CHARS);
+    return stripFrontmatter(content).trim().slice(0, MAX_ARTICLE_CONTEXT_CHARS);
 };
 
-const getSlugFromPageUrl = (url: string): string | null => {
-  if (!url.startsWith(BLOG_PATH_PREFIX)) {
-    return null;
-  }
-
-  const slug = url.slice(BLOG_PATH_PREFIX.length).replace(/\/$/, "");
-  if (!slug || slug.includes("/")) {
-    return null;
-  }
-
-  return slug;
+const getPopularPostsList = (pages: BlogPage[]): string => {
+    return sortBlogPagesByDateDesc(pages)
+        .slice(0, POPULAR_POST_LIMIT)
+        .map((page) => `- ${page.data.title} (${page.url})`)
+        .join('\n');
 };
 
-const getPopularPostsList = (): string => {
-  const pages = blogSource.getPages() as BlogPage[];
-  const sortedPages = [...pages].sort((a, b) => {
-    const aTime = Date.parse(a.data.date) || 0;
-    const bTime = Date.parse(b.data.date) || 0;
-    return bTime - aTime;
-  });
+const loadArticleContext = async (slug: string): Promise<ArticleContext | null> => {
+    const page = blogSource.getPage([slug]) as BlogPage | undefined;
+    if (!page) {
+        return null;
+    }
 
-  return sortedPages
-    .slice(0, 3)
-    .map((page) => `- ${page.data.title} (${page.url})`)
-    .join("\n");
+    const articlePath = path.join(process.cwd(), 'blog', 'content', `${slug}.mdx`);
+    let body = '';
+
+    try {
+        const rawContent = await fs.readFile(articlePath, 'utf8');
+        body = normalizeArticleContent(rawContent);
+    } catch {
+        body = page.data.description;
+    }
+
+    return {
+        title: page.data.title,
+        description: page.data.description,
+        tags: page.data.tags ?? [],
+        body,
+    };
 };
 
-const getArticleContext = async (
-  slug: string
-): Promise<{
-  title: string;
-  description: string;
-  tags: string[];
-  body: string;
-} | null> => {
-  const page = blogSource.getPage([slug]) as BlogPage | undefined;
-  if (!page) {
-    return null;
-  }
+const getArticleContext = async (slug: string): Promise<ArticleContext | null> => {
+    const now = Date.now();
+    const cached = articleContextCache.get(slug);
+    if (cached && cached.expiresAt > now) {
+        return cached.value;
+    }
 
-  const articlePath = path.join(process.cwd(), "blog", "content", `${slug}.mdx`);
-  let body = "";
+    const inFlight = inFlightArticleContextLoads.get(slug);
+    if (inFlight) {
+        return inFlight;
+    }
 
-  try {
-    const rawContent = await fs.readFile(articlePath, "utf8");
-    body = normalizeArticleContent(rawContent);
-  } catch {
-    body = page.data.description;
-  }
+    const request = loadArticleContext(slug)
+        .then((article) => {
+            if (article) {
+                articleContextCache.set(slug, {
+                    value: article,
+                    expiresAt: now + ARTICLE_CONTEXT_CACHE_TTL_MS,
+                });
+            }
+            return article;
+        })
+        .finally(() => {
+            inFlightArticleContextLoads.delete(slug);
+        });
 
-  return {
-    title: page.data.title,
-    description: page.data.description,
-    tags: page.data.tags ?? [],
-    body,
-  };
+    inFlightArticleContextLoads.set(slug, request);
+    return request;
 };
 
 const extractCloudAnswer = (payload: CloudChatCompletionResponse): string => {
-  const content = payload.choices?.[0]?.message?.content;
+    const content = payload.choices?.[0]?.message?.content;
 
-  if (typeof content === "string") {
-    return content.trim();
-  }
+    if (typeof content === 'string') {
+        return content.trim();
+    }
 
-  if (Array.isArray(content)) {
-    return content
-      .map((item) => (typeof item.text === "string" ? item.text.trim() : ""))
-      .filter(Boolean)
-      .join("\n")
-      .trim();
-  }
+    if (Array.isArray(content)) {
+        return content
+            .map((item) => (typeof item.text === 'string' ? item.text.trim() : ''))
+            .filter(Boolean)
+            .join('\n')
+            .trim();
+    }
 
-  return "";
+    return '';
 };
 
 const shouldRetryWithFallback = (providerError: string): boolean => {
-  const normalized = providerError.toLowerCase();
-  return (
-    normalized.includes("no endpoints found") ||
-    normalized.includes("model not found") ||
-    normalized.includes("not available") ||
-    normalized.includes("no provider")
-  );
+    const normalized = providerError.toLowerCase();
+    return (
+        normalized.includes('no endpoints found') ||
+        normalized.includes('model not found') ||
+        normalized.includes('not available') ||
+        normalized.includes('no provider')
+    );
 };
 
 const requestCloudCompletion = async ({
-  apiBaseUrl,
-  apiKey,
-  model,
-  messages,
-  referer,
-  title,
+    apiBaseUrl,
+    apiKey,
+    model,
+    messages,
+    referer,
+    title,
 }: {
-  apiBaseUrl: string;
-  apiKey: string;
-  model: string;
-  messages: Array<{ role: string; content: string }>;
-  referer: string;
-  title: string;
+    apiBaseUrl: string;
+    apiKey: string;
+    model: string;
+    messages: Array<{ role: string; content: string }>;
+    referer: string;
+    title: string;
 }): Promise<{
-  ok: boolean;
-  payload: CloudChatCompletionResponse | null;
-  providerError: string;
+    ok: boolean;
+    payload: CloudChatCompletionResponse | null;
+    providerError: string;
 }> => {
-  const response = await fetch(`${apiBaseUrl}/chat/completions`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": referer,
-      "X-Title": title,
-    },
-    body: JSON.stringify({
-      model,
-      temperature: 0.4,
-      messages,
-    }),
-  });
+    const response = await fetch(`${apiBaseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${apiKey}`,
+            'HTTP-Referer': referer,
+            'X-Title': title,
+        },
+        body: JSON.stringify({
+            model,
+            temperature: 0.4,
+            messages,
+        }),
+    });
 
-  const payload = (await response.json().catch(() => null)) as
-    | CloudChatCompletionResponse
-    | null;
-  const providerError =
-    payload?.error?.message || (response.ok ? "" : "Unknown provider error.");
+    const payload = (await response.json().catch(() => null)) as CloudChatCompletionResponse | null;
+    const providerError = payload?.error?.message || (response.ok ? '' : 'Unknown provider error.');
 
-  return {
-    ok: response.ok,
-    payload,
-    providerError,
-  };
+    return {
+        ok: response.ok,
+        payload,
+        providerError,
+    };
 };
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request): Promise<Response> {
-  const apiKey = process.env.AI_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json(
-      {
-        error:
-          "Missing AI_API_KEY. Add a cloud provider API key (for example OpenRouter) to enable the assistant.",
-      },
-      { status: 500 }
-    );
-  }
+    const apiKey = process.env.AI_API_KEY;
+    if (!apiKey) {
+        return NextResponse.json(
+            {
+                error: 'Missing AI_API_KEY. Add a cloud provider API key (for example OpenRouter) to enable the assistant.',
+            },
+            { status: 500 },
+        );
+    }
 
-  const rawBody = await request.json().catch(() => null);
-  const parsedInput = requestSchema.safeParse(rawBody);
-  if (!parsedInput.success) {
-    const issue = parsedInput.error.issues[0];
-    const path = issue?.path?.length ? ` (${issue.path.join(".")})` : "";
-    const message = issue?.message || "Malformed request body.";
+    const rawBody = await request.json().catch(() => null);
+    const parsedInput = requestSchema.safeParse(rawBody);
+    if (!parsedInput.success) {
+        const issue = parsedInput.error.issues[0];
+        const path = issue?.path?.length ? ` (${issue.path.join('.')})` : '';
+        const message = issue?.message || 'Malformed request body.';
 
-    return NextResponse.json(
-      { error: `Invalid request payload${path}. ${message}` },
-      { status: 400 }
-    );
-  }
+        return NextResponse.json({ error: `Invalid request payload${path}. ${message}` }, { status: 400 });
+    }
 
-  const { slug, message, userName } = parsedInput.data;
-  const history = (parsedInput.data.history ?? [])
-    .slice(-MAX_HISTORY_MESSAGES)
-    .map((item) => ({
-      role: item.role,
-      content: item.content.slice(0, MAX_HISTORY_ITEM_CHARS).trim(),
-    }))
-    .filter((item) => item.content.length > 0);
-  const article = await getArticleContext(slug);
+    const { slug, message, userName } = parsedInput.data;
+    const history = (parsedInput.data.history ?? [])
+        .slice(-MAX_HISTORY_MESSAGES)
+        .map((item) => ({
+            role: item.role,
+            content: item.content.slice(0, MAX_HISTORY_ITEM_CHARS).trim(),
+        }))
+        .filter((item) => item.content.length > 0);
 
-  if (!article) {
-    const popularPosts = getPopularPostsList();
-    return NextResponse.json(
-      {
-        error: "Post not found.",
-        suggestions:
-          popularPosts.length > 0
-            ? popularPosts
-            : "No posts available yet. Please add content to blog/content first.",
-      },
-      { status: 404 }
-    );
-  }
+    const allPages = getBlogPages();
+    const popularPostsList = getPopularPostsList(allPages);
+    const article = await getArticleContext(slug);
 
-  const tagsLine = article.tags.length > 0 ? article.tags.join(", ") : "None listed";
-  const allPostSlugs = (blogSource.getPages() as BlogPage[])
-    .map((page) => getSlugFromPageUrl(page.url))
-    .filter((value): value is string => Boolean(value))
-    .join(", ");
+    if (!article) {
+        return NextResponse.json(
+            {
+                error: 'Post not found.',
+                suggestions:
+                    popularPostsList.length > 0
+                        ? popularPostsList
+                        : 'No posts available yet. Please add content to blog/content first.',
+            },
+            { status: 404 },
+        );
+    }
 
-  const systemPrompt = `You are an embedded AI assistant for a developer blog called "${siteConfig.name}".
+    const tagsLine = article.tags.length > 0 ? article.tags.join(', ') : 'None listed';
+    const allPostSlugs = getBlogSlugs(allPages).join(', ');
+
+    const systemPrompt = `You are an embedded AI assistant for a developer blog called "${siteConfig.name}".
 
 Blog focus:
 - Software engineering
@@ -291,7 +286,7 @@ Current article:
 - Tags: ${tagsLine}
 
 Allowed article slugs in this blog:
-${allPostSlugs || "(none found)"}
+${allPostSlugs || '(none found)'}
 
 Article content:
 """
@@ -299,87 +294,81 @@ ${article.body}
 """
 
 If the user asks about a different post and needs options, suggest popular posts:
-${getPopularPostsList() || "- No popular posts available yet"}`;
+${popularPostsList || '- No popular posts available yet'}`;
 
-  const userPrompt = `User name: ${userName ?? "Not provided"}
+    const userPrompt = `User name: ${userName ?? 'Not provided'}
 User question: ${message}`;
 
-  const aiApiBaseUrl = (
-    process.env.AI_API_BASE_URL || DEFAULT_AI_API_BASE_URL
-  ).replace(/\/$/, "");
-  const model = process.env.AI_MODEL || DEFAULT_AI_MODEL;
+    const aiApiBaseUrl = (process.env.AI_API_BASE_URL || DEFAULT_AI_API_BASE_URL).replace(/\/$/, '');
+    const model = process.env.AI_MODEL || DEFAULT_AI_MODEL;
 
-  const messages = [
-    {
-      role: "system",
-      content: systemPrompt,
-    },
-    ...history.map((item) => ({
-      role: item.role,
-      content: item.content,
-    })),
-    {
-      role: "user",
-      content: userPrompt,
-    },
-  ];
+    const messages = [
+        {
+            role: 'system',
+            content: systemPrompt,
+        },
+        ...history.map((item) => ({
+            role: item.role,
+            content: item.content,
+        })),
+        {
+            role: 'user',
+            content: userPrompt,
+        },
+    ];
 
-  try {
-    const referer = process.env.NEXT_PUBLIC_SITE_URL || siteConfig.url;
-    const title = siteConfig.shortName || siteConfig.name;
+    try {
+        const referer = process.env.NEXT_PUBLIC_SITE_URL || siteConfig.url;
+        const title = siteConfig.shortName || siteConfig.name;
 
-    let completion = await requestCloudCompletion({
-      apiBaseUrl: aiApiBaseUrl,
-      apiKey,
-      model,
-      messages,
-      referer,
-      title,
-    });
+        let completion = await requestCloudCompletion({
+            apiBaseUrl: aiApiBaseUrl,
+            apiKey,
+            model,
+            messages,
+            referer,
+            title,
+        });
 
-    if (!completion.ok && shouldRetryWithFallback(completion.providerError) && model !== FALLBACK_AI_MODEL) {
-      completion = await requestCloudCompletion({
-        apiBaseUrl: aiApiBaseUrl,
-        apiKey,
-        model: FALLBACK_AI_MODEL,
-        messages,
-        referer,
-        title,
-      });
+        if (!completion.ok && shouldRetryWithFallback(completion.providerError) && model !== FALLBACK_AI_MODEL) {
+            completion = await requestCloudCompletion({
+                apiBaseUrl: aiApiBaseUrl,
+                apiKey,
+                model: FALLBACK_AI_MODEL,
+                messages,
+                referer,
+                title,
+            });
+        }
+
+        if (!completion.ok) {
+            console.error('Blog assistant cloud upstream error:', completion.providerError);
+            return NextResponse.json(
+                { error: `Assistant backend failed: ${completion.providerError}` },
+                { status: 502 },
+            );
+        }
+
+        if (!completion.payload) {
+            return NextResponse.json(
+                { error: 'Assistant backend returned an invalid response payload.' },
+                { status: 502 },
+            );
+        }
+
+        const answer = extractCloudAnswer(completion.payload);
+        if (!answer) {
+            return NextResponse.json({ error: 'Assistant returned an empty response. Please retry.' }, { status: 502 });
+        }
+
+        return NextResponse.json({ answer });
+    } catch (error) {
+        console.error('Blog assistant cloud connection error:', error);
+        return NextResponse.json(
+            {
+                error: 'Could not reach the cloud model endpoint. Verify AI_API_BASE_URL and network access.',
+            },
+            { status: 502 },
+        );
     }
-
-    if (!completion.ok) {
-      console.error("Blog assistant cloud upstream error:", completion.providerError);
-      return NextResponse.json(
-        { error: `Assistant backend failed: ${completion.providerError}` },
-        { status: 502 }
-      );
-    }
-
-    if (!completion.payload) {
-      return NextResponse.json(
-        { error: "Assistant backend returned an invalid response payload." },
-        { status: 502 }
-      );
-    }
-
-    const answer = extractCloudAnswer(completion.payload);
-    if (!answer) {
-      return NextResponse.json(
-        { error: "Assistant returned an empty response. Please retry." },
-        { status: 502 }
-      );
-    }
-
-    return NextResponse.json({ answer });
-  } catch (error) {
-    console.error("Blog assistant cloud connection error:", error);
-    return NextResponse.json(
-      {
-        error:
-          "Could not reach the cloud model endpoint. Verify AI_API_BASE_URL and network access.",
-      },
-      { status: 502 }
-    );
-  }
 }

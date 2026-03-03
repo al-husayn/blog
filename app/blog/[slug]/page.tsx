@@ -11,6 +11,7 @@ import { AuthorCard } from '@/components/author-card';
 import { ReadMoreSection } from '@/components/read-more-section';
 import { PromoContent } from '@/components/promo-content';
 import { getAuthor, isValidAuthor } from '@/lib/authors';
+import { getBlogPages, getSlugFromPageUrl, type BlogData, type BlogPage } from '@/lib/blog';
 import { blogSource } from '@/lib/blog-source';
 import { FlickeringGrid } from '@/components/magicui/flickering-grid';
 import { HashScrollHandler } from '@/components/hash-scroll-handler';
@@ -26,41 +27,17 @@ interface PageProps {
     params: Promise<{ slug: string }>;
 }
 
-interface BlogPostData {
-    title: string;
-    description: string;
-    date: string;
-    tags?: string[];
-    author?: string;
-    thumbnail?: string;
+interface BlogPostData extends BlogData {
     body: React.ComponentType;
 }
 
-interface BlogPage {
-    url: string;
-    data: BlogPostData;
-}
-
-const BLOG_PATH_PREFIX = '/blog/';
-
-const getSlugFromPageUrl = (url: string): string | null => {
-    if (!url.startsWith(BLOG_PATH_PREFIX)) {
-        return null;
-    }
-
-    const slug = url.slice(BLOG_PATH_PREFIX.length).replace(/\/$/, '');
-    if (!slug || slug.includes('/')) {
-        return null;
-    }
-
-    return slug;
-};
+type BlogPostPage = BlogPage<BlogPostData>;
 
 export const revalidate = 3600;
 export const dynamicParams = false;
 
 export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
-    const pages = blogSource.getPages() as BlogPage[];
+    const pages = getBlogPages<BlogPostData>();
     const uniqueSlugs = new Set<string>();
 
     pages.forEach((page) => {
@@ -80,7 +57,7 @@ export default async function BlogPost({ params }: PageProps) {
         notFound();
     }
 
-    const page = blogSource.getPage([slug]) as BlogPage | undefined;
+    const page = blogSource.getPage([slug]) as BlogPostPage | undefined;
 
     if (!page) {
         notFound();
@@ -88,10 +65,9 @@ export default async function BlogPost({ params }: PageProps) {
 
     const MDX = page.data.body;
     const formattedDate = formatDate(page.data.date);
-    const authorName =
-        page.data.author && isValidAuthor(page.data.author)
-            ? getAuthor(page.data.author).name
-            : siteConfig.creator;
+    const author =
+        page.data.author && isValidAuthor(page.data.author) ? getAuthor(page.data.author) : undefined;
+    const authorName = author?.name ?? siteConfig.creator;
     const articleUrl = getAbsoluteUrl(`/blog/${slug}`);
     const articleImage = page.data.thumbnail
         ? getAbsoluteUrl(page.data.thumbnail)
@@ -211,6 +187,7 @@ export default async function BlogPost({ params }: PageProps) {
                                 src={page.data.thumbnail}
                                 alt={page.data.title}
                                 fill
+                                style={{ objectFit: 'cover' }}
                                 className='object-cover'
                                 priority
                             />
@@ -232,9 +209,7 @@ export default async function BlogPost({ params }: PageProps) {
 
                 <aside className='hidden lg:block w-[350px] flex-shrink-0 p-6 lg:p-10 bg-muted/60 dark:bg-muted/20'>
                     <div className='sticky top-20 space-y-8'>
-                        {page.data.author && isValidAuthor(page.data.author) && (
-                            <AuthorCard author={getAuthor(page.data.author)} />
-                        )}
+                        {author && <AuthorCard author={author} />}
                         <div className='border border-border rounded-lg p-6 bg-card'>
                             <TableOfContents />
                         </div>

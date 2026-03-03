@@ -1,24 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { blogSource } from "@/lib/blog-source";
+import { getBlogPages } from "@/lib/blog";
 import { formatDate, parseDate } from "@/lib/utils";
-
-interface BlogData {
-  title: string;
-  description: string;
-  date: string;
-  tags?: string[];
-  featured?: boolean;
-  readTime?: string;
-  author?: string;
-  authorImage?: string;
-  thumbnail?: string;
-}
-
-interface BlogPage {
-  url: string;
-  data: BlogData;
-}
 
 interface ReadMoreSectionProps {
   currentSlug: string[];
@@ -29,7 +12,7 @@ export function ReadMoreSection({
   currentSlug,
   currentTags = [],
 }: ReadMoreSectionProps) {
-  const allPages = blogSource.getPages() as BlogPage[];
+  const allPages = getBlogPages();
 
   const currentUrl = `/blog/${currentSlug.join("/")}`;
 
@@ -80,6 +63,7 @@ export function ReadMoreSection({
                         src={post.data.thumbnail}
                         alt={post.data.title}
                         fill
+                        style={{ objectFit: "cover" }}
                         sizes="(max-width: 1024px) 100vw, 33vw"
                         className="object-cover transition-opacity dark:brightness-[0.86] dark:contrast-110 dark:saturate-90 group-hover:opacity-80"
                       />

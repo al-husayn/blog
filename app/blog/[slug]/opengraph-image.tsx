@@ -1,9 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from 'next/og';
-import { docs, meta } from '@/.source';
-import { loader } from 'fumadocs-core/source';
-import { createMDXSource } from 'fumadocs-mdx';
-import { getAuthor, isValidAuthor, type AuthorKey } from '@/lib/authors';
+import { getAuthor, isValidAuthor } from '@/lib/authors';
+import { type BlogPage } from '@/lib/blog';
+import { blogSource } from '@/lib/blog-source';
 import { siteConfig } from '@/lib/site';
 import { formatDate } from '@/lib/utils';
 
@@ -14,11 +13,6 @@ export const size = {
   height: 630,
 };
 export const contentType = 'image/png';
-
-const blogSource = loader({
-  baseUrl: '/blog',
-  source: createMDXSource(docs, meta),
-});
 
 const getAssetData = async (authorAvatar?: string) => {
   try {
@@ -170,16 +164,16 @@ const styles = {
 
 export default async function Image({ params }: { params: { slug: string } }) {
   try {
-    const page = await blogSource.getPage([params.slug]);
+    const page = blogSource.getPage([params.slug]) as BlogPage | undefined;
 
     if (!page) {
       return new Response('Blog post not found', { status: 404 });
     }
 
-    const authorKey = page.data.author as string;
+    const authorKey = page.data.author;
     const authorDetails =
       authorKey && isValidAuthor(authorKey)
-        ? getAuthor(authorKey as AuthorKey)
+        ? getAuthor(authorKey)
         : null;
 
     const assetData = await getAssetData(authorDetails?.avatar);

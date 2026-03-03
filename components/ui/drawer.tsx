@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, createContext, useContext } from "react";
+import React, { useState, useEffect, createContext, useContext, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
@@ -30,14 +30,15 @@ export function Drawer({ children }: DrawerProps) {
     const pathname = usePathname();
 
     useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = "hidden";
-        } else {
-            document.body.style.overflow = "unset";
+        if (!isOpen) {
+            return;
         }
 
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+
         return () => {
-            document.body.style.overflow = "unset";
+            document.body.style.overflow = previousOverflow;
         };
     }, [isOpen]);
 
@@ -61,6 +62,7 @@ export function DrawerTrigger({ children, className, onClick, ...props }: Drawer
 
     return (
         <button
+            type="button"
             onClick={(event) => {
                 onClick?.(event);
                 if (!event.defaultPrevented) {
@@ -83,6 +85,26 @@ interface DrawerContentProps {
 
 export function DrawerContent({ children, className, onClick }: DrawerContentProps) {
     const { isOpen, setIsOpen } = useDrawer();
+    const contentRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!isOpen) {
+            return;
+        }
+
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setIsOpen(false);
+            }
+        };
+
+        document.addEventListener("keydown", onKeyDown);
+        contentRef.current?.focus();
+
+        return () => {
+            document.removeEventListener("keydown", onKeyDown);
+        };
+    }, [isOpen, setIsOpen]);
 
     return (
         <AnimatePresence mode="wait">
@@ -94,10 +116,12 @@ export function DrawerContent({ children, className, onClick }: DrawerContentPro
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2, ease: "easeOut" }}
                         className="fixed inset-0 bg-black/50 z-50"
+                        aria-hidden="true"
                         onClick={() => setIsOpen(false)}
                     />
 
                     <motion.div
+                        ref={contentRef}
                         initial={{ y: "100%", opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: "100%", opacity: 0 }}
@@ -105,6 +129,9 @@ export function DrawerContent({ children, className, onClick }: DrawerContentPro
                             duration: 0.25,
                             ease: [0.16, 1, 0.3, 1]
                         }}
+                        role="dialog"
+                        aria-modal="true"
+                        tabIndex={-1}
                         onClick={(event) => {
                             onClick?.(event);
                             if (event.defaultPrevented) {
@@ -143,10 +170,12 @@ export function DrawerHeader({ children, className, showCloseButton = true }: Dr
             <div className="flex-1">{children}</div>
             {showCloseButton && (
                 <motion.button
+                    type="button"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setIsOpen(false)}
-                    className="text-muted-foreground hover:text-foreground transition-colors ml-4"
+                    aria-label="Close drawer"
+                    className="ml-4 rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                     <X size={20} />
                 </motion.button>
