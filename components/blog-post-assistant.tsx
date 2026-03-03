@@ -28,6 +28,8 @@ const STARTER_PROMPTS = [
   "Explain the toughest concept in plain English.",
   "What mistakes should I avoid based on this article?",
 ];
+const HISTORY_ITEMS_TO_SEND = 8;
+const MAX_HISTORY_CONTENT_CHARS = 1800;
 
 const toMessageId = (): string => {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -49,9 +51,9 @@ export function BlogPostAssistant({ slug, title }: BlogPostAssistantProps) {
   }, [title]);
 
   const recentHistory = useMemo(() => {
-    return messages.slice(-8).map((message) => ({
+    return messages.slice(-HISTORY_ITEMS_TO_SEND).map((message) => ({
       role: message.role,
-      content: message.content,
+      content: message.content.slice(0, MAX_HISTORY_CONTENT_CHARS),
     }));
   }, [messages]);
 

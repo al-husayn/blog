@@ -31,6 +31,7 @@ interface CloudChatCompletionResponse {
 
 const BLOG_PATH_PREFIX = "/blog/";
 const MAX_HISTORY_MESSAGES = 8;
+const MAX_HISTORY_ITEM_CHARS = 4000;
 const MAX_ARTICLE_CONTEXT_CHARS = 16000;
 
 // Defaults target an open-source cloud model via OpenRouter.
@@ -51,10 +52,10 @@ const requestSchema = z.object({
     .array(
       z.object({
         role: z.enum(["user", "assistant"]),
-        content: z.string().trim().min(1).max(2000),
+        content: z.string().trim().min(1).max(12000),
       })
     )
-    .max(MAX_HISTORY_MESSAGES)
+    .max(40)
     .optional(),
 });
 
@@ -216,11 +217,24 @@ export async function POST(request: Request): Promise<Response> {
   const rawBody = await request.json().catch(() => null);
   const parsedInput = requestSchema.safeParse(rawBody);
   if (!parsedInput.success) {
-    return NextResponse.json({ error: "Invalid request payload." }, { status: 400 });
+    const issue = parsedInput.error.issues[0];
+    const path = issue?.path?.length ? ` (${issue.path.join(".")})` : "";
+    const message = issue?.message || "Malformed request body.";
+
+    return NextResponse.json(
+      { error: `Invalid request payload${path}. ${message}` },
+      { status: 400 }
+    );
   }
 
   const { slug, message, userName } = parsedInput.data;
-  const history = (parsedInput.data.history ?? []).slice(-MAX_HISTORY_MESSAGES);
+  const history = (parsedInput.data.history ?? [])
+    .slice(-MAX_HISTORY_MESSAGES)
+    .map((item) => ({
+      role: item.role,
+      content: item.content.slice(0, MAX_HISTORY_ITEM_CHARS).trim(),
+    }))
+    .filter((item) => item.content.length > 0);
   const article = await getArticleContext(slug);
 
   if (!article) {
