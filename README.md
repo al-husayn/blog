@@ -48,6 +48,35 @@ AI_MODEL=openrouter/free
 You can swap to any OpenAI-compatible cloud endpoint and open-source model by changing `AI_API_BASE_URL` and `AI_MODEL`.  
 If a specific free model route is temporarily unavailable, keep `AI_MODEL=openrouter/free` for automatic free-endpoint routing.
 
+## 💰 Ads Setup (Placeholders + AdSense)
+
+Ad units are embedded in:
+- Home top (`home-top`)
+- Home bottom (`home-bottom`)
+- Article inline (`article-inline`)
+- Article sidebar (`article-sidebar`)
+
+Use placeholders during development:
+
+```bash
+NEXT_PUBLIC_ENABLE_AD_PLACEHOLDERS=true
+NEXT_PUBLIC_ENABLE_ADSENSE=false
+```
+
+Enable AdSense in production:
+
+```bash
+NEXT_PUBLIC_ENABLE_AD_PLACEHOLDERS=true
+NEXT_PUBLIC_ENABLE_ADSENSE=true
+NEXT_PUBLIC_ADSENSE_CLIENT_ID=ca-pub-xxxxxxxxxxxxxxxx
+NEXT_PUBLIC_ADSENSE_SLOT_HOME_TOP=1234567890
+NEXT_PUBLIC_ADSENSE_SLOT_HOME_BOTTOM=2345678901
+NEXT_PUBLIC_ADSENSE_SLOT_ARTICLE_INLINE=3456789012
+NEXT_PUBLIC_ADSENSE_SLOT_ARTICLE_SIDEBAR=4567890123
+```
+
+When AdSense is enabled but a slot id is missing, the UI falls back to the placeholder (if placeholders are enabled).
+
 ## ✍️ Adding Blog Posts
 
 Create a new MDX file in `blog/content/` with format `your-post-title.mdx`:

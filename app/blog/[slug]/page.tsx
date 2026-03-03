@@ -10,6 +10,7 @@ import { MobileTableOfContents } from '@/components/mobile-toc';
 import { AuthorCard } from '@/components/author-card';
 import { ReadMoreSection } from '@/components/read-more-section';
 import { PromoContent } from '@/components/promo-content';
+import { AdUnit } from '@/components/ad-unit';
 import { getAuthor, isValidAuthor } from '@/lib/authors';
 import { blogSource } from '@/lib/blog-source';
 import { FlickeringGrid } from '@/components/magicui/flickering-grid';
@@ -223,6 +224,9 @@ export default async function BlogPost({ params }: PageProps) {
                             </DocsBody>
                         </article>
                     </div>
+                    <div className='px-6 lg:px-10 pb-2'>
+                        <AdUnit placement='article-inline' />
+                    </div>
                     <DeferredBlogPostAssistant slug={slug} title={page.data.title} />
                     <DeferredArticleEngagement slug={slug} />
                     <div className='mt-10'>
@@ -238,6 +242,7 @@ export default async function BlogPost({ params }: PageProps) {
                         <div className='border border-border rounded-lg p-6 bg-card'>
                             <TableOfContents />
                         </div>
+                        <AdUnit placement='article-sidebar' />
                         <PromoContent variant='desktop' />
                     </div>
                 </aside>

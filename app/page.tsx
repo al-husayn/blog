@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { BlogCard } from '@/components/blog-card';
 import { TagFilter } from '@/components/tag-filter';
 import { FlickeringGrid } from '@/components/magicui/flickering-grid';
+import { AdUnit } from '@/components/ad-unit';
 import { getAuthor, isValidAuthor } from '@/lib/authors';
 import { blogSource } from '@/lib/blog-source';
 import { getAbsoluteUrl, getIsoDate, toJsonLd } from '@/lib/seo';
@@ -440,6 +441,10 @@ export default async function HomePage({
                 </section>
             )}
 
+            <section className='max-w-7xl mx-auto w-full px-6 lg:px-0 pb-8' aria-label='Advertisement'>
+                <AdUnit placement='home-top' />
+            </section>
+
             <section aria-labelledby='latest-articles-heading' className='max-w-7xl mx-auto w-full px-6 lg:px-0'>
                 <h2 id='latest-articles-heading' className='sr-only'>
                     Latest articles
@@ -523,6 +528,10 @@ export default async function HomePage({
                         </Link>
                     </nav>
                 )}
+            </section>
+
+            <section className='max-w-7xl mx-auto w-full px-6 lg:px-0 py-8' aria-label='Advertisement'>
+                <AdUnit placement='home-bottom' className='max-w-md' />
             </section>
 
             {newsletterCtaUrl && (

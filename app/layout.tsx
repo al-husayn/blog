@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -7,6 +8,7 @@ import { metadataKeywords } from '@/app/metadata';
 import { SiteNav } from '@/components/site-nav';
 import Footer from '@/components/footer';
 import { getAbsoluteUrl, toJsonLd } from '@/lib/seo';
+import { getAdsRuntimeConfig } from '@/lib/ads';
 import '@/app/globals.css';
 
 export const viewport: Viewport = {
@@ -130,12 +132,25 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const adsRuntimeConfig = getAdsRuntimeConfig();
+    const shouldLoadAdsenseScript =
+        adsRuntimeConfig.adsenseEnabled && adsRuntimeConfig.adsenseClientId.length > 0;
+
     return (
         <html
             lang='en'
             className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}
             suppressHydrationWarning>
             <body>
+                {shouldLoadAdsenseScript && (
+                    <Script
+                        id='adsense-script'
+                        async
+                        strategy='afterInteractive'
+                        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsRuntimeConfig.adsenseClientId}`}
+                        crossOrigin='anonymous'
+                    />
+                )}
                 <script
                     type='application/ld+json'
                     dangerouslySetInnerHTML={{
