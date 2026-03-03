@@ -40,12 +40,13 @@ The blog includes an embedded assistant on each post page. It is grounded in the
 ```bash
 AI_API_BASE_URL=https://openrouter.ai/api/v1
 AI_API_KEY=your_cloud_api_key_here
-AI_MODEL=deepseek/deepseek-r1:free
+AI_MODEL=openrouter/free
 ```
 
 3. Restart the dev server after updating env values.
 
-You can swap to any OpenAI-compatible cloud endpoint and open-source model by changing `AI_API_BASE_URL` and `AI_MODEL`.
+You can swap to any OpenAI-compatible cloud endpoint and open-source model by changing `AI_API_BASE_URL` and `AI_MODEL`.  
+If a specific free model route is temporarily unavailable, keep `AI_MODEL=openrouter/free` for automatic free-endpoint routing.
 
 ## ✍️ Adding Blog Posts
 
