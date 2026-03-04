@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { ExternalLink } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { MenuIcon } from '@/components/menu';
 import { Drawer, DrawerBody, DrawerContent, DrawerHeader, DrawerTrigger } from '@/components/ui/drawer';

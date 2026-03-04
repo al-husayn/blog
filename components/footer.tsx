@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
-import { BriefcaseBusiness, ExternalLink, Github, Linkedin, Twitter } from 'lucide-react';
+import { BriefcaseBusiness, Github, Linkedin, Twitter } from 'lucide-react';
 import { siteConfig } from '@/lib/site';
 
 interface FooterSocialLink {
@@ -60,7 +60,6 @@ export default function Footer() {
                   className={`inline-flex items-center gap-1.5 ${linkClass}`}>
                   <link.icon className='h-3.5 w-3.5' aria-hidden='true' />
                   <span>{link.label}</span>
-                  {/* <ExternalLink className='h-3.5 w-3.5' aria-hidden='true' /> */}
                   <span className='sr-only'>(opens in a new tab)</span>
                 </a>
               ))}
