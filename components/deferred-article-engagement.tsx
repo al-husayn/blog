@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
+import type { DeferredArticleEngagementProps } from "@/types/components/deferred";
 
 const ArticleEngagement = dynamic(
   () =>
@@ -10,10 +11,6 @@ const ArticleEngagement = dynamic(
     ),
   { ssr: false },
 );
-
-interface DeferredArticleEngagementProps {
-  slug: string;
-}
 
 export function DeferredArticleEngagement({
   slug,

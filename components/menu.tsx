@@ -2,18 +2,10 @@
 
 import { cn } from '@/lib/utils';
 import { Menu as MenuLucide } from 'lucide-react';
-import type { HTMLMotionProps, Variants } from 'motion/react';
+import type { Variants } from 'motion/react';
 import { motion, useAnimation, useReducedMotion } from 'motion/react';
 import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
-
-export interface MenuIconHandle {
-    startAnimation: () => void;
-    stopAnimation: () => void;
-}
-
-interface MenuIconProps extends HTMLMotionProps<'div'> {
-    size?: number;
-}
+import type { MenuIconHandle, MenuIconProps } from '@/types/components/menu';
 
 const MenuIcon = forwardRef<MenuIconHandle, MenuIconProps>(
     ({ onMouseEnter, onMouseLeave, className, size = 28, ...props }, ref) => {

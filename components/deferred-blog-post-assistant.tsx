@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
+import type { DeferredBlogPostAssistantProps } from "@/types/components/deferred";
 
 const BlogPostAssistant = dynamic(
   () =>
@@ -10,11 +11,6 @@ const BlogPostAssistant = dynamic(
     ),
   { ssr: false }
 );
-
-interface DeferredBlogPostAssistantProps {
-  slug: string;
-  title: string;
-}
 
 export function DeferredBlogPostAssistant({
   slug,

@@ -2,28 +2,11 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getBlogPages, getBlogSlugs, sortBlogPagesByDateDesc, type BlogPage } from '@/lib/blog';
+import { getBlogPages, getBlogSlugs, sortBlogPagesByDateDesc } from '@/lib/blog';
 import { blogSource } from '@/lib/blog-source';
 import { siteConfig } from '@/lib/site';
-
-interface CloudChatCompletionResponse {
-    choices?: Array<{
-        message?: {
-            role?: string;
-            content?: string | Array<{ type?: string; text?: string }>;
-        };
-    }>;
-    error?: {
-        message?: string;
-    };
-}
-
-interface ArticleContext {
-    title: string;
-    description: string;
-    tags: string[];
-    body: string;
-}
+import type { ArticleContext, CloudChatCompletionResponse } from '@/types/api/blog-assistant';
+import type { BlogPage } from '@/types/blog';
 
 const MAX_HISTORY_MESSAGES = 8;
 const MAX_HISTORY_ITEM_CHARS = 4000;

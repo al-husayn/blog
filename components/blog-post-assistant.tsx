@@ -4,24 +4,11 @@ import { FormEvent, useMemo, useState } from "react";
 import { Bot, Loader2, Send, Sparkles, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-type AssistantRole = "user" | "assistant";
-
-interface ChatMessage {
-  id: string;
-  role: AssistantRole;
-  content: string;
-}
-
-interface BlogPostAssistantProps {
-  slug: string;
-  title: string;
-}
-
-interface AssistantResponse {
-  answer?: string;
-  error?: string;
-}
+import type {
+  AssistantResponse,
+  BlogPostAssistantProps,
+  ChatMessage,
+} from "@/types/components/blog-post-assistant";
 
 const STARTER_PROMPTS = [
   "Can you summarize the key takeaways from this post?",

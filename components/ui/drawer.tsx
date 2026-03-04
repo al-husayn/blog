@@ -5,11 +5,15 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface DrawerContextType {
-    isOpen: boolean;
-    setIsOpen: (open: boolean) => void;
-}
+import type {
+    DrawerBodyProps,
+    DrawerContentProps,
+    DrawerContextType,
+    DrawerFooterProps,
+    DrawerHeaderProps,
+    DrawerProps,
+    DrawerTriggerProps,
+} from "@/types/components/drawer";
 
 const DrawerContext = createContext<DrawerContextType | undefined>(undefined);
 
@@ -20,10 +24,6 @@ const useDrawer = () => {
     }
     return context;
 };
-
-interface DrawerProps {
-    children: React.ReactNode;
-}
 
 export function Drawer({ children }: DrawerProps) {
     const [isOpen, setIsOpen] = useState(false);
@@ -53,10 +53,6 @@ export function Drawer({ children }: DrawerProps) {
     );
 }
 
-interface DrawerTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    children: React.ReactNode;
-}
-
 export function DrawerTrigger({ children, className, onClick, ...props }: DrawerTriggerProps) {
     const { setIsOpen } = useDrawer();
 
@@ -75,12 +71,6 @@ export function DrawerTrigger({ children, className, onClick, ...props }: Drawer
             {children}
         </button>
     );
-}
-
-interface DrawerContentProps {
-    children: React.ReactNode;
-    className?: string;
-    onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
 
 export function DrawerContent({ children, className, onClick }: DrawerContentProps) {
@@ -156,12 +146,6 @@ export function DrawerContent({ children, className, onClick }: DrawerContentPro
     );
 }
 
-interface DrawerHeaderProps {
-    children: React.ReactNode;
-    className?: string;
-    showCloseButton?: boolean;
-}
-
 export function DrawerHeader({ children, className, showCloseButton = true }: DrawerHeaderProps) {
     const { setIsOpen } = useDrawer();
 
@@ -184,22 +168,12 @@ export function DrawerHeader({ children, className, showCloseButton = true }: Dr
     );
 }
 
-interface DrawerBodyProps {
-    children: React.ReactNode;
-    className?: string;
-}
-
 export function DrawerBody({ children, className }: DrawerBodyProps) {
     return (
         <div className={cn("p-4 overflow-y-auto flex-1", className)}>
             {children}
         </div>
     );
-}
-
-interface DrawerFooterProps {
-    children: React.ReactNode;
-    className?: string;
 }
 
 export function DrawerFooter({ children, className }: DrawerFooterProps) {

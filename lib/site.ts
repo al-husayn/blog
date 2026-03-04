@@ -1,4 +1,6 @@
-export const siteConfig = {
+import type { SiteConfig } from '@/types/site';
+
+export const siteConfig: SiteConfig = {
     name: 'Learn. Build. Share',
     shortName: 'Learn Build Share',
     url: 'https://blog.al-husayn.dev',
@@ -14,5 +16,3 @@ export const siteConfig = {
     logo: '/logo.png',
     ogImage: '/opengraph-image',
 };
-
-export type SiteConfig = typeof siteConfig;

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import type { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 import { HashScrollHandler } from '@/components/hash-scroll-handler';
 import { FlickeringGrid } from '@/components/magicui/flickering-grid';
@@ -17,6 +16,8 @@ import {
 import { siteConfig } from '@/lib/site';
 import { getAbsoluteUrl } from '@/lib/seo';
 import { blogSource } from '@/lib/blog-source';
+import type { BlogPage } from '@/types/blog';
+import type { ConnectLink } from '@/types/social';
 import { formatDate, parseDate } from '@/lib/utils';
 
 export const metadata: Metadata = {
@@ -43,27 +44,6 @@ export const metadata: Metadata = {
     images: [getAbsoluteUrl('/authors/AL.png')],
   },
 };
-
-interface BlogData {
-  title: string;
-  description: string;
-  date: string;
-  tags?: string[];
-  readTime?: string;
-}
-
-interface BlogPage {
-  url: string;
-  data: BlogData;
-}
-
-interface ConnectLink {
-  label: string;
-  href: string;
-  description: string;
-  icon: LucideIcon;
-  external?: boolean;
-}
 
 const connectLinks: ConnectLink[] = [
   {

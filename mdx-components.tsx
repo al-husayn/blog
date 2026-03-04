@@ -43,8 +43,17 @@ import {
   Table2,
 } from "lucide-react";
 import { AuthorCard } from "@/components/author-card";
-import { getAuthor, type AuthorKey } from "@/lib/authors";
+import { getAuthor } from "@/lib/authors";
 import { CopyHeader } from "@/components/copy-header";
+import type {
+  AuthorProps,
+  CardGroupProps,
+  MdxCardProps,
+  MdxPreProps,
+  StepProps,
+  TabProps,
+  TabsProps,
+} from "@/types/mdx";
 
 const createHeading = (level: number) => {
   const Heading = ({
@@ -58,38 +67,9 @@ const createHeading = (level: number) => {
   return Heading;
 };
 
-interface AuthorProps {
-  id: AuthorKey;
-}
-
 function Author({ id }: AuthorProps) {
   const author = getAuthor(id);
   return <AuthorCard author={author} className="my-8" />;
-}
-
-interface TabsProps extends React.ComponentProps<typeof FumaTabs> {
-  children?: React.ReactNode;
-}
-
-interface TabProps extends React.ComponentProps<typeof FumaTab> {
-  title?: string;
-}
-
-interface CardGroupProps extends React.ComponentProps<typeof FumaCards> {
-  cols?: number;
-}
-
-interface StepProps {
-  title?: React.ReactNode;
-  children?: React.ReactNode;
-}
-
-interface MdxCardProps extends React.ComponentProps<typeof FumaCard> {
-  icon?: React.ReactNode | string;
-}
-
-interface MdxPreProps extends React.ComponentProps<"pre"> {
-  icon?: React.ReactNode | string;
 }
 
 const CARD_ICON_MAP: Record<string, LucideIcon> = {

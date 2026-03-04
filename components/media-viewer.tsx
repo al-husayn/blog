@@ -1,15 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-
-interface MediaViewerProps {
-  src: string;
-  alt?: string;
-  type?: "image" | "video";
-  className?: string;
-  width?: number;
-  height?: number;
-}
+import type { MediaViewerProps } from "@/types/components/media-viewer";
 
 export function MediaViewer({
   src,

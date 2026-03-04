@@ -6,16 +6,12 @@ import { BlogCard } from '@/components/blog-card';
 import { TagFilter } from '@/components/tag-filter';
 import { FlickeringGrid } from '@/components/magicui/flickering-grid';
 import { getAuthor, isValidAuthor } from '@/lib/authors';
-import { getBlogPages, sortBlogPagesByDateDesc, type BlogPage } from '@/lib/blog';
+import { getBlogPages, sortBlogPagesByDateDesc } from '@/lib/blog';
 import { getAbsoluteUrl, getIsoDate, toJsonLd } from '@/lib/seo';
 import { siteConfig } from '@/lib/site';
+import type { BlogPage } from '@/types/blog';
+import type { HomePageRouteProps, HomeSearchParams } from '@/types/pages/home';
 import { formatDate } from '@/lib/utils';
-
-interface HomeSearchParams {
-    tag?: string;
-    q?: string;
-    page?: string;
-}
 
 const POSTS_PER_PAGE = 9;
 const ALL_TAG = 'All';
@@ -190,9 +186,7 @@ function ArticlesGridSkeleton({ count = SKELETON_CARD_COUNT }: { count?: number 
 
 export async function generateMetadata({
     searchParams,
-}: {
-    searchParams: Promise<HomeSearchParams>;
-}): Promise<Metadata> {
+}: HomePageRouteProps): Promise<Metadata> {
     const resolvedSearchParams = await searchParams;
     const selectedTag = getTagFilter(resolvedSearchParams.tag);
     const searchQuery = getSearchQuery(resolvedSearchParams.q);
@@ -259,9 +253,7 @@ export const revalidate = 3600;
 
 export default async function HomePage({
     searchParams,
-}: {
-    searchParams: Promise<HomeSearchParams>;
-}) {
+}: HomePageRouteProps) {
     const resolvedSearchParams = await searchParams;
     const sortedBlogs = sortBlogPagesByDateDesc(getBlogPages());
     const { allTags, tagCounts } = collectTagMetadata(sortedBlogs);

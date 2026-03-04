@@ -1,10 +1,6 @@
-export interface Author {
-  name: string;
-  position: string;
-  avatar: string;
-}
+import type { Author, AuthorKey } from '@/types/authors';
 
-export const authors: Record<string, Author> = {
+export const authors: Record<AuthorKey, Author> = {
   al: {
     name: "Al-Hussein",
     position: "Software Engineer",
@@ -21,8 +17,6 @@ export const authors: Record<string, Author> = {
     avatar: "/authors/Hamdan.jpeg",
   },
 } as const;
-
-export type AuthorKey = keyof typeof authors;
 
 export function getAuthor(key: AuthorKey): Author {
   return authors[key];

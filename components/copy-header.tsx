@@ -3,11 +3,7 @@
 import React from "react";
 import { Link } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface CopyHeaderProps extends React.HTMLAttributes<HTMLHeadingElement> {
-    level: number;
-    children: React.ReactNode;
-}
+import type { CopyHeaderProps } from "@/types/components/copy-header";
 
 function generateSlug(text: string): string {
     return text

@@ -4,30 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import { ChevronUp, MessageSquare, ThumbsDown, ThumbsUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-type Reaction = "like" | "dislike";
-
-interface CommentItem {
-  id: string;
-  author: string;
-  message: string;
-  createdAt: string;
-  upvotes: number;
-}
-
-interface EngagementState {
-  likes: number;
-  dislikes: number;
-  articleUpvotes: number;
-  userReaction: Reaction | null;
-  userUpvotedArticle: boolean;
-  comments: CommentItem[];
-  upvotedCommentIds: string[];
-}
-
-interface ArticleEngagementProps {
-  slug: string;
-}
+import type {
+  ArticleEngagementProps,
+  CommentItem,
+  EngagementState,
+  Reaction,
+} from "@/types/components/article-engagement";
 
 const createInitialState = (): EngagementState => ({
   likes: 0,
