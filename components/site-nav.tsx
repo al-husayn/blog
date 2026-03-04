@@ -71,7 +71,6 @@ export function SiteNav() {
             target='_blank'
             rel='noopener noreferrer'>
             <span>Portfolio</span>
-            <ExternalLink className='ml-1 h-3.5 w-3.5' aria-hidden='true' />
           </a>
           <ThemeToggle />
         </nav>
@@ -115,7 +114,6 @@ export function SiteNav() {
                   target='_blank'
                   rel='noopener noreferrer'>
                   <span>Portfolio</span>
-                  <ExternalLink className='ml-1 h-3.5 w-3.5' aria-hidden='true' />
                 </a>
                 <div className='mt-3 flex items-center justify-between rounded-md border border-border bg-card px-3 py-2'>
                   <span className='text-sm text-muted-foreground'>Theme</span>

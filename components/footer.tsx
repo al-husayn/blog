@@ -1,6 +1,13 @@
 import Link from 'next/link';
-import { ExternalLink } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { BriefcaseBusiness, ExternalLink, Github, Linkedin, Twitter } from 'lucide-react';
 import { siteConfig } from '@/lib/site';
+
+interface FooterSocialLink {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+}
 
 const footerLinks = {
   navigate: [
@@ -9,11 +16,11 @@ const footerLinks = {
     { label: 'RSS Feed', href: '/rss.xml' },
   ],
   social: [
-    { label: 'Portfolio', href: siteConfig.creatorUrl },
-    { label: 'Twitter', href: `https://x.com/${siteConfig.twitterHandle.replace('@', '')}` },
-    { label: 'LinkedIn', href: siteConfig.linkedinUrl },
-    { label: 'GitHub', href: siteConfig.githubUrl },
-  ],
+    { label: 'Portfolio', href: siteConfig.creatorUrl, icon: BriefcaseBusiness },
+    { label: 'Twitter', href: `https://x.com/${siteConfig.twitterHandle.replace('@', '')}`, icon: Twitter },
+    { label: 'LinkedIn', href: siteConfig.linkedinUrl, icon: Linkedin },
+    { label: 'GitHub', href: siteConfig.githubUrl, icon: Github },
+  ] satisfies FooterSocialLink[],
 } as const;
 
 export default function Footer() {
@@ -51,8 +58,9 @@ export default function Footer() {
                   target='_blank'
                   rel='noopener noreferrer'
                   className={`inline-flex items-center gap-1.5 ${linkClass}`}>
+                  <link.icon className='h-3.5 w-3.5' aria-hidden='true' />
                   <span>{link.label}</span>
-                  <ExternalLink className='h-3.5 w-3.5' aria-hidden='true' />
+                  {/* <ExternalLink className='h-3.5 w-3.5' aria-hidden='true' /> */}
                   <span className='sr-only'>(opens in a new tab)</span>
                 </a>
               ))}

@@ -4,7 +4,16 @@ import Link from 'next/link';
 import { HashScrollHandler } from '@/components/hash-scroll-handler';
 import { FlickeringGrid } from '@/components/magicui/flickering-grid';
 import Image from 'next/image';
-import { ArrowRight, ArrowUpRight, Code2, Globe, Layers, Send } from 'lucide-react';
+import {
+  ArrowRight,
+  ArrowUpRight,
+  BriefcaseBusiness,
+  Code2,
+  Github,
+  Layers,
+  Linkedin,
+  Twitter,
+} from 'lucide-react';
 import { siteConfig } from '@/lib/site';
 import { getAbsoluteUrl } from '@/lib/seo';
 import { blogSource } from '@/lib/blog-source';
@@ -61,28 +70,28 @@ const connectLinks: ConnectLink[] = [
     label: 'Portfolio',
     href: siteConfig.creatorUrl,
     description: 'Projects, case studies, and ways to connect.',
-    icon: Globe,
+    icon: BriefcaseBusiness,
     external: true,
   },
   {
     label: 'Follow on X',
     href: `https://x.com/${siteConfig.twitterHandle.replace('@', '')}`,
     description: 'Quick tips, updates, and new post drops.',
-    icon: Send,
+    icon: Twitter,
     external: true,
   },
   {
     label: 'LinkedIn',
     href: siteConfig.linkedinUrl,
     description: 'Connect professionally and follow career updates.',
-    icon: Globe,
+    icon: Linkedin,
     external: true,
   },
   {
     label: 'GitHub',
     href: siteConfig.githubUrl,
     description: 'Explore source code, experiments, and open repositories.',
-    icon: Code2,
+    icon: Github,
     external: true,
   }
   
