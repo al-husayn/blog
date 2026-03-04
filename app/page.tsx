@@ -10,7 +10,7 @@ import { getBlogPages, sortBlogPagesByDateDesc } from '@/lib/blog';
 import { getAbsoluteUrl, getIsoDate, toJsonLd } from '@/lib/seo';
 import { siteConfig } from '@/lib/site';
 import type { BlogPage } from '@/types/blog';
-import type { HomePageRouteProps, HomeSearchParams } from '@/types/pages/home';
+import type { HomePageRouteProps } from '@/types/pages/home';
 import { formatDate } from '@/lib/utils';
 
 const POSTS_PER_PAGE = 9;
