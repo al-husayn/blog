@@ -17,12 +17,43 @@ import {
   Accordions,
 } from "fumadocs-ui/components/accordion";
 import { Card as FumaCard, Cards as FumaCards } from "fumadocs-ui/components/card";
+import { CodeBlock as FumaCodeBlock, Pre as FumaPre } from "fumadocs-ui/components/codeblock";
 import { Callout } from "fumadocs-ui/components/callout";
 import { Step as FumaStep, Steps as FumaSteps } from "fumadocs-ui/components/steps";
 import { Tab as FumaTab, Tabs as FumaTabs } from "fumadocs-ui/components/tabs";
+import type { LucideIcon } from "lucide-react";
+import {
+  Atom,
+  BookOpen,
+  Clapperboard,
+  Clock3,
+  Cog,
+  Copy,
+  Cuboid,
+  Equal,
+  FileCode2,
+  GraduationCap,
+  Layers,
+  Lock,
+  Microchip,
+  Newspaper,
+  Repeat,
+  RotateCcw,
+  Shuffle,
+  Table2,
+} from "lucide-react";
 import { AuthorCard } from "@/components/author-card";
-import { getAuthor, type AuthorKey } from "@/lib/authors";
+import { getAuthor } from "@/lib/authors";
 import { CopyHeader } from "@/components/copy-header";
+import type {
+  AuthorProps,
+  CardGroupProps,
+  MdxCardProps,
+  MdxPreProps,
+  StepProps,
+  TabProps,
+  TabsProps,
+} from "@/types/mdx";
 
 const createHeading = (level: number) => {
   const Heading = ({
@@ -36,31 +67,30 @@ const createHeading = (level: number) => {
   return Heading;
 };
 
-interface AuthorProps {
-  id: AuthorKey;
-}
-
 function Author({ id }: AuthorProps) {
   const author = getAuthor(id);
   return <AuthorCard author={author} className="my-8" />;
 }
 
-interface TabsProps extends React.ComponentProps<typeof FumaTabs> {
-  children?: React.ReactNode;
-}
-
-interface TabProps extends React.ComponentProps<typeof FumaTab> {
-  title?: string;
-}
-
-interface CardGroupProps extends React.ComponentProps<typeof FumaCards> {
-  cols?: number;
-}
-
-interface StepProps {
-  title?: React.ReactNode;
-  children?: React.ReactNode;
-}
+const CARD_ICON_MAP: Record<string, LucideIcon> = {
+  atom: Atom,
+  book: BookOpen,
+  clock: Clock3,
+  clone: Copy,
+  cube: Cuboid,
+  equals: Equal,
+  gear: Cog,
+  "graduation-cap": GraduationCap,
+  "layer-group": Layers,
+  lock: Lock,
+  microchip: Microchip,
+  newspaper: Newspaper,
+  repeat: Repeat,
+  rotate: RotateCcw,
+  shuffle: Shuffle,
+  table: Table2,
+  video: Clapperboard,
+};
 
 function Tabs({ children, items, ...props }: TabsProps) {
   const resolvedItems =
@@ -86,8 +116,27 @@ function Tab({ title, value, ...props }: TabProps) {
   return <FumaTab value={value ?? title} {...props} />;
 }
 
-function Card(props: React.ComponentProps<typeof FumaCard>) {
-  return <FumaCard {...props} />;
+function resolveCardIcon(icon: MdxCardProps["icon"]): React.ReactNode {
+  if (typeof icon !== "string") {
+    return icon;
+  }
+
+  const Icon = CARD_ICON_MAP[icon] ?? FileCode2;
+  return <Icon aria-hidden="true" />;
+}
+
+function Card({ icon, ...props }: MdxCardProps) {
+  return <FumaCard icon={resolveCardIcon(icon)} {...props} />;
+}
+
+function MdxPre({ icon, children, ...props }: MdxPreProps) {
+  const resolvedIcon = typeof icon === "string" ? <FileCode2 aria-hidden="true" /> : icon;
+
+  return (
+    <FumaCodeBlock icon={resolvedIcon} {...props}>
+      <FumaPre>{children}</FumaPre>
+    </FumaCodeBlock>
+  );
 }
 
 function CardGroup({ cols = 2, className, ...props }: CardGroupProps) {
@@ -163,6 +212,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     h4: createHeading(4),
     h5: createHeading(5),
     h6: createHeading(6),
+    pre: MdxPre,
     ...components,
   };
 }

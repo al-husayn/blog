@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { siteConfig } from '@/lib/site';
 import { getAuthor, isValidAuthor } from '@/lib/authors';
-import { type BlogPage } from '@/lib/blog';
 import { getAbsoluteUrl, getIsoDate } from '@/lib/seo';
 import { blogSource } from '@/lib/blog-source';
 import { metadataKeywords } from '@/app/metadata';
+import type { BlogPage } from '@/types/blog';
 
 const getAuthorName = (authorKey?: string): string => {
     if (authorKey && isValidAuthor(authorKey)) {

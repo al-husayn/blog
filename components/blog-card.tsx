@@ -1,17 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-
-interface BlogCardProps {
-  url: string;
-  title: string;
-  description: string;
-  date: string;
-  tags?: string[];
-  authorName?: string;
-  authorAvatar?: string;
-  readTime?: string;
-  thumbnail?: string;
-}
+import type { BlogCardProps } from "@/types/components/blog-card";
 
 export function BlogCard({
   url,

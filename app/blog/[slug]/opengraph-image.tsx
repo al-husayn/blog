@@ -1,9 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from 'next/og';
 import { getAuthor, isValidAuthor } from '@/lib/authors';
-import { type BlogPage } from '@/lib/blog';
 import { blogSource } from '@/lib/blog-source';
 import { siteConfig } from '@/lib/site';
+import type { BlogPage } from '@/types/blog';
 import { formatDate } from '@/lib/utils';
 
 export const runtime = 'nodejs';

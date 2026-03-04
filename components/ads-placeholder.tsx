@@ -1,11 +1,6 @@
 import React from 'react'
 import { cn } from '@/lib/utils'
-
-interface AdsPlaceholderProps {
-    className?: string
-    size?: 'small' | 'medium' | 'large'
-    title?: string
-}
+import type { AdsPlaceholderProps } from '@/types/components/ads-placeholder'
 
 export function AdsPlaceholder({
     className,

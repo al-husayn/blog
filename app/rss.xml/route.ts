@@ -1,21 +1,9 @@
 import { docs, meta } from '@/.source';
 import { getAuthor, isValidAuthor } from '@/lib/authors';
 import { siteConfig } from '@/lib/site';
+import type { BlogPage } from '@/types/blog';
 import { loader } from 'fumadocs-core/source';
 import { createMDXSource } from 'fumadocs-mdx';
-
-interface BlogData {
-    title: string;
-    description: string;
-    date: string;
-    tags?: string[];
-    author?: string;
-}
-
-interface BlogPage {
-    url: string;
-    data: BlogData;
-}
 
 const blogSource = loader({
     baseUrl: '/blog',

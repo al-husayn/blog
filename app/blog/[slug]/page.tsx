@@ -11,7 +11,7 @@ import { AuthorCard } from '@/components/author-card';
 import { ReadMoreSection } from '@/components/read-more-section';
 import { PromoContent } from '@/components/promo-content';
 import { getAuthor, isValidAuthor } from '@/lib/authors';
-import { getBlogPages, getSlugFromPageUrl, type BlogData, type BlogPage } from '@/lib/blog';
+import { getBlogPages, getSlugFromPageUrl } from '@/lib/blog';
 import { blogSource } from '@/lib/blog-source';
 import { FlickeringGrid } from '@/components/magicui/flickering-grid';
 import { HashScrollHandler } from '@/components/hash-scroll-handler';
@@ -19,19 +19,10 @@ import { DeferredArticleEngagement } from '@/components/deferred-article-engagem
 import { DeferredBlogPostAssistant } from '@/components/deferred-blog-post-assistant';
 import { getAbsoluteUrl, getIsoDate, toJsonLd } from '@/lib/seo';
 import { siteConfig } from '@/lib/site';
+import type { BlogPostData, BlogPostPage, BlogPostPageProps } from '@/types/pages/blog-post';
 import { formatDate } from '@/lib/utils';
 
 export { generateMetadata } from './metadata';
-
-interface PageProps {
-    params: Promise<{ slug: string }>;
-}
-
-interface BlogPostData extends BlogData {
-    body: React.ComponentType;
-}
-
-type BlogPostPage = BlogPage<BlogPostData>;
 
 export const revalidate = 3600;
 export const dynamicParams = false;
@@ -50,7 +41,7 @@ export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
     return Array.from(uniqueSlugs).map((slug) => ({ slug }));
 }
 
-export default async function BlogPost({ params }: PageProps) {
+export default async function BlogPost({ params }: BlogPostPageProps) {
     const { slug } = await params;
 
     if (!slug || slug.length === 0) {

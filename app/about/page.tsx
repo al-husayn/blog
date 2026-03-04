@@ -1,13 +1,23 @@
 import type { Metadata } from 'next';
-import type { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 import { HashScrollHandler } from '@/components/hash-scroll-handler';
 import { FlickeringGrid } from '@/components/magicui/flickering-grid';
 import Image from 'next/image';
-import { ArrowRight, ArrowUpRight, Code2, Globe, Layers, Send } from 'lucide-react';
+import {
+  ArrowRight,
+  ArrowUpRight,
+  BriefcaseBusiness,
+  Code2,
+  Github,
+  Layers,
+  Linkedin,
+  Twitter,
+} from 'lucide-react';
 import { siteConfig } from '@/lib/site';
 import { getAbsoluteUrl } from '@/lib/seo';
 import { blogSource } from '@/lib/blog-source';
+import type { BlogPage } from '@/types/blog';
+import type { ConnectLink } from '@/types/social';
 import { formatDate, parseDate } from '@/lib/utils';
 
 export const metadata: Metadata = {
@@ -35,54 +45,33 @@ export const metadata: Metadata = {
   },
 };
 
-interface BlogData {
-  title: string;
-  description: string;
-  date: string;
-  tags?: string[];
-  readTime?: string;
-}
-
-interface BlogPage {
-  url: string;
-  data: BlogData;
-}
-
-interface ConnectLink {
-  label: string;
-  href: string;
-  description: string;
-  icon: LucideIcon;
-  external?: boolean;
-}
-
 const connectLinks: ConnectLink[] = [
   {
     label: 'Portfolio',
     href: siteConfig.creatorUrl,
     description: 'Projects, case studies, and ways to connect.',
-    icon: Globe,
+    icon: BriefcaseBusiness,
     external: true,
   },
   {
     label: 'Follow on X',
     href: `https://x.com/${siteConfig.twitterHandle.replace('@', '')}`,
     description: 'Quick tips, updates, and new post drops.',
-    icon: Send,
+    icon: Twitter,
     external: true,
   },
   {
     label: 'LinkedIn',
     href: siteConfig.linkedinUrl,
     description: 'Connect professionally and follow career updates.',
-    icon: Globe,
+    icon: Linkedin,
     external: true,
   },
   {
     label: 'GitHub',
     href: siteConfig.githubUrl,
     description: 'Explore source code, experiments, and open repositories.',
-    icon: Code2,
+    icon: Github,
     external: true,
   }
   

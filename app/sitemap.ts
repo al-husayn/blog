@@ -1,17 +1,9 @@
 import type { MetadataRoute } from 'next';
 import { docs, meta } from '@/.source';
+import type { BlogPage } from '@/types/blog';
 import { loader } from 'fumadocs-core/source';
 import { createMDXSource } from 'fumadocs-mdx';
 import { getAbsoluteUrl } from '@/lib/seo';
-
-interface BlogData {
-    date: string;
-}
-
-interface BlogPage {
-    url: string;
-    data: BlogData;
-}
 
 const blogSource = loader({
     baseUrl: '/blog',

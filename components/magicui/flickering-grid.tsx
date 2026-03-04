@@ -8,17 +8,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-
-interface FlickeringGridProps extends React.HTMLAttributes<HTMLDivElement> {
-  squareSize?: number;
-  gridGap?: number;
-  flickerChance?: number;
-  color?: string;
-  width?: number;
-  height?: number;
-  className?: string;
-  maxOpacity?: number;
-}
+import type { FlickeringGridProps } from "@/types/components/flickering-grid";
 
 const FALLBACK_GRID_COLOR = "rgb(107, 114, 128)";
 const CSS_VAR_PATTERN = /^var\((--[^,\s)]+)(?:,\s*([^)]+))?\)$/;

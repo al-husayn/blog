@@ -2,16 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-
-interface Heading {
-  id: string;
-  text: string;
-  level: number;
-}
-
-interface TableOfContentsProps {
-  className?: string;
-}
+import type { Heading, TableOfContentsProps } from "@/types/components/table-of-contents";
 
 export function TableOfContents({ className }: TableOfContentsProps) {
   const [headings, setHeadings] = useState<Heading[]>([]);

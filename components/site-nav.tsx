@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { ExternalLink } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { MenuIcon } from '@/components/menu';
 import { Drawer, DrawerBody, DrawerContent, DrawerHeader, DrawerTrigger } from '@/components/ui/drawer';
@@ -71,7 +70,6 @@ export function SiteNav() {
             target='_blank'
             rel='noopener noreferrer'>
             <span>Portfolio</span>
-            <ExternalLink className='ml-1 h-3.5 w-3.5' aria-hidden='true' />
           </a>
           <ThemeToggle />
         </nav>
@@ -115,10 +113,8 @@ export function SiteNav() {
                   target='_blank'
                   rel='noopener noreferrer'>
                   <span>Portfolio</span>
-                  <ExternalLink className='ml-1 h-3.5 w-3.5' aria-hidden='true' />
                 </a>
-                <div className='mt-3 flex items-center justify-between rounded-md border border-border bg-card px-3 py-2'>
-                  <span className='text-sm text-muted-foreground'>Theme</span>
+                <div className='mt-3 flex items-center justify-between rounded-md border borde px-3 py-2'>
                   <ThemeToggle />
                 </div>
               </nav>

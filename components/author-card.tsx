@@ -1,11 +1,6 @@
 import Image from "next/image";
-import { type Author } from "@/lib/authors";
 import { cn } from "@/lib/utils";
-
-interface AuthorCardProps {
-  author: Author;
-  className?: string;
-}
+import type { AuthorCardProps } from "@/types/components/author-card";
 
 export function AuthorCard({ author, className }: AuthorCardProps) {
   return (

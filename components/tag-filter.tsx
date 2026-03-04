@@ -9,13 +9,7 @@ import {
   DrawerHeader,
   DrawerBody,
 } from "@/components/ui/drawer";
-
-interface TagFilterProps {
-  tags: string[];
-  selectedTag: string;
-  tagCounts?: Record<string, number>;
-  panelId?: string;
-}
+import type { TagFilterProps } from "@/types/components/tag-filter";
 
 const toTagId = (tag: string): string => {
   const normalized = tag.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");

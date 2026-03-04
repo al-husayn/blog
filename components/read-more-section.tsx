@@ -2,11 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getBlogPages } from "@/lib/blog";
 import { formatDate, parseDate } from "@/lib/utils";
-
-interface ReadMoreSectionProps {
-  currentSlug: string[];
-  currentTags?: string[];
-}
+import type { ReadMoreSectionProps } from "@/types/components/read-more-section";
 
 export function ReadMoreSection({
   currentSlug,
