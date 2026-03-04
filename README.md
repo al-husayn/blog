@@ -17,7 +17,7 @@ A modern, responsive blog built with Next.js 15, Fumadocs MDX, and Tailwind CSS.
 
 ```bash
 # Clone the repository
-git clone <repo-url>
+git clone https://github.com/al-husayn/blog
 cd blog
 
 # Install dependencies
