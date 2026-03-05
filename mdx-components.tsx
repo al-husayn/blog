@@ -62,6 +62,7 @@ const BLOG_ROUTE_PREFIX = "/blog";
 const BLOG_CONTENT_DIRECTORY = path.join(process.cwd(), "blog", "content");
 const BLOG_FILE_EXTENSIONS = new Set([".mdx", ".md"]);
 const INTERNAL_CARD_ALLOWLIST = new Set(["/", "/about", "/rss.xml"]);
+const SAFE_EXTERNAL_SCHEMES = new Set(["http", "https", "mailto", "tel"]);
 
 const toNormalizedPathname = (pathname: string): string => {
   const withLeadingSlash = pathname.startsWith("/") ? pathname : `/${pathname}`;
@@ -88,8 +89,27 @@ const resolveRelativePathname = (pathname: string): string => {
   }
 };
 
-const isExternalHref = (href: string): boolean =>
-  /^([a-z][a-z\d+.-]*:)?\/\//i.test(href) || /^[a-z][a-z\d+.-]*:/i.test(href);
+const getHrefScheme = (href: string): string | null => {
+  const match = href.match(/^([a-z][a-z\d+.-]*):/i);
+  if (!match) {
+    return null;
+  }
+
+  return match[1].toLowerCase();
+};
+
+const isSafeExternalHref = (href: string): boolean => {
+  if (href.startsWith("//")) {
+    return true;
+  }
+
+  const scheme = getHrefScheme(href);
+  if (!scheme) {
+    return false;
+  }
+
+  return SAFE_EXTERNAL_SCHEMES.has(scheme);
+};
 
 const collectBlogCardTargets = (directory: string, parentSegments: string[] = []): string[] => {
   try {
@@ -135,8 +155,12 @@ const resolveCardHref = (
   }
 
   const normalizedHref = href.trim();
-  if (!normalizedHref || normalizedHref.startsWith("#") || isExternalHref(normalizedHref)) {
+  if (!normalizedHref || normalizedHref.startsWith("#") || isSafeExternalHref(normalizedHref)) {
     return { resolvedHref: normalizedHref || undefined, unavailable: false };
+  }
+
+  if (getHrefScheme(normalizedHref)) {
+    return { resolvedHref: undefined, unavailable: true };
   }
 
   const { pathname, suffix } = splitHref(normalizedHref);
