@@ -80,6 +80,14 @@ const splitHref = (href: string): { pathname: string; suffix: string } => {
   };
 };
 
+const resolveRelativePathname = (pathname: string): string => {
+  try {
+    return new URL(pathname, `https://internal${BLOG_ROUTE_PREFIX}/`).pathname;
+  } catch {
+    return "";
+  }
+};
+
 const isExternalHref = (href: string): boolean =>
   /^([a-z][a-z\d+.-]*:)?\/\//i.test(href) || /^[a-z][a-z\d+.-]*:/i.test(href);
 
@@ -132,11 +140,12 @@ const resolveCardHref = (
   }
 
   const { pathname, suffix } = splitHref(normalizedHref);
-  if (!pathname.startsWith("/")) {
-    return { resolvedHref: normalizedHref, unavailable: false };
+  const candidatePathname = pathname.startsWith("/") ? pathname : resolveRelativePathname(pathname);
+  if (!candidatePathname) {
+    return { resolvedHref: undefined, unavailable: true };
   }
 
-  const normalizedPathname = toNormalizedPathname(pathname);
+  const normalizedPathname = toNormalizedPathname(candidatePathname);
   if (INTERNAL_CARD_ALLOWLIST.has(normalizedPathname)) {
     return { resolvedHref: `${normalizedPathname}${suffix}`, unavailable: false };
   }
