@@ -34,7 +34,7 @@ export default function Footer() {
                   </div>
 
                   <div className='space-y-2'>
-                      <h3 className='text-sm font-semibold'>Navigate</h3>
+                      <h3 className='text-sm font-semibold'>Navigation</h3>
                       <nav aria-label='Footer navigation' className='flex flex-col gap-2 text-sm'>
                           {footerLinks.navigate.map((link) => (
                               <Link key={link.href} href={link.href} className={linkClass}>
@@ -45,7 +45,7 @@ export default function Footer() {
                   </div>
 
                   <div className='space-y-2'>
-                      <h3 className='text-sm font-semibold'>Social</h3>
+                      <h3 className='text-sm font-semibold'>Socials</h3>
                       <nav aria-label='Footer social links' className='flex flex-col gap-2 text-sm'>
                           {footerLinks.social.map((link) => (
                               <a
