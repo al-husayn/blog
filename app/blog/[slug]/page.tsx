@@ -11,8 +11,7 @@ import { AuthorCard } from '@/components/author-card';
 import { ReadMoreSection } from '@/components/read-more-section';
 import { PromoContent } from '@/components/promo-content';
 import { getAuthor, isValidAuthor } from '@/lib/authors';
-import { getBlogPages, getSlugFromPageUrl } from '@/lib/blog';
-import { blogSource } from '@/lib/blog-source';
+import { getBlogPage, getBlogPages, getSlugFromPageUrl } from '@/lib/blog';
 import { FlickeringGrid } from '@/components/magicui/flickering-grid';
 import { HashScrollHandler } from '@/components/hash-scroll-handler';
 import { DeferredArticleEngagement } from '@/components/deferred-article-engagement';
@@ -48,7 +47,7 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
         notFound();
     }
 
-    const page = blogSource.getPage([slug]) as BlogPostPage | undefined;
+    const page = getBlogPage<BlogPostData>(slug) as BlogPostPage | undefined;
 
     if (!page) {
         notFound();

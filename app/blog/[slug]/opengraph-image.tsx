@@ -1,10 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from 'next/og';
 import { getAuthor, isValidAuthor } from '@/lib/authors';
-import { blogSource } from '@/lib/blog-source';
 import { siteConfig } from '@/lib/site';
 import type { BlogPage } from '@/types/blog';
 import { formatDate } from '@/lib/utils';
+import { getBlogPage } from '@/lib/blog';
 
 export const runtime = 'nodejs';
 export const alt = 'Blog Post';
@@ -164,7 +164,7 @@ const styles = {
 
 export default async function Image({ params }: { params: { slug: string } }) {
   try {
-    const page = blogSource.getPage([params.slug]) as BlogPage | undefined;
+    const page = getBlogPage(params.slug) as BlogPage | undefined;
 
     if (!page) {
       return new Response('Blog post not found', { status: 404 });

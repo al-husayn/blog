@@ -15,10 +15,9 @@ import {
 } from 'lucide-react';
 import { siteConfig } from '@/lib/site';
 import { getAbsoluteUrl } from '@/lib/seo';
-import { blogSource } from '@/lib/blog-source';
-import type { BlogPage } from '@/types/blog';
 import type { ConnectLink } from '@/types/social';
 import { formatDate, parseDate } from '@/lib/utils';
+import { getBlogPages } from '@/lib/blog';
 
 export const metadata: Metadata = {
   title: 'About',
@@ -87,7 +86,7 @@ const focusAreas = [
 ];
 
 export default function AboutPage() {
-  const allPages = blogSource.getPages() as BlogPage[];
+  const allPages = getBlogPages();
   const recentPosts = [...allPages]
     .sort((a, b) => {
       const dateA = parseDate(a.data.date)?.getTime() ?? 0;
