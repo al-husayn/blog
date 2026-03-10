@@ -1,6 +1,8 @@
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { MDXComponents } from "mdx/types";
 import React from "react";
+import path from "node:path";
+import { readdirSync } from "node:fs";
 import {
   MediaViewer,
   ImageViewer,
@@ -45,6 +47,7 @@ import {
 import { AuthorCard } from "@/components/author-card";
 import { getAuthor } from "@/lib/authors";
 import { CopyHeader } from "@/components/copy-header";
+import { cn } from "@/lib/utils";
 import type {
   AuthorProps,
   CardGroupProps,
@@ -54,6 +57,138 @@ import type {
   TabProps,
   TabsProps,
 } from "@/types/mdx";
+
+const BLOG_ROUTE_PREFIX = "/blog";
+const BLOG_CONTENT_DIRECTORY = path.join(process.cwd(), "blog", "content");
+const BLOG_FILE_EXTENSIONS = new Set([".mdx", ".md"]);
+const INTERNAL_CARD_ALLOWLIST = new Set(["/", "/about", "/rss.xml"]);
+const SAFE_EXTERNAL_SCHEMES = new Set(["http", "https", "mailto", "tel"]);
+
+const toNormalizedPathname = (pathname: string): string => {
+  const withLeadingSlash = pathname.startsWith("/") ? pathname : `/${pathname}`;
+  if (withLeadingSlash === "/") {
+    return withLeadingSlash;
+  }
+
+  return withLeadingSlash.replace(/\/+$/, "");
+};
+
+const splitHref = (href: string): { pathname: string; suffix: string } => {
+  const [pathname, ...suffixParts] = href.split(/(?=[?#])/);
+  return {
+    pathname,
+    suffix: suffixParts.join(""),
+  };
+};
+
+const resolveRelativePathname = (pathname: string): string => {
+  try {
+    return new URL(pathname, `https://internal${BLOG_ROUTE_PREFIX}/`).pathname;
+  } catch {
+    return "";
+  }
+};
+
+const getHrefScheme = (href: string): string | null => {
+  const match = href.match(/^([a-z][a-z\d+.-]*):/i);
+  if (!match) {
+    return null;
+  }
+
+  return match[1].toLowerCase();
+};
+
+const isSafeExternalHref = (href: string): boolean => {
+  if (href.startsWith("//")) {
+    return true;
+  }
+
+  const scheme = getHrefScheme(href);
+  if (!scheme) {
+    return false;
+  }
+
+  return SAFE_EXTERNAL_SCHEMES.has(scheme);
+};
+
+const collectBlogCardTargets = (directory: string, parentSegments: string[] = []): string[] => {
+  try {
+    return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+      if (entry.name.startsWith(".")) {
+        return [];
+      }
+
+      if (entry.isDirectory()) {
+        return collectBlogCardTargets(path.join(directory, entry.name), [...parentSegments, entry.name]);
+      }
+
+      const extension = path.extname(entry.name).toLowerCase();
+      if (!BLOG_FILE_EXTENSIONS.has(extension)) {
+        return [];
+      }
+
+      const fileName = entry.name.slice(0, -extension.length);
+      const rawSegments = [...parentSegments, fileName];
+      const normalizedSegments =
+        rawSegments[rawSegments.length - 1] === "index" ? rawSegments.slice(0, -1) : rawSegments;
+
+      if (normalizedSegments.length === 0) {
+        return [];
+      }
+
+      return [`${BLOG_ROUTE_PREFIX}/${normalizedSegments.join("/")}`];
+    });
+  } catch {
+    return [];
+  }
+};
+
+const BLOG_CARD_TARGETS = new Set(
+  collectBlogCardTargets(BLOG_CONTENT_DIRECTORY).map((href) => toNormalizedPathname(href)),
+);
+
+const resolveCardHref = (
+  href: string | undefined,
+): { resolvedHref: string | undefined; unavailable: boolean } => {
+  if (!href) {
+    return { resolvedHref: href, unavailable: false };
+  }
+
+  const normalizedHref = href.trim();
+  if (!normalizedHref || normalizedHref.startsWith("#") || isSafeExternalHref(normalizedHref)) {
+    return { resolvedHref: normalizedHref || undefined, unavailable: false };
+  }
+
+  if (getHrefScheme(normalizedHref)) {
+    return { resolvedHref: undefined, unavailable: true };
+  }
+
+  const { pathname, suffix } = splitHref(normalizedHref);
+  const candidatePathname = pathname.startsWith("/") ? pathname : resolveRelativePathname(pathname);
+  if (!candidatePathname) {
+    return { resolvedHref: undefined, unavailable: true };
+  }
+
+  const normalizedPathname = toNormalizedPathname(candidatePathname);
+  if (INTERNAL_CARD_ALLOWLIST.has(normalizedPathname)) {
+    return { resolvedHref: `${normalizedPathname}${suffix}`, unavailable: false };
+  }
+
+  if (normalizedPathname.startsWith(`${BLOG_ROUTE_PREFIX}/`)) {
+    const isAvailable = BLOG_CARD_TARGETS.has(normalizedPathname);
+    return {
+      resolvedHref: isAvailable ? `${normalizedPathname}${suffix}` : undefined,
+      unavailable: !isAvailable,
+    };
+  }
+
+  const normalizedBlogPathname = toNormalizedPathname(`${BLOG_ROUTE_PREFIX}${normalizedPathname}`);
+  const isAvailable = BLOG_CARD_TARGETS.has(normalizedBlogPathname);
+  return {
+    resolvedHref: isAvailable ? `${normalizedBlogPathname}${suffix}` : undefined,
+    unavailable: !isAvailable,
+  };
+};
 
 const createHeading = (level: number) => {
   const Heading = ({
@@ -125,8 +260,26 @@ function resolveCardIcon(icon: MdxCardProps["icon"]): React.ReactNode {
   return <Icon aria-hidden="true" />;
 }
 
-function Card({ icon, ...props }: MdxCardProps) {
-  return <FumaCard icon={resolveCardIcon(icon)} {...props} />;
+function Card({ icon, href, className, children, ...props }: MdxCardProps) {
+  const { resolvedHref, unavailable } = resolveCardHref(href);
+
+  return (
+    <FumaCard
+      icon={resolveCardIcon(icon)}
+      href={resolvedHref}
+      aria-disabled={unavailable || undefined}
+      className={cn(
+        className,
+        unavailable ? "opacity-70 [&_h3]:text-muted-foreground [&_p]:text-muted-foreground" : undefined,
+      )}
+      {...props}
+    >
+      {children}
+      {unavailable ? (
+        <span className="mt-2 block text-xs text-muted-foreground">Content coming soon.</span>
+      ) : null}
+    </FumaCard>
+  );
 }
 
 function MdxPre({ icon, children, ...props }: MdxPreProps) {

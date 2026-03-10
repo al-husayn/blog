@@ -172,13 +172,13 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
                 <div className='absolute max-w-7xl mx-auto left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] lg:w-full h-full border-x border-border p-0 pointer-events-none' />
                 <div className='w-full p-0 overflow-hidden'>
                     {page.data.thumbnail && (
-                        <div className='relative w-full h-[500px] overflow-hidden object-cover border border-transparent'>
+                        <div className='relative w-full overflow-hidden border border-transparent bg-muted/30 aspect-video md:h-[500px] md:aspect-auto'>
                             <Image
                                 src={page.data.thumbnail}
                                 alt={page.data.title}
                                 fill
-                                style={{ objectFit: 'cover' }}
-                                className='object-cover'
+                                className='object-cover md:object-cover'
+                                sizes='100vw'
                                 priority
                             />
                         </div>
