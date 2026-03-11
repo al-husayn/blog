@@ -315,12 +315,36 @@ function Tip(props: React.ComponentProps<typeof Callout>) {
   return <Callout type="info" {...props} />;
 }
 
-function Accordion(props: React.ComponentProps<typeof FumaAccordion>) {
-  return <FumaAccordion {...props} />;
+type AccordionProps = React.ComponentProps<typeof FumaAccordion> & {
+  __withinGroup?: boolean;
+};
+
+function Accordion({ __withinGroup, ...props }: AccordionProps) {
+  if (__withinGroup) {
+    return <FumaAccordion {...props} />;
+  }
+
+  return (
+    <Accordions type="single">
+      <FumaAccordion {...props} />
+    </Accordions>
+  );
 }
 
-function AccordionGroup(props: React.ComponentProps<typeof Accordions>) {
-  return <Accordions {...props} />;
+function AccordionGroup({ children, ...props }: React.ComponentProps<typeof Accordions>) {
+  const wrappedChildren = React.Children.map(children, (child) => {
+    if (!React.isValidElement<AccordionProps>(child)) {
+      return child;
+    }
+
+    if (child.type !== Accordion) {
+      return child;
+    }
+
+    return React.cloneElement(child, { __withinGroup: true });
+  });
+
+  return <Accordions {...props}>{wrappedChildren}</Accordions>;
 }
 
 function Steps({ children }: React.ComponentProps<typeof FumaSteps>) {
