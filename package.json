@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "fumadocs-mdx && next dev --turbopack",
-    "build": "fumadocs-mdx && next build",
+    "readtime": "node scripts/generate-read-times.js",
+    "dev": "pnpm run readtime && fumadocs-mdx && next dev --turbopack",
+    "build": "pnpm run readtime && fumadocs-mdx && next build",
     "start": "next start",
     "lint": "next lint",
     "postinstall": "fumadocs-mdx"
