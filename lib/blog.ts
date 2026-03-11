@@ -1,54 +1,37 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import { blogSource } from '@/lib/blog-source';
 import type { BlogData, BlogPage } from '@/types/blog';
 import { parseDate } from '@/lib/utils';
+import readTimeMap from '@/lib/generated/read-times.json';
 
 export const BLOG_PATH_PREFIX = '/blog/';
-const WORDS_PER_MINUTE = 200;
-const BLOG_CONTENT_DIR = path.join(process.cwd(), 'blog', 'content');
-const FRONTMATTER_REGEX = /^---\r?\n[\s\S]*?\r?\n---\r?\n?/;
-
-const stripFrontmatter = (content: string): string => content.replace(FRONTMATTER_REGEX, '');
-
-const calculateReadTime = (slug: string): string | undefined => {
-    try {
-        const filePath = path.join(BLOG_CONTENT_DIR, `${slug}.mdx`);
-        if (!fs.existsSync(filePath)) {
-            return undefined;
-        }
-
-        const rawContent = fs.readFileSync(filePath, 'utf8');
-        const content = stripFrontmatter(rawContent);
-        const words = content.match(/\b[\w'-]+\b/g);
-        const wordCount = words?.length ?? 0;
-
-        if (!wordCount) {
-            return undefined;
-        }
-
-        const minutes = Math.max(1, Math.ceil(wordCount / WORDS_PER_MINUTE));
-        return `${minutes} min read`;
-    } catch {
-        return undefined;
-    }
-};
+const getComputedReadTime = (slug: string): string | undefined => (readTimeMap as Record<string, string>)[slug];
 
 const attachReadTime = <TData extends BlogData>(page: BlogPage<TData>): BlogPage<TData> => {
     const slug = getSlugFromPageUrl(page.url);
-    const computedReadTime = slug ? calculateReadTime(slug) : undefined;
+    const computedReadTime = slug ? getComputedReadTime(slug) : undefined;
 
     if (!computedReadTime) {
         return page;
     }
 
-    return {
-        ...page,
-        data: {
-            ...page.data,
-            readTime: computedReadTime,
-        },
-    };
+    try {
+        Object.defineProperty(page.data, 'readTime', {
+            value: computedReadTime,
+            writable: true,
+            configurable: true,
+            enumerable: true,
+        });
+        return page;
+    } catch {
+        const dataWithReadTime = Object.create(page.data);
+        Object.defineProperty(dataWithReadTime, 'readTime', {
+            value: computedReadTime,
+            writable: true,
+            configurable: true,
+            enumerable: true,
+        });
+        return { ...page, data: dataWithReadTime };
+    }
 };
 
 export const getSlugFromPageUrl = (url: string): string | null => {
