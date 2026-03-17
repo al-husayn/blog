@@ -14,6 +14,7 @@ const ArticleEngagement = dynamic(
 
 export function DeferredArticleEngagement({
   slug,
+  isClerkConfigured,
 }: DeferredArticleEngagementProps) {
   const [shouldLoad, setShouldLoad] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -45,7 +46,7 @@ export function DeferredArticleEngagement({
   return (
     <div ref={containerRef}>
       {shouldLoad ? (
-        <ArticleEngagement slug={slug} />
+        <ArticleEngagement slug={slug} isClerkConfigured={isClerkConfigured} />
       ) : (
           <section className="border-t border-border p-6 lg:p-10">
             <p className="text-sm text-muted-foreground">

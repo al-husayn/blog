@@ -20,6 +20,7 @@ import { getAbsoluteUrl, getIsoDate, toJsonLd } from '@/lib/seo';
 import { siteConfig } from '@/lib/site';
 import type { BlogPostData, BlogPostPage, BlogPostPageProps } from '@/types/pages/blog-post';
 import { formatDate } from '@/lib/utils';
+import { isClerkConfigured } from '@/lib/env';
 
 export { generateMetadata } from './metadata';
 
@@ -63,6 +64,7 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
         ? getAbsoluteUrl(page.data.thumbnail)
         : getAbsoluteUrl(`/blog/${slug}/opengraph-image`);
     const publishedTime = getIsoDate(page.data.date);
+    const clerkConfigured = isClerkConfigured();
 
     const blogPostingJsonLd = {
         '@context': 'https://schema.org',
@@ -191,7 +193,7 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
                         </article>
                     </div>
                     <DeferredBlogPostAssistant slug={slug} title={page.data.title} />
-                    <DeferredArticleEngagement slug={slug} />
+                    <DeferredArticleEngagement slug={slug} isClerkConfigured={clerkConfigured} />
                     <div className='mt-10'>
                         <ReadMoreSection currentSlug={[slug]} currentTags={page.data.tags} />
                     </div>

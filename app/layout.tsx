@@ -8,6 +8,7 @@ import { metadataKeywords } from '@/app/metadata';
 import { SiteNav } from '@/components/site-nav';
 import Footer from '@/components/footer';
 import { getAbsoluteUrl, toJsonLd } from '@/lib/seo';
+import { isClerkConfigured } from '@/lib/env';
 import '@/app/globals.css';
 
 export const viewport: Viewport = {
@@ -131,7 +132,7 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const shouldEnableClerk = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+    const shouldEnableClerk = isClerkConfigured();
     const appShell = (
         <>
             <script

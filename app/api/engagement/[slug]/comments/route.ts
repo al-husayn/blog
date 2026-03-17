@@ -19,7 +19,6 @@ const getAuthorName = (user: Awaited<ReturnType<typeof currentUser>>): string =>
     return (
         fullName ||
         user.username ||
-        user.primaryEmailAddress?.emailAddress ||
         'Community member'
     );
 };

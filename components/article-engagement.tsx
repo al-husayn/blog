@@ -27,8 +27,6 @@ const createInitialState = (): EngagementState => ({
     upvotedCommentIds: [],
 });
 
-const isClerkEnabled = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
-
 const getErrorMessage = (error: unknown): string =>
     error instanceof Error ? error.message : 'Something went wrong. Please try again.';
 
@@ -68,8 +66,8 @@ const parseResponse = async <T,>(response: Response): Promise<T> => {
     return payload as T;
 };
 
-export function ArticleEngagement({ slug }: ArticleEngagementProps) {
-    if (!isClerkEnabled) {
+export function ArticleEngagement({ slug, isClerkConfigured }: ArticleEngagementProps) {
+    if (!isClerkConfigured) {
         return (
             <section className='space-y-4 border-t border-border p-6 lg:p-10'>
                 <div className='space-y-1'>
@@ -87,7 +85,7 @@ export function ArticleEngagement({ slug }: ArticleEngagementProps) {
         );
     }
 
-    return <ConfiguredArticleEngagement slug={slug} />;
+    return <ConfiguredArticleEngagement slug={slug} isClerkConfigured={isClerkConfigured} />;
 }
 
 function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {

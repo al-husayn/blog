@@ -35,4 +35,5 @@ export interface CreateCommentResponse {
 
 export interface ArticleEngagementProps {
     slug: string;
+    isClerkConfigured: boolean;
 }
