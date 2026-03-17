@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { ClerkProvider } from '@clerk/nextjs';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -7,6 +8,7 @@ import { metadataKeywords } from '@/app/metadata';
 import { SiteNav } from '@/components/site-nav';
 import Footer from '@/components/footer';
 import { getAbsoluteUrl, toJsonLd } from '@/lib/seo';
+import { isClerkConfigured } from '@/lib/env';
 import '@/app/globals.css';
 
 export const viewport: Viewport = {
@@ -130,27 +132,34 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const shouldEnableClerk = isClerkConfigured();
+    const appShell = (
+        <>
+            <script
+                type='application/ld+json'
+                dangerouslySetInnerHTML={{
+                    __html: toJsonLd(globalStructuredData),
+                }}
+            />
+            <ThemeProvider
+                attribute='class'
+                defaultTheme='system'
+                enableSystem
+                disableTransitionOnChange>
+                <SiteNav />
+                {children}
+                <Footer />
+            </ThemeProvider>
+        </>
+    );
+
     return (
         <html
             lang='en'
             className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}
             suppressHydrationWarning>
             <body>
-                <script
-                    type='application/ld+json'
-                    dangerouslySetInnerHTML={{
-                        __html: toJsonLd(globalStructuredData),
-                    }}
-                />
-                <ThemeProvider
-                    attribute='class'
-                    defaultTheme='system'
-                    enableSystem
-                    disableTransitionOnChange>
-                    <SiteNav />
-                    {children}
-                    <Footer />
-                </ThemeProvider>
+                {shouldEnableClerk ? <ClerkProvider>{appShell}</ClerkProvider> : appShell}
             </body>
         </html>
     );

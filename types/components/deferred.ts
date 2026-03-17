@@ -5,4 +5,5 @@ export interface DeferredBlogPostAssistantProps {
 
 export interface DeferredArticleEngagementProps {
   slug: string;
+  isClerkConfigured: boolean;
 }
