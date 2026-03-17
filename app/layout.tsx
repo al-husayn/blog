@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { ClerkProvider } from '@clerk/nextjs';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -130,27 +131,34 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const shouldEnableClerk = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+    const appShell = (
+        <>
+            <script
+                type='application/ld+json'
+                dangerouslySetInnerHTML={{
+                    __html: toJsonLd(globalStructuredData),
+                }}
+            />
+            <ThemeProvider
+                attribute='class'
+                defaultTheme='system'
+                enableSystem
+                disableTransitionOnChange>
+                <SiteNav />
+                {children}
+                <Footer />
+            </ThemeProvider>
+        </>
+    );
+
     return (
         <html
             lang='en'
             className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}
             suppressHydrationWarning>
             <body>
-                <script
-                    type='application/ld+json'
-                    dangerouslySetInnerHTML={{
-                        __html: toJsonLd(globalStructuredData),
-                    }}
-                />
-                <ThemeProvider
-                    attribute='class'
-                    defaultTheme='system'
-                    enableSystem
-                    disableTransitionOnChange>
-                    <SiteNav />
-                    {children}
-                    <Footer />
-                </ThemeProvider>
+                {shouldEnableClerk ? <ClerkProvider>{appShell}</ClerkProvider> : appShell}
             </body>
         </html>
     );

@@ -1,139 +1,174 @@
 # Learn. Build. Share.
 
-A modern, responsive blog built with Next.js 15, Fumadocs MDX, and Tailwind CSS. Beautiful interface for displaying articles, tutorials, and insights about React and modern web development.
+A modern technical blog built with Next.js 15, Fumadocs MDX, Tailwind CSS, Clerk, Neon, and Drizzle. It includes article pages, SEO metadata, an embedded AI assistant, and a synced engagement system with article upvotes, comments, and comment upvotes.
 
-## ✨ Features
+## Highlights
 
-- 🎨 **Modern Design** - Clean, responsive interface
-- 📝 **MDX Support** - Write blog posts in MDX with full component support
-- 🌙 **Dark Mode** - Built-in dark/light theme toggle
-- 🏷️ **Tags & Categories** - Organize content with tags
-- ⭐ **Featured Posts** - Highlight your best articles
-- 📱 **Mobile Responsive** - Perfect on all devices
-- 🚀 **Fast Performance** - Optimized with Next.js 15
-- 🤖 **Post AI Assistant** - Ask context-aware questions inside each article
+- Next.js 15 App Router blog with MDX-powered content
+- Automatic read-time generation for every post
+- Embedded article-aware AI assistant
+- Clerk-authenticated engagement system
+- Neon Postgres persistence through Drizzle ORM
+- Responsive UI, dark mode, RSS, sitemap, and Open Graph images
 
-## 🚀 Getting Started
+## Tech Stack
+
+- Next.js 15
+- React 19
+- TypeScript
+- Fumadocs MDX
+- Tailwind CSS 4
+- Clerk
+- Neon Postgres
+- Drizzle ORM and Drizzle Kit
+- OpenRouter or any OpenAI-compatible inference endpoint
+
+## Prerequisites
+
+- Node.js 20.9 or newer
+- pnpm 10 or newer
+
+## Getting Started
+
+1. Clone the repository and install dependencies.
 
 ```bash
-# Clone the repository
 git clone https://github.com/al-husayn/blog
 cd blog
-
-# Install dependencies
 pnpm install
-
-# Start development server
-pnpm dev
-
-# Build for production
-pnpm build
 ```
 
-## 🤖 AI Assistant Setup
-
-The blog includes an embedded assistant on each post page. It is grounded in the active article and tailored to the current reader's question.
-
-1. Use a cloud inference provider that serves open-source models (default config uses OpenRouter).
-2. Add env variables:
+2. Create a `.env.local` file and add the values your environment needs.
 
 ```bash
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+DATABASE_URL=postgres://user:password@host/dbname?sslmode=require
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_your_publishable_key
+CLERK_SECRET_KEY=sk_test_your_secret_key
 AI_API_BASE_URL=https://openrouter.ai/api/v1
 AI_API_KEY=your_cloud_api_key_here
 AI_MODEL=openrouter/free
 ```
 
-3. Restart the dev server after updating env values.
+3. Sync the database schema.
 
-You can swap to any OpenAI-compatible cloud endpoint and open-source model by changing `AI_API_BASE_URL` and `AI_MODEL`.  
-If a specific free model route is temporarily unavailable, keep `AI_MODEL=openrouter/free` for automatic free-endpoint routing.
+```bash
+pnpm db:push
+```
 
-## ✍️ Adding Blog Posts
+4. Start the development server.
 
-Create a new MDX file in `blog/content/` with format `your-post-title.mdx`:
+```bash
+pnpm dev
+```
+
+5. Build for production when needed.
+
+```bash
+pnpm build
+```
+
+## Environment Variables
+
+### Core
+
+- `NEXT_PUBLIC_SITE_URL`: Public site URL used for local and deployed metadata.
+
+### Database and Auth
+
+- `DATABASE_URL`: Neon Postgres connection string.
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`: Clerk publishable key for client auth.
+- `CLERK_SECRET_KEY`: Clerk secret key for server auth.
+
+### AI Assistant
+
+- `AI_API_BASE_URL`: OpenAI-compatible base URL. The default setup uses OpenRouter.
+- `AI_API_KEY`: Provider API key.
+- `AI_MODEL`: Model identifier used by the blog assistant.
+
+## Database and Engagement
+
+The engagement system is backed by Neon and Drizzle and is tied to Clerk authentication.
+
+- Article likes and dislikes have been removed.
+- Article upvotes are persisted per signed-in user.
+- Comments are persisted and linked to the authenticated Clerk user.
+- Comment upvotes are persisted per signed-in user.
+- The schema is aligned with the live engagement tables: `article_comments`, `article_upvotes`, and `comment_upvotes`.
+
+Useful commands:
+
+```bash
+pnpm db:generate
+pnpm db:migrate
+pnpm db:push
+pnpm db:studio
+```
+
+The Drizzle config reads `DATABASE_URL` from `.env.local` or `.env`, so `pnpm db:push` works outside the Next.js runtime as well.
+
+## AI Assistant
+
+Each article page includes an assistant that is grounded in the active post content. By default, the project is configured for OpenRouter, but any OpenAI-compatible provider can be used by updating `AI_API_BASE_URL` and `AI_MODEL`.
+
+If your chosen model or route changes, restart the dev server after updating environment variables.
+
+## Writing Posts
+
+Create a new `.mdx` file inside `blog/content/`.
+
+Example frontmatter:
 
 ````mdx
 ---
 title: "Your Blog Post Title"
 description: "A brief description of your post"
-date: "2024-12-01"
-tags: ["React", "Next.js", "Tutorial"]
+date: "2026-03-17"
+tags: ["JavaScript", "Next.js", "Tutorial"]
 featured: true
-readTime: "10 min read"
-author: "Your Name"
+author: "al"
+thumbnail: "/blog/example-cover.png"
 ---
 
 Your blog post content here...
-
-## Markdown Support
-
-You can use all standard Markdown features plus MDX components.
-
-```tsx
-// Code syntax highlighting works great!
-export default function Component() {
-  return <div>Hello World!</div>;
-}
-```
 ````
 
-## 🎨 Customization
+Notes:
 
-### Adding New Tags/Categories
+- `author` should be an author key from `lib/authors.ts`, not a display name.
+- `readTime` is generated automatically from the MDX content.
+- Read times are regenerated during `pnpm dev`, `pnpm build`, and with `pnpm run readtime`.
 
-Simply add them to your blog post frontmatter. The system automatically generates tag pages.
+## Authors
 
-### Featured Posts
+Author records live in `lib/authors.ts`.
 
-Set `featured: true` in your blog post frontmatter to highlight it on the homepage (you can create a dedicated feature section in the home page).
+Current built-in keys:
 
-### Styling
+- `al`
+- `al-hussein`
+- `hamdan`
 
-The project uses Tailwind CSS with a custom design system. Modify styles in:
+Add a new author there, then reference that key in your post frontmatter.
 
-- `app/globals.css` - Global styles
-- Individual component files - Component-specific styles
+## Scripts
 
-### For Authors
+- `pnpm dev`: Generate read times, compile MDX sources, and start the dev server.
+- `pnpm build`: Generate read times, compile MDX sources, and build the app.
+- `pnpm start`: Start the production server.
+- `pnpm lint`: Run Next.js linting.
+- `pnpm readtime`: Regenerate `lib/generated/read-times.json`.
+- `pnpm db:generate`: Generate Drizzle migration files from the schema.
+- `pnpm db:migrate`: Run Drizzle migrations.
+- `pnpm db:push`: Push the current schema to the database.
+- `pnpm db:studio`: Open Drizzle Studio.
 
-Add your author details to the `lib/authors.ts` file.
+## Project Notes
 
-```tsx
-// lib/authors.ts
-export const authors: Record<string, Author> = {
-  al: {
-    name: "Al-Hussein A.",
-    position: "Software Engineer",
-    avatar: "/authors/AL.png",
-  },
-  hamdan: {
-    name: "AL Drake",
-    position: "Design System Engineer",
-    avatar: "/authors/Hamdan.jpeg",
-  },
-  // Add your author details here
-  yourname: {
-    name: "Your Full Name",
-    position: "Your Position/Title",
-    avatar: "/authors/your-avatar.png",
-  },
-} as const;
-```
+- The site includes RSS, sitemap, metadata, and Open Graph image generation.
+- Engagement routes live under `app/api/engagement`.
+- If Clerk keys are missing, the site still renders, but synced engagement features remain unavailable until auth is configured.
 
-Then reference your author in blog posts using the key (e.g., `author: "yourname"`).
-
-## 📖 Technologies Used
-
-- **Next.js 15** - React framework with App Router
-- **Fumadocs MDX** - MDX processing and components
-- **Tailwind CSS** - Utility-first CSS framework
-- **TypeScript** - Type-safe JavaScript
-- **Geist Font** - Modern typography
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📄 License
+## License
 
 This project is open source and available under the [MIT License](LICENSE).

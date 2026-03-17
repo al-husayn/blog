@@ -47,11 +47,11 @@ export function DeferredArticleEngagement({
       {shouldLoad ? (
         <ArticleEngagement slug={slug} />
       ) : (
-        <section className="border-t border-border p-6 lg:p-10">
-          <p className="text-sm text-muted-foreground">
-            Comments and reactions load as you scroll.
-          </p>
-        </section>
+          <section className="border-t border-border p-6 lg:p-10">
+            <p className="text-sm text-muted-foreground">
+              Comments and synced upvotes load as you scroll.
+            </p>
+          </section>
       )}
     </div>
   );
