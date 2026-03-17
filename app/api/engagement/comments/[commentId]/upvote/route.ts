@@ -42,7 +42,7 @@ export async function POST(_request: Request, { params }: RouteContext) {
     } catch (error) {
         console.error('[api/engagement/comments/[commentId]/upvote] Failed to update comment upvote.', {
             commentId,
-            userId,
+            actor: 'authenticated-user',
             error,
         });
 

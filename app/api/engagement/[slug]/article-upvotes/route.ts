@@ -37,7 +37,7 @@ export async function POST(_request: Request, { params }: RouteContext) {
     } catch (error) {
         console.error('[api/engagement/[slug]/article-upvotes] Failed to update article upvote.', {
             slug,
-            userId,
+            actor: 'authenticated-user',
             error,
         });
 

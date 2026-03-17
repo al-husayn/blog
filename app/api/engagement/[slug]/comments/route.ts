@@ -76,7 +76,7 @@ export async function POST(request: Request, { params }: RouteContext) {
     } catch (error) {
         console.error('[api/engagement/[slug]/comments] Failed to create comment.', {
             slug,
-            userId,
+            actor: 'authenticated-user',
             error,
         });
 
