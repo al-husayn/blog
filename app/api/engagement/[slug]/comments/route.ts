@@ -75,8 +75,12 @@ export async function POST(request: Request, { params }: RouteContext) {
 
         return NextResponse.json({ comment }, { status: 201 });
     } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unable to post your comment.';
+        console.error('[api/engagement/[slug]/comments] Failed to create comment.', {
+            slug,
+            userId,
+            error,
+        });
 
-        return NextResponse.json({ error: message }, { status: 500 });
+        return NextResponse.json({ error: 'Unable to post your comment.' }, { status: 500 });
     }
 }

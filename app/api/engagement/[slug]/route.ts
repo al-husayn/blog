@@ -31,9 +31,14 @@ export async function GET(_request: Request, { params }: RouteContext) {
 
         return NextResponse.json(engagement);
     } catch (error) {
-        const message =
-            error instanceof Error ? error.message : 'Unable to load engagement right now.';
+        console.error('[api/engagement/[slug]] Failed to load engagement.', {
+            slug,
+            error,
+        });
 
-        return NextResponse.json({ error: message }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Unable to load engagement right now.' },
+            { status: 500 },
+        );
     }
 }

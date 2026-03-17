@@ -35,9 +35,15 @@ export async function POST(_request: Request, { params }: RouteContext) {
         const result = await toggleArticleUpvote(slug, userId);
         return NextResponse.json(result);
     } catch (error) {
-        const message =
-            error instanceof Error ? error.message : 'Unable to update the article upvote.';
+        console.error('[api/engagement/[slug]/article-upvotes] Failed to update article upvote.', {
+            slug,
+            userId,
+            error,
+        });
 
-        return NextResponse.json({ error: message }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Unable to update the article upvote.' },
+            { status: 500 },
+        );
     }
 }
