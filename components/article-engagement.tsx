@@ -191,7 +191,7 @@ function CommentThread({
     onReplyToggle,
 }: CommentThreadProps) {
     return (
-        <div className='space-y-3'>
+        <div className='min-w-0 space-y-3'>
             {comments.map((comment) => {
                 const hasUpvoted = upvotedCommentIds.includes(comment.id);
                 const isPending = pendingCommentIds.includes(comment.id);
@@ -202,10 +202,10 @@ function CommentThread({
                     <article
                         key={comment.id}
                         className={cn(
-                            'space-y-3 rounded-lg border border-border bg-card p-4',
+                            'min-w-0 space-y-3 overflow-hidden rounded-lg border border-border bg-card p-4',
                             hasUpvoted && 'border-primary/40',
                         )}>
-                        <div className='flex items-start justify-between gap-3'>
+                        <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
                             <div className='flex min-w-0 items-start gap-3'>
                                 {comment.authorImageUrl ? (
                                     <div
@@ -233,7 +233,8 @@ function CommentThread({
                                 size='sm'
                                 aria-pressed={hasUpvoted}
                                 onClick={() => onCommentUpvote(comment.id)}
-                                disabled={isPending}>
+                                disabled={isPending}
+                                className='w-full justify-between sm:w-auto sm:self-start'>
                                 {isPending ? (
                                     <Loader2 className='h-4 w-4 animate-spin' />
                                 ) : (
@@ -244,7 +245,7 @@ function CommentThread({
                             </Button>
                         </div>
 
-                        <p className='whitespace-pre-wrap text-sm text-foreground/90'>
+                        <p className='whitespace-pre-wrap break-words text-sm text-foreground/90'>
                             {comment.message}
                         </p>
 
@@ -269,7 +270,7 @@ function CommentThread({
                         {isReplyComposerOpen && (
                             <form
                                 onSubmit={(event) => onReplySubmit(event, comment.id)}
-                                className='space-y-3 rounded-md border border-dashed border-border bg-background/70 p-3'>
+                                className='min-w-0 space-y-3 rounded-md border border-dashed border-border bg-background/70 p-3'>
                                 <div className='space-y-2'>
                                     <label
                                         htmlFor={`reply-message-${comment.id}`}
@@ -287,12 +288,12 @@ function CommentThread({
                                         maxLength={MAX_COMMENT_LENGTH}
                                         className='min-h-[110px] w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50'
                                     />
-                                    <div className='flex items-center justify-between gap-3'>
+                                    <div className='flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between'>
                                         <p className='text-xs text-muted-foreground'>
                                             {replyDraft.length}/{MAX_COMMENT_LENGTH} characters
                                         </p>
                                         {replyFormError && (
-                                            <p className='text-xs text-destructive'>
+                                            <p className='w-full break-words text-xs text-destructive sm:w-auto'>
                                                 {replyFormError}
                                             </p>
                                         )}
@@ -316,7 +317,7 @@ function CommentThread({
                         )}
 
                         {comment.replies.length > 0 && (
-                            <div className='space-y-3 border-l border-border/60 pl-4'>
+                            <div className='min-w-0 overflow-hidden space-y-3 border-l border-border/60 pl-3 sm:pl-4'>
                                 <CommentThread
                                     comments={comment.replies}
                                     activeReplyId={activeReplyId}
@@ -671,7 +672,7 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
     const totalCommentCount = countComments(state.comments);
 
     return (
-        <section className='space-y-8 border-t border-border p-6 lg:p-10'>
+        <section className='space-y-8 border-t border-border p-4 sm:p-6 lg:p-10'>
             <div className='space-y-1'>
                 <h2 className='text-2xl font-medium'>Join the conversation</h2>
                 <p className='text-sm text-muted-foreground'>
@@ -765,7 +766,7 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
             <div className='grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]'>
                 <form
                     onSubmit={handleSubmitComment}
-                    className='space-y-4 rounded-lg border border-border bg-muted/30 p-4'>
+                    className='min-w-0 space-y-4 rounded-lg border border-border bg-muted/30 p-4'>
                     <h3 className='text-lg font-medium'>Leave a comment</h3>
                     <p className='text-sm text-muted-foreground'>
                         Comments are published under your account and saved so you can continue the
@@ -785,11 +786,15 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                             maxLength={MAX_COMMENT_LENGTH}
                             className='min-h-[140px] w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50'
                         />
-                        <div className='flex items-center justify-between gap-3'>
+                        <div className='flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between'>
                             <p className='text-xs text-muted-foreground'>
                                 {message.length}/{MAX_COMMENT_LENGTH} characters
                             </p>
-                            {formError && <p className='text-xs text-destructive'>{formError}</p>}
+                            {formError && (
+                                <p className='w-full break-words text-xs text-destructive sm:w-auto'>
+                                    {formError}
+                                </p>
+                            )}
                         </div>
                     </div>
 
@@ -808,7 +813,7 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                     </Button>
                 </form>
 
-                <div className='space-y-4'>
+                <div className='min-w-0 space-y-4'>
                     <h3 className='inline-flex items-center gap-2 text-lg font-medium'>
                         <MessageSquare className='h-4 w-4' />
                         Comments ({totalCommentCount})
