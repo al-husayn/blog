@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { TableOfContents } from '@/components/table-of-contents';
 import { MobileTableOfContents } from '@/components/mobile-toc';
 import { AuthorCard } from '@/components/author-card';
+import { ArticleShare } from '@/components/article-share';
 import { ReadMoreSection } from '@/components/read-more-section';
 import { PromoContent } from '@/components/promo-content';
 import { getAuthor, isValidAuthor } from '@/lib/authors';
@@ -168,6 +169,12 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
                             {page.data.description}
                         </p>
                     )}
+
+                    <ArticleShare
+                        title={page.data.title}
+                        description={page.data.description}
+                        url={articleUrl}
+                    />
                 </div>
             </div>
             <div className='flex divide-x divide-border relative max-w-7xl mx-auto px-4 md:px-0 z-10'>
