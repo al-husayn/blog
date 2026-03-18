@@ -1,4 +1,4 @@
-import { and, count, desc, eq } from 'drizzle-orm';
+import { and, asc, count, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { getDb } from '@/lib/db/client';
 import { articleUpvotes, commentUpvotes, comments } from '@/lib/db/schema';
@@ -15,14 +15,26 @@ export const createCommentSchema = z.object({
         .trim()
         .min(1, 'Write a comment before posting.')
         .max(800, 'Comment is too long. Keep it under 800 characters.'),
+    parentCommentId: z.preprocess((value) => {
+        if (typeof value !== 'string') {
+            return undefined;
+        }
+
+        const trimmedValue = value.trim();
+
+        return trimmedValue.length > 0 ? trimmedValue : undefined;
+    }, z.string().optional()),
 });
 
 const toCount = (value: number | string | bigint): number => Number(value);
 
 const toIsoString = (value: Date | string): string => new Date(value).toISOString();
 
+const INVALID_PARENT_COMMENT_ERROR = 'INVALID_PARENT_COMMENT';
+
 const mapComment = (comment: {
     id: string;
+    parentCommentId: string | null;
     authorName: string;
     authorImageUrl: string | null;
     message: string;
@@ -30,12 +42,60 @@ const mapComment = (comment: {
     upvotes: number | string | bigint;
 }): CommentItem => ({
     id: comment.id,
+    parentCommentId: comment.parentCommentId,
     authorName: comment.authorName,
     authorImageUrl: comment.authorImageUrl,
     message: comment.message,
     createdAt: toIsoString(comment.createdAt),
     upvotes: toCount(comment.upvotes),
+    replies: [],
 });
+
+const buildCommentTree = (
+    commentRows: Array<{
+        id: string;
+        parentCommentId: string | null;
+        authorName: string;
+        authorImageUrl: string | null;
+        message: string;
+        createdAt: Date | string;
+        upvotes: number | string | bigint;
+    }>,
+): CommentItem[] => {
+    const commentsById = new Map<string, CommentItem>();
+    const rootComments: CommentItem[] = [];
+
+    for (const commentRow of commentRows) {
+        commentsById.set(commentRow.id, mapComment(commentRow));
+    }
+
+    for (const commentRow of commentRows) {
+        const comment = commentsById.get(commentRow.id);
+
+        if (!comment) {
+            continue;
+        }
+
+        if (comment.parentCommentId) {
+            const parentComment = commentsById.get(comment.parentCommentId);
+
+            if (parentComment) {
+                parentComment.replies.push(comment);
+                continue;
+            }
+        }
+
+        rootComments.push(comment);
+    }
+
+    return rootComments.sort(
+        (leftComment, rightComment) =>
+            new Date(rightComment.createdAt).getTime() - new Date(leftComment.createdAt).getTime(),
+    );
+};
+
+export const isInvalidParentCommentError = (error: unknown): boolean =>
+    error instanceof Error && error.message === INVALID_PARENT_COMMENT_ERROR;
 
 export async function getEngagement(
     articleSlug: string,
@@ -52,6 +112,7 @@ export async function getEngagement(
             db
                 .select({
                     id: comments.id,
+                    parentCommentId: comments.parentCommentId,
                     authorName: comments.authorName,
                     authorImageUrl: comments.authorImageUrl,
                     message: comments.message,
@@ -62,7 +123,7 @@ export async function getEngagement(
                 .leftJoin(commentUpvotes, eq(comments.id, commentUpvotes.commentId))
                 .where(eq(comments.articleSlug, articleSlug))
                 .groupBy(comments.id)
-                .orderBy(desc(comments.createdAt)),
+                .orderBy(asc(comments.createdAt)),
             clerkUserId
                 ? db
                       .select({ articleSlug: articleUpvotes.articleSlug })
@@ -91,7 +152,7 @@ export async function getEngagement(
     return {
         articleUpvotes: toCount(articleUpvoteRows[0]?.count ?? 0),
         userUpvotedArticle: userArticleUpvoteRows.length > 0,
-        comments: commentRows.map(mapComment),
+        comments: buildCommentTree(commentRows),
         upvotedCommentIds: upvotedCommentRows.map((comment) => comment.commentId),
         isAuthenticated: Boolean(clerkUserId),
     };
@@ -139,8 +200,27 @@ export async function createComment(input: {
     authorName: string;
     authorImageUrl?: string | null;
     message: string;
+    parentCommentId?: string;
 }): Promise<CommentItem> {
     const db = getDb();
+
+    if (input.parentCommentId) {
+        const [parentComment] = await db
+            .select({ id: comments.id })
+            .from(comments)
+            .where(
+                and(
+                    eq(comments.id, input.parentCommentId),
+                    eq(comments.articleSlug, input.articleSlug),
+                ),
+            )
+            .limit(1);
+
+        if (!parentComment) {
+            throw new Error(INVALID_PARENT_COMMENT_ERROR);
+        }
+    }
+
     const commentId =
         typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
             ? crypto.randomUUID()
@@ -150,6 +230,7 @@ export async function createComment(input: {
         .values({
             id: commentId,
             articleSlug: input.articleSlug,
+            parentCommentId: input.parentCommentId ?? null,
             clerkUserId: input.clerkUserId,
             authorName: input.authorName,
             authorImageUrl: input.authorImageUrl ?? null,
@@ -159,6 +240,7 @@ export async function createComment(input: {
 
     return mapComment({
         ...comment,
+        parentCommentId: comment.parentCommentId,
         upvotes: 0,
     });
 }

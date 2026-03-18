@@ -1,10 +1,12 @@
 export interface CommentItem {
     id: string;
+    parentCommentId: string | null;
     authorName: string;
     authorImageUrl: string | null;
     message: string;
     createdAt: string;
     upvotes: number;
+    replies: CommentItem[];
 }
 
 export interface EngagementState {
