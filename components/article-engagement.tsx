@@ -346,13 +346,13 @@ export function ArticleEngagement({ slug, isClerkConfigured }: ArticleEngagement
                 <div className='space-y-1'>
                     <h2 className='text-2xl font-medium'>Join the conversation</h2>
                     <p className='text-sm text-muted-foreground'>
-                        Comments and synced upvotes now use Clerk, Neon, and Drizzle.
+                        Comments and account-based engagement become available once the required
+                        services are configured.
                     </p>
                 </div>
                 <div className='rounded-lg border border-dashed border-border bg-muted/20 p-4 text-sm text-muted-foreground'>
-                    Add <code>NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY</code>,{' '}
-                    <code>CLERK_SECRET_KEY</code>, and <code>DATABASE_URL</code> to enable the
-                    live engagement system.
+                    Configure authentication and database access to enable the live engagement
+                    system.
                 </div>
             </section>
         );
@@ -675,10 +675,12 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
             <div className='space-y-1'>
                 <h2 className='text-2xl font-medium'>Join the conversation</h2>
                 <p className='text-sm text-muted-foreground'>
-                    Leave comments, upvote the article, and surface the most helpful replies.
+                    Share your perspective, upvote the article, and highlight the most helpful
+                    replies.
                 </p>
                 <p className='text-xs text-muted-foreground'>
-                    Engagement is persisted with Neon via Drizzle and tied to your Clerk account.
+                    Your participation is linked to your account for a consistent experience across
+                    sessions.
                 </p>
             </div>
 
@@ -690,7 +692,8 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                             <div>
                                 <p className='text-sm font-medium'>Signed in and ready to engage</p>
                                 <p className='text-xs text-muted-foreground'>
-                                    Your comments, replies, and upvotes sync across devices.
+                                    Your comments, replies, and votes stay connected to your
+                                    account.
                                 </p>
                             </div>
                         </div>
@@ -716,9 +719,10 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                 ) : (
                     <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
                         <div>
-                            <p className='text-sm font-medium'>Sign in to comment and upvote</p>
+                            <p className='text-sm font-medium'>Sign in to participate</p>
                             <p className='text-xs text-muted-foreground'>
-                                We use Clerk for identity and Neon + Drizzle for synced engagement.
+                                Join the discussion and keep your activity associated with your
+                                account.
                             </p>
                         </div>
                         <div className='flex flex-wrap gap-3'>
@@ -764,7 +768,8 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                     className='space-y-4 rounded-lg border border-border bg-muted/30 p-4'>
                     <h3 className='text-lg font-medium'>Leave a comment</h3>
                     <p className='text-sm text-muted-foreground'>
-                        Comments are posted with your Clerk profile and stored in Neon.
+                        Comments are published under your account and saved so you can continue the
+                        conversation over time.
                     </p>
 
                     <div className='space-y-2'>
