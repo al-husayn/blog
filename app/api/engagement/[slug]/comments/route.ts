@@ -1,6 +1,10 @@
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-import { createComment, createCommentSchema } from '@/lib/engagement';
+import {
+    createComment,
+    createCommentSchema,
+    isInvalidParentCommentError,
+} from '@/lib/engagement';
 import { isEngagementConfigured } from '@/lib/env';
 
 interface RouteContext {
@@ -70,10 +74,18 @@ export async function POST(request: Request, { params }: RouteContext) {
             authorName: getAuthorName(user),
             authorImageUrl: user?.imageUrl ?? null,
             message: parsedComment.data.message,
+            parentCommentId: parsedComment.data.parentCommentId,
         });
 
         return NextResponse.json({ comment }, { status: 201 });
     } catch (error) {
+        if (isInvalidParentCommentError(error)) {
+            return NextResponse.json(
+                { error: 'The comment you are replying to could not be found.' },
+                { status: 400 },
+            );
+        }
+
         console.error('[api/engagement/[slug]/comments] Failed to create comment.', {
             slug,
             actor: 'authenticated-user',

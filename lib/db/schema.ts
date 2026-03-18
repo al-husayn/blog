@@ -1,10 +1,14 @@
-import { index, pgTable, primaryKey, text, timestamp } from 'drizzle-orm/pg-core';
+import { AnyPgColumn, index, pgTable, primaryKey, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const comments = pgTable(
     'article_comments',
     {
         id: text('id').primaryKey(),
         articleSlug: text('slug').notNull(),
+        parentCommentId: text('parent_comment_id').references(
+            (): AnyPgColumn => comments.id,
+            { onDelete: 'cascade' },
+        ),
         clerkUserId: text('user_id').notNull(),
         authorName: text('author').notNull(),
         authorImageUrl: text('author_image_url'),
@@ -13,6 +17,7 @@ export const comments = pgTable(
     },
     (table) => [
         index('comments_article_slug_idx').on(table.articleSlug),
+        index('comments_parent_comment_id_idx').on(table.parentCommentId),
         index('comments_clerk_user_id_idx').on(table.clerkUserId),
     ],
 );

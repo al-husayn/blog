@@ -8,6 +8,13 @@
       "when": 1773786104227,
       "tag": "0000_futuristic_garia",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1773807296692,
+      "tag": "0001_lethal_rhino",
+      "breakpoints": true
     }
   ]
 }
