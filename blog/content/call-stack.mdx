@@ -630,7 +630,7 @@ Great question! The call stack is only **part** of the picture.
 <Note>
 When you use asynchronous functions like [`setTimeout`](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout), [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API), or event listeners, JavaScript doesn't put them on the call stack immediately. Instead, they go through a different system involving the **[Event Loop](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop)** and **Task Queue**.
 
-This is covered in detail in the [Event Loop](/concepts/event-loop) section.
+This is covered in detail in the [Event Loop](/blog/event-loop) section.
 </Note>
 
 Here's a sneak peek:
@@ -653,10 +653,10 @@ console.log('Third');
 The `setTimeout` callback doesn't go directly on the call stack. It waits in a queue until the stack is empty. As Philip Roberts demonstrated in his acclaimed JSConf EU talk "What the heck is the event loop?" (viewed over 8 million times), this is why "Third" prints before "Second" even though the timeout is 0 milliseconds.
 
 <CardGroup cols={2}>
-  <Card title="Event Loop" icon="rotate" href="/concepts/event-loop">
+  <Card title="Event Loop" icon="rotate" href="/blog/event-loop">
     Learn how JavaScript handles asynchronous operations
   </Card>
-  <Card title="Promises" icon="clock" href="/concepts/promises">
+  <Card title="Promises" icon="clock" href="/blog/promises">
     Modern way to handle async code
   </Card>
 </CardGroup>

@@ -39,7 +39,7 @@ The answers lie in understanding **scope** and **closures**. These two fundament
 </Info>
 
 <Warning>
-**Prerequisite:** This guide builds on your understanding of the [call stack](/concepts/call-stack). Knowing how JavaScript tracks function execution will help you understand how scope and closures work under the hood.
+**Prerequisite:** This guide builds on your understanding of the [call stack](/blog/call-stack). Knowing how JavaScript tracks function execution will help you understand how scope and closures work under the hood.
 </Warning>
 
 ---
@@ -142,7 +142,7 @@ Scope exists for three critical reasons:
 JavaScript has three main types of scope. Understanding each one is fundamental to writing predictable code.
 
 <Note>
-ES6 modules also introduce **module scope**, where top-level variables are scoped to the module rather than being global. Learn more in our [IIFE, Modules and Namespaces](/concepts/iife-modules) guide.
+ES6 modules also introduce **module scope**, where top-level variables are scoped to the module rather than being global. Learn more in our [IIFE, Modules and Namespaces](/blog/iife-modules) guide.
 </Note>
 
 ### 1. Global Scope
@@ -397,7 +397,7 @@ for (var i = 0; i < 3; i++) {
 // By the time the setTimeout callbacks run, the loop has finished and i === 3.
 ```
 
-The [`setTimeout()`](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout) callbacks all close over the same `i` variable, which equals `3` by the time they execute. (To understand why the callbacks don't run immediately, see our [Event Loop](/concepts/event-loop) guide.)
+The [`setTimeout()`](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout) callbacks all close over the same `i` variable, which equals `3` by the time they execute. (To understand why the callbacks don't run immediately, see our [Event Loop](/blog/event-loop) guide.)
 
 ```javascript
 // The Solution: let is block-scoped
@@ -645,7 +645,7 @@ console.log(counter.count);       // undefined
 ```
 
 <Tip>
-This pattern is the foundation of the **Module Pattern**, widely used before ES6 modules became available. Learn more in our [IIFE, Modules and Namespaces](/concepts/iife-modules) guide.
+This pattern is the foundation of the **Module Pattern**, widely used before ES6 modules became available. Learn more in our [IIFE, Modules and Namespaces](/blog/iife-modules) guide.
 </Tip>
 
 ### 2. Function Factories
