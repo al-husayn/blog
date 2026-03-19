@@ -31,7 +31,7 @@ This surprising behavior is **[type coercion](https://developer.mozilla.org/en-U
 </Info>
 
 <Warning>
-**Prerequisites:** This guide assumes you understand [Primitive Types](/concepts/primitive-types). If terms like string, number, boolean, null, and undefined are new to you, read that guide first!
+**Prerequisites:** This guide assumes you understand [Primitive Types](/blog/primitive-types). If terms like string, number, boolean, null, and undefined are new to you, read that guide first!
 </Warning>
 
 ---
@@ -143,7 +143,7 @@ Other languages would throw an error. JavaScript tries to make it work. Whether 
 
 ## The Three Types of Conversion
 
-Here's the most important rule: **JavaScript can only convert to THREE [primitive types](/concepts/primitive-types):**
+Here's the most important rule: **JavaScript can only convert to THREE [primitive types](/blog/primitive-types):**
 
 | Target Type | Explicit Method | Common Implicit Triggers |
 |-------------|-----------------|--------------------------|
@@ -430,7 +430,7 @@ const display = user && user.name;
 
 ## Object to Primitive Conversion
 
-When JavaScript needs to convert an [object to a primitive](/concepts/primitives-objects) (including arrays), it follows a specific algorithm.
+When JavaScript needs to convert an [object to a primitive](/blog/primitives-objects) (including arrays), it follows a specific algorithm.
 
 ### The ToPrimitive Algorithm
 
@@ -544,7 +544,7 @@ obj + ""       // "default value" (hint: "default")
 
 ## The == Algorithm Explained
 
-The loose equality operator `==` is where type coercion gets wild. For a deeper dive into all equality operators, see our [Equality Operators guide](/concepts/equality-operators). Here's how `==` actually works:
+The loose equality operator `==` is where type coercion gets wild. For a deeper dive into all equality operators, see our [Equality Operators guide](/blog/equality-operators). Here's how `==` actually works:
 
 ### Simplified == Rules
 

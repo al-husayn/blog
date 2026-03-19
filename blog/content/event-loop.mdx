@@ -37,7 +37,7 @@ Even with a 0ms delay, `Timeout` prints last. The answer lies in the **[event lo
 </Info>
 
 <Warning>
-**Prerequisites:** This guide assumes familiarity with [the call stack](/concepts/call-stack) and [Promises](/concepts/promises). If those concepts are new to you, read them first!
+**Prerequisites:** This guide assumes familiarity with [the call stack](/blog/call-stack) and [Promises](/blog/promises). If those concepts are new to you, read them first!
 </Warning>
 
 ---
@@ -215,7 +215,7 @@ To understand the Event Loop, you need to see the full picture:
 
 <AccordionGroup>
   <Accordion title="Call Stack">
-    The **[Call Stack](/concepts/call-stack)** is where JavaScript keeps track of what function is currently running. It's a LIFO (Last In, First Out) structure, like a stack of plates.
+    The **[Call Stack](/blog/call-stack)** is where JavaScript keeps track of what function is currently running. It's a LIFO (Last In, First Out) structure, like a stack of plates.
     
     ```javascript
     function multiply(a, b) {
@@ -291,7 +291,7 @@ To understand the Event Loop, you need to see the full picture:
     - `Promise.then()`, `.catch()`, `.finally()`
     - [`queueMicrotask()`](https://developer.mozilla.org/en-US/docs/Web/API/queueMicrotask)
     - [`MutationObserver`](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver)
-    - Code after `await` in [async functions](/concepts/async-await)
+    - Code after `await` in [async functions](/blog/async-await)
     
     **Microtasks ALWAYS run before the next task!** The entire microtask queue is drained before moving to the task queue.
   </Accordion>
