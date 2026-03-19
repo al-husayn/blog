@@ -10,6 +10,7 @@ import {
     Twitter,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { copyTextToClipboard } from '@/lib/clipboard';
 import { Button } from '@/components/ui/button';
 import type { ArticleShareProps } from '@/types/components/article-share';
 
@@ -44,24 +45,6 @@ const createShareLinks = ({ title, description, url }: ArticleShareProps) => {
     ] as const;
 };
 
-const copyToClipboard = async (value: string) => {
-    try {
-        await navigator.clipboard.writeText(value);
-        return;
-    } catch {
-        const textArea = document.createElement('textarea');
-        textArea.value = value;
-        textArea.setAttribute('readonly', '');
-        textArea.style.position = 'absolute';
-        textArea.style.left = '-9999px';
-
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-    }
-};
-
 export function ArticleShare({ title, description, url }: ArticleShareProps) {
     const [hasCopied, setHasCopied] = useState(false);
     const [nativeShareAvailable, setNativeShareAvailable] = useState(false);
@@ -80,7 +63,7 @@ export function ArticleShare({ title, description, url }: ArticleShareProps) {
 
     const handleCopy = async () => {
         try {
-            await copyToClipboard(url);
+            await copyTextToClipboard(url);
             setShareError(null);
             setHasCopied(true);
 
