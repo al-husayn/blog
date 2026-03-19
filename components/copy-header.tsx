@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Link } from "lucide-react";
+import { copyTextToClipboard } from "@/lib/clipboard";
 import { cn } from "@/lib/utils";
 import type { CopyHeaderProps } from "@/types/components/copy-header";
 
@@ -37,15 +38,9 @@ export function CopyHeader({ level, children, className, ...props }: CopyHeaderP
         }
 
         try {
-            await navigator.clipboard.writeText(url);
+            await copyTextToClipboard(url);
         } catch (err) {
             console.error(err);
-            const textArea = document.createElement("textarea");
-            textArea.value = url;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand("copy");
-            document.body.removeChild(textArea);
         }
     };
 

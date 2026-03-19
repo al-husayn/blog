@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { copyTextToClipboard } from "@/lib/clipboard";
 import { cn } from "@/lib/utils";
 import type { Heading, TableOfContentsProps } from "@/types/components/table-of-contents";
 
@@ -123,15 +124,9 @@ export function TableOfContents({ className }: TableOfContentsProps) {
     window.history.pushState({}, '', `#${id}`);
 
     try {
-      await navigator.clipboard.writeText(url);
+      await copyTextToClipboard(url);
     } catch (err) {
       console.error(err);
-      const textArea = document.createElement("textarea");
-      textArea.value = url;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
     }
 
     const element = document.getElementById(id);
