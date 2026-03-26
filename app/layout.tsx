@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { ClerkProvider } from '@clerk/nextjs';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
+import { QueryProvider } from '@/components/query-provider';
 import { ThemeProvider } from '@/components/theme-provider';
 import { siteConfig } from '@/lib/site';
 import { metadataKeywords } from '@/app/metadata';
@@ -146,9 +147,11 @@ export default function RootLayout({
                 defaultTheme='system'
                 enableSystem
                 disableTransitionOnChange>
-                <SiteNav />
-                {children}
-                <Footer />
+                <QueryProvider>
+                    <SiteNav />
+                    {children}
+                    <Footer />
+                </QueryProvider>
             </ThemeProvider>
         </>
     );
