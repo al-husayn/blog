@@ -4,28 +4,19 @@ import { SignInButton, UserButton, useAuth, useClerk } from '@clerk/nextjs';
 import { ChevronUp, Loader2, MessageSquare, Reply } from 'lucide-react';
 import { FormEvent, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import {
+    countComments,
+    findCommentInTree,
+} from '@/lib/engagement-client';
+import {
+    useEngagementMutations,
+    useEngagementQuery,
+} from '@/lib/hooks/use-engagement';
+import { getErrorMessage } from '@/lib/api/client';
 import { cn } from '@/lib/utils';
-import type {
-    ArticleEngagementProps,
-    CommentItem,
-    CreateCommentResponse,
-    EngagementResponse,
-    EngagementState,
-    ToggleArticleUpvoteResponse,
-    ToggleCommentUpvoteResponse,
-} from '@/types/components/article-engagement';
+import type { ArticleEngagementProps, CommentItem } from '@/types/components/article-engagement';
 
 const MAX_COMMENT_LENGTH = 800;
-
-const createInitialState = (): EngagementState => ({
-    articleUpvotes: 0,
-    userUpvotedArticle: false,
-    comments: [],
-    upvotedCommentIds: [],
-});
-
-const getErrorMessage = (error: unknown): string =>
-    error instanceof Error ? error.message : 'Something went wrong. Please try again.';
 
 const formatCommentDate = (value: string): string => {
     const date = new Date(value);
@@ -48,118 +39,6 @@ const getAuthorInitials = (authorName: string): string =>
         .slice(0, 2)
         .map((part) => part[0]?.toUpperCase() ?? '')
         .join('') || 'CM';
-
-const parseResponse = async <T,>(response: Response): Promise<T> => {
-    const payload = await response.json().catch(() => null);
-
-    if (!response.ok) {
-        throw new Error(
-            payload && typeof payload.error === 'string'
-                ? payload.error
-                : 'Request failed. Please try again.',
-        );
-    }
-
-    return payload as T;
-};
-
-const countComments = (comments: CommentItem[]): number =>
-    comments.reduce((total, comment) => total + 1 + countComments(comment.replies), 0);
-
-const findCommentInTree = (
-    comments: CommentItem[],
-    commentId: string,
-): CommentItem | undefined => {
-    for (const comment of comments) {
-        if (comment.id === commentId) {
-            return comment;
-        }
-
-        const nestedComment = findCommentInTree(comment.replies, commentId);
-
-        if (nestedComment) {
-            return nestedComment;
-        }
-    }
-
-    return undefined;
-};
-
-const updateCommentInTree = (
-    comments: CommentItem[],
-    commentId: string,
-    updater: (comment: CommentItem) => CommentItem,
-): CommentItem[] =>
-    comments.map((comment) => {
-        if (comment.id === commentId) {
-            return updater(comment);
-        }
-
-        if (comment.replies.length === 0) {
-            return comment;
-        }
-
-        return {
-            ...comment,
-            replies: updateCommentInTree(comment.replies, commentId, updater),
-        };
-    });
-
-const insertReplyIntoTree = (
-    comments: CommentItem[],
-    parentCommentId: string,
-    reply: CommentItem,
-): [CommentItem[], boolean] => {
-    let hasInserted = false;
-
-    const nextComments = comments.map((comment) => {
-        if (comment.id === parentCommentId) {
-            hasInserted = true;
-
-            return {
-                ...comment,
-                replies: [...comment.replies, reply],
-            };
-        }
-
-        if (comment.replies.length === 0) {
-            return comment;
-        }
-
-        const [nextReplies, insertedIntoReplies] = insertReplyIntoTree(
-            comment.replies,
-            parentCommentId,
-            reply,
-        );
-
-        if (!insertedIntoReplies) {
-            return comment;
-        }
-
-        hasInserted = true;
-
-        return {
-            ...comment,
-            replies: nextReplies,
-        };
-    });
-
-    return [nextComments, hasInserted];
-};
-
-const insertCommentIntoTree = (comments: CommentItem[], newComment: CommentItem): CommentItem[] => {
-    if (!newComment.parentCommentId) {
-        return [newComment, ...comments];
-    }
-
-    const [nextComments, hasInserted] = insertReplyIntoTree(
-        comments,
-        newComment.parentCommentId,
-        newComment,
-    );
-
-    return hasInserted ? nextComments : comments;
-};
 
 type SignInPromptScope = 'comment' | 'reply' | 'general';
 
@@ -363,69 +242,44 @@ export function ArticleEngagement({ slug, isClerkConfigured }: ArticleEngagement
 }
 
 function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
-    const { isLoaded, isSignedIn } = useAuth();
+    const { isLoaded, isSignedIn, userId } = useAuth();
     const { openSignIn } = useClerk();
-    const [state, setState] = useState<EngagementState>(createInitialState);
     const [message, setMessage] = useState('');
-    const [loadError, setLoadError] = useState<string | null>(null);
+    const [requestError, setRequestError] = useState<string | null>(null);
     const [formError, setFormError] = useState<string | null>(null);
     const [replyFormError, setReplyFormError] = useState<string | null>(null);
-    const [hasFetched, setHasFetched] = useState(false);
-    const [isRefreshing, setIsRefreshing] = useState(false);
-    const [isSubmittingComment, setIsSubmittingComment] = useState(false);
-    const [submittingReplyToId, setSubmittingReplyToId] = useState<string | null>(null);
-    const [isTogglingArticleUpvote, setIsTogglingArticleUpvote] = useState(false);
-    const [pendingCommentIds, setPendingCommentIds] = useState<string[]>([]);
-    const [refreshKey, setRefreshKey] = useState(0);
     const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
     const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+    const { queryKey, state, loadError, isInitialLoading, isSyncing, refetch } =
+        useEngagementQuery({
+            slug,
+            isLoaded,
+            userId,
+            requestError,
+        });
+    const {
+        toggleArticleUpvote,
+        createComment,
+        toggleCommentUpvote,
+        isTogglingArticleUpvote,
+        pendingCommentIds,
+        isSubmittingComment,
+        submittingReplyToId,
+    } = useEngagementMutations({
+        slug,
+        queryKey,
+        onRequestError: setRequestError,
+    });
 
     useEffect(() => {
-        if (!isLoaded) {
+        if (!isSignedIn) {
             return;
         }
 
-        const controller = new AbortController();
-        let didCancel = false;
-
-        const loadEngagement = async () => {
-            setIsRefreshing(true);
-            setLoadError(null);
-
-            try {
-                const response = await fetch(`/api/engagement/${slug}`, {
-                    cache: 'no-store',
-                    signal: controller.signal,
-                });
-                const payload = await parseResponse<EngagementResponse>(response);
-
-                if (!didCancel) {
-                    setState({
-                        articleUpvotes: payload.articleUpvotes,
-                        userUpvotedArticle: payload.userUpvotedArticle,
-                        comments: payload.comments,
-                        upvotedCommentIds: payload.upvotedCommentIds,
-                    });
-                }
-            } catch (error) {
-                if (!didCancel && !controller.signal.aborted) {
-                    setLoadError(getErrorMessage(error));
-                }
-            } finally {
-                if (!didCancel) {
-                    setIsRefreshing(false);
-                    setHasFetched(true);
-                }
-            }
-        };
-
-        void loadEngagement();
-
-        return () => {
-            didCancel = true;
-            controller.abort();
-        };
-    }, [isLoaded, isSignedIn, refreshKey, slug]);
+        setRequestError(null);
+        setFormError(null);
+        setReplyFormError(null);
+    }, [isSignedIn]);
 
     const openSignInModal = (messageText: string, scope: SignInPromptScope = 'general') => {
         if (scope === 'comment') {
@@ -433,7 +287,7 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
         } else if (scope === 'reply') {
             setReplyFormError(messageText);
         } else {
-            setLoadError(messageText);
+            setRequestError(messageText);
         }
 
         void openSignIn();
@@ -445,41 +299,10 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
             return;
         }
 
-        setLoadError(null);
-
-        const previousArticleUpvotes = state.articleUpvotes;
-        const previousUserUpvoted = state.userUpvotedArticle;
-        const nextUserUpvoted = !previousUserUpvoted;
-
-        setState((previousState) => ({
-            ...previousState,
-            articleUpvotes: nextUserUpvoted
-                ? previousState.articleUpvotes + 1
-                : Math.max(0, previousState.articleUpvotes - 1),
-            userUpvotedArticle: nextUserUpvoted,
-        }));
-        setIsTogglingArticleUpvote(true);
-
         try {
-            const response = await fetch(`/api/engagement/${slug}/article-upvotes`, {
-                method: 'POST',
-            });
-            const payload = await parseResponse<ToggleArticleUpvoteResponse>(response);
-
-            setState((previousState) => ({
-                ...previousState,
-                articleUpvotes: payload.articleUpvotes,
-                userUpvotedArticle: payload.userUpvotedArticle,
-            }));
-        } catch (error) {
-            setState((previousState) => ({
-                ...previousState,
-                articleUpvotes: previousArticleUpvotes,
-                userUpvotedArticle: previousUserUpvoted,
-            }));
-            setLoadError(getErrorMessage(error));
-        } finally {
-            setIsTogglingArticleUpvote(false);
+            await toggleArticleUpvote();
+        } catch {
+            return;
         }
     };
 
@@ -504,27 +327,12 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
         }
 
         setFormError(null);
-        setIsSubmittingComment(true);
 
         try {
-            const response = await fetch(`/api/engagement/${slug}/comments`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message: cleanMessage }),
-            });
-            const payload = await parseResponse<CreateCommentResponse>(response);
-
-            setState((previousState) => ({
-                ...previousState,
-                comments: insertCommentIntoTree(previousState.comments, payload.comment),
-            }));
+            await createComment({ message: cleanMessage });
             setMessage('');
         } catch (error) {
             setFormError(getErrorMessage(error));
-        } finally {
-            setIsSubmittingComment(false);
         }
     };
 
@@ -575,25 +383,12 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
         }
 
         setReplyFormError(null);
-        setSubmittingReplyToId(parentCommentId);
 
         try {
-            const response = await fetch(`/api/engagement/${slug}/comments`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    message: cleanMessage,
-                    parentCommentId,
-                }),
+            await createComment({
+                message: cleanMessage,
+                parentCommentId,
             });
-            const payload = await parseResponse<CreateCommentResponse>(response);
-
-            setState((previousState) => ({
-                ...previousState,
-                comments: insertCommentIntoTree(previousState.comments, payload.comment),
-            }));
             setReplyDrafts((currentDrafts) => {
                 const nextDrafts = { ...currentDrafts };
                 delete nextDrafts[parentCommentId];
@@ -603,8 +398,6 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
             setActiveReplyId(null);
         } catch (error) {
             setReplyFormError(getErrorMessage(error));
-        } finally {
-            setSubmittingReplyToId(null);
         }
     };
 
@@ -614,58 +407,14 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
             return;
         }
 
-        const hasUpvoted = state.upvotedCommentIds.includes(commentId);
-        const previousComment = findCommentInTree(state.comments, commentId);
-
-        if (!previousComment) {
+        if (!findCommentInTree(state.comments, commentId)) {
             return;
         }
 
-        setLoadError(null);
-        setPendingCommentIds((currentIds) =>
-            currentIds.includes(commentId) ? currentIds : [...currentIds, commentId],
-        );
-        setState((previousState) => ({
-            ...previousState,
-            comments: updateCommentInTree(previousState.comments, commentId, (comment) => ({
-                ...comment,
-                upvotes: hasUpvoted ? Math.max(0, comment.upvotes - 1) : comment.upvotes + 1,
-            })),
-            upvotedCommentIds: hasUpvoted
-                ? previousState.upvotedCommentIds.filter((id) => id !== commentId)
-                : [...previousState.upvotedCommentIds, commentId],
-        }));
-
         try {
-            const response = await fetch(`/api/engagement/comments/${commentId}/upvote`, {
-                method: 'POST',
-            });
-            const payload = await parseResponse<ToggleCommentUpvoteResponse>(response);
-
-            setState((previousState) => ({
-                ...previousState,
-                comments: updateCommentInTree(previousState.comments, commentId, (comment) => ({
-                    ...comment,
-                    upvotes: payload.upvotes,
-                })),
-                upvotedCommentIds: payload.userUpvoted
-                    ? [...new Set([...previousState.upvotedCommentIds, commentId])]
-                    : previousState.upvotedCommentIds.filter((id) => id !== commentId),
-            }));
-        } catch (error) {
-            setState((previousState) => ({
-                ...previousState,
-                comments: updateCommentInTree(previousState.comments, commentId, (comment) => ({
-                    ...comment,
-                    upvotes: previousComment.upvotes,
-                })),
-                upvotedCommentIds: hasUpvoted
-                    ? [...new Set([...previousState.upvotedCommentIds, commentId])]
-                    : previousState.upvotedCommentIds.filter((id) => id !== commentId),
-            }));
-            setLoadError(getErrorMessage(error));
-        } finally {
-            setPendingCommentIds((currentIds) => currentIds.filter((id) => id !== commentId));
+            await toggleCommentUpvote(commentId);
+        } catch {
+            return;
         }
     };
 
@@ -683,6 +432,9 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                     Your participation is linked to your account for a consistent experience across
                     sessions.
                 </p>
+                {isSyncing && (
+                    <p className='text-xs text-muted-foreground'>Syncing the latest comments and votes...</p>
+                )}
             </div>
 
             <div className='rounded-lg border border-border bg-muted/25 p-4'>
@@ -704,7 +456,7 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                             size='sm'
                             aria-pressed={state.userUpvotedArticle}
                             onClick={handleArticleUpvote}
-                            disabled={isTogglingArticleUpvote || (isRefreshing && !hasFetched)}
+                            disabled={isTogglingArticleUpvote || isInitialLoading || !isLoaded}
                             className='min-w-[130px] justify-between'>
                             <span className='inline-flex items-center gap-2'>
                                 {isTogglingArticleUpvote ? (
@@ -737,7 +489,7 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                                 variant='secondary'
                                 size='sm'
                                 onClick={handleArticleUpvote}
-                                disabled={isRefreshing && !hasFetched}
+                                disabled={isInitialLoading || !isLoaded}
                                 className='min-w-[130px] justify-between'>
                                 <span className='inline-flex items-center gap-2'>
                                     <ChevronUp className='h-4 w-4' />
@@ -757,7 +509,10 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                         type='button'
                         variant='outline'
                         size='sm'
-                        onClick={() => setRefreshKey((current) => current + 1)}>
+                        onClick={() => {
+                            setRequestError(null);
+                            void refetch();
+                        }}>
                         Retry
                     </Button>
                 </div>
@@ -801,7 +556,7 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                     <Button
                         type='submit'
                         className='w-full sm:w-auto'
-                        disabled={isSubmittingComment || (isRefreshing && !hasFetched)}>
+                        disabled={isSubmittingComment || isInitialLoading || !isLoaded}>
                         {isSubmittingComment ? (
                             <>
                                 <Loader2 className='h-4 w-4 animate-spin' />
@@ -819,7 +574,7 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                         Comments ({totalCommentCount})
                     </h3>
 
-                    {isRefreshing && !hasFetched ? (
+                    {isInitialLoading ? (
                         <div className='rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground'>
                             Loading comments and synced upvotes...
                         </div>
