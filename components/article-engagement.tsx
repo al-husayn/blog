@@ -1,39 +1,22 @@
 "use client";
 
-import {
-    useMutation,
-    useMutationState,
-    useQuery,
-    useQueryClient,
-} from '@tanstack/react-query';
 import { SignInButton, UserButton, useAuth, useClerk } from '@clerk/nextjs';
 import { ChevronUp, Loader2, MessageSquare, Reply } from 'lucide-react';
 import { FormEvent, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
-    createCommentRequest,
-    engagementQueryKey,
-    fetchEngagement,
-    toggleArticleUpvoteRequest,
-    toggleCommentUpvoteRequest,
-} from '@/lib/api/engagement';
+    countComments,
+    findCommentInTree,
+} from '@/lib/engagement-client';
+import {
+    useEngagementMutations,
+    useEngagementQuery,
+} from '@/lib/hooks/use-engagement';
 import { getErrorMessage } from '@/lib/api/client';
 import { cn } from '@/lib/utils';
-import type {
-    ArticleEngagementProps,
-    CommentItem,
-    EngagementState,
-    EngagementResponse,
-} from '@/types/components/article-engagement';
+import type { ArticleEngagementProps, CommentItem } from '@/types/components/article-engagement';
 
 const MAX_COMMENT_LENGTH = 800;
-
-const createInitialState = (): EngagementState => ({
-    articleUpvotes: 0,
-    userUpvotedArticle: false,
-    comments: [],
-    upvotedCommentIds: [],
-});
 
 const formatCommentDate = (value: string): string => {
     const date = new Date(value);
@@ -57,106 +40,7 @@ const getAuthorInitials = (authorName: string): string =>
         .map((part) => part[0]?.toUpperCase() ?? '')
         .join('') || 'CM';
 
-const countComments = (comments: CommentItem[]): number =>
-    comments.reduce((total, comment) => total + 1 + countComments(comment.replies), 0);
-
-const findCommentInTree = (
-    comments: CommentItem[],
-    commentId: string,
-): CommentItem | undefined => {
-    for (const comment of comments) {
-        if (comment.id === commentId) {
-            return comment;
-        }
-
-        const nestedComment = findCommentInTree(comment.replies, commentId);
-
-        if (nestedComment) {
-            return nestedComment;
-        }
-    }
-
-    return undefined;
-};
-
-const updateCommentInTree = (
-    comments: CommentItem[],
-    commentId: string,
-    updater: (comment: CommentItem) => CommentItem,
-): CommentItem[] =>
-    comments.map((comment) => {
-        if (comment.id === commentId) {
-            return updater(comment);
-        }
-
-        if (comment.replies.length === 0) {
-            return comment;
-        }
-
-        return {
-            ...comment,
-            replies: updateCommentInTree(comment.replies, commentId, updater),
-        };
-    });
-
-const insertReplyIntoTree = (
-    comments: CommentItem[],
-    parentCommentId: string,
-    reply: CommentItem,
-): [CommentItem[], boolean] => {
-    let hasInserted = false;
-
-    const nextComments = comments.map((comment) => {
-        if (comment.id === parentCommentId) {
-            hasInserted = true;
-
-            return {
-                ...comment,
-                replies: [...comment.replies, reply],
-            };
-        }
-
-        if (comment.replies.length === 0) {
-            return comment;
-        }
-
-        const [nextReplies, insertedIntoReplies] = insertReplyIntoTree(
-            comment.replies,
-            parentCommentId,
-            reply,
-        );
-
-        if (!insertedIntoReplies) {
-            return comment;
-        }
-
-        hasInserted = true;
-
-        return {
-            ...comment,
-            replies: nextReplies,
-        };
-    });
-
-    return [nextComments, hasInserted];
-};
-
-const insertCommentIntoTree = (comments: CommentItem[], newComment: CommentItem): CommentItem[] => {
-    if (!newComment.parentCommentId) {
-        return [newComment, ...comments];
-    }
-
-    const [nextComments, hasInserted] = insertReplyIntoTree(
-        comments,
-        newComment.parentCommentId,
-        newComment,
-    );
-
-    return hasInserted ? nextComments : comments;
-};
-
 type SignInPromptScope = 'comment' | 'reply' | 'general';
-type CreateCommentInput = { message: string; parentCommentId?: string };
 
 interface CommentThreadProps {
     comments: CommentItem[];
@@ -360,154 +244,31 @@ export function ArticleEngagement({ slug, isClerkConfigured }: ArticleEngagement
 function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
     const { isLoaded, isSignedIn, userId } = useAuth();
     const { openSignIn } = useClerk();
-    const queryClient = useQueryClient();
     const [message, setMessage] = useState('');
     const [requestError, setRequestError] = useState<string | null>(null);
     const [formError, setFormError] = useState<string | null>(null);
     const [replyFormError, setReplyFormError] = useState<string | null>(null);
     const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
     const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
-
-    const queryKey = engagementQueryKey(slug, userId);
-    const createCommentMutationKey = ['engagement', slug, 'create-comment'] as const;
-    const commentUpvoteMutationKey = ['engagement', slug, 'comment-upvote'] as const;
-
-    const updateCachedEngagement = (updater: (current: EngagementResponse) => EngagementResponse) => {
-        queryClient.setQueryData<EngagementResponse>(queryKey, (current) =>
-            current ? updater(current) : current,
-        );
-    };
-
-    const engagementQuery = useQuery({
+    const { queryKey, state, loadError, isInitialLoading, isSyncing, refetch } =
+        useEngagementQuery({
+            slug,
+            isLoaded,
+            userId,
+            requestError,
+        });
+    const {
+        toggleArticleUpvote,
+        createComment,
+        toggleCommentUpvote,
+        isTogglingArticleUpvote,
+        pendingCommentIds,
+        isSubmittingComment,
+        submittingReplyToId,
+    } = useEngagementMutations({
+        slug,
         queryKey,
-        queryFn: () => fetchEngagement(slug),
-        enabled: isLoaded,
-        placeholderData: (previousData) =>
-            previousData
-                ? {
-                      ...previousData,
-                      userUpvotedArticle: false,
-                      upvotedCommentIds: [],
-                      isAuthenticated: Boolean(userId),
-                  }
-                : previousData,
-    });
-
-    const articleUpvoteMutation = useMutation({
-        mutationKey: ['engagement', slug, 'article-upvote'],
-        mutationFn: () => toggleArticleUpvoteRequest(slug),
-        onMutate: async () => {
-            setRequestError(null);
-            await queryClient.cancelQueries({ queryKey });
-
-            const previousState = queryClient.getQueryData<EngagementResponse>(queryKey);
-
-            if (previousState) {
-                const nextUserUpvoted = !previousState.userUpvotedArticle;
-
-                queryClient.setQueryData<EngagementResponse>(queryKey, {
-                    ...previousState,
-                    articleUpvotes: nextUserUpvoted
-                        ? previousState.articleUpvotes + 1
-                        : Math.max(0, previousState.articleUpvotes - 1),
-                    userUpvotedArticle: nextUserUpvoted,
-                });
-            }
-
-            return { previousState };
-        },
-        onError: (error, _variables, context) => {
-            if (context?.previousState) {
-                queryClient.setQueryData(queryKey, context.previousState);
-            }
-
-            setRequestError(getErrorMessage(error));
-        },
-        onSuccess: (payload) => {
-            updateCachedEngagement((current) => ({
-                ...current,
-                articleUpvotes: payload.articleUpvotes,
-                userUpvotedArticle: payload.userUpvotedArticle,
-            }));
-        },
-    });
-
-    const createCommentMutation = useMutation({
-        mutationKey: createCommentMutationKey,
-        mutationFn: ({ message, parentCommentId }: CreateCommentInput) =>
-            createCommentRequest(slug, { message, parentCommentId }),
-        onMutate: () => {
-            setRequestError(null);
-        },
-        onSuccess: (payload) => {
-            updateCachedEngagement((current) => ({
-                ...current,
-                comments: insertCommentIntoTree(current.comments, payload.comment),
-            }));
-        },
-    });
-
-    const commentUpvoteMutation = useMutation({
-        mutationKey: commentUpvoteMutationKey,
-        mutationFn: (commentId: string) => toggleCommentUpvoteRequest(commentId),
-        onMutate: async (commentId) => {
-            setRequestError(null);
-            await queryClient.cancelQueries({ queryKey });
-
-            const previousState = queryClient.getQueryData<EngagementResponse>(queryKey);
-
-            if (previousState) {
-                const hasUpvoted = previousState.upvotedCommentIds.includes(commentId);
-
-                queryClient.setQueryData<EngagementResponse>(queryKey, {
-                    ...previousState,
-                    comments: updateCommentInTree(previousState.comments, commentId, (comment) => ({
-                        ...comment,
-                        upvotes: hasUpvoted ? Math.max(0, comment.upvotes - 1) : comment.upvotes + 1,
-                    })),
-                    upvotedCommentIds: hasUpvoted
-                        ? previousState.upvotedCommentIds.filter((id) => id !== commentId)
-                        : [...previousState.upvotedCommentIds, commentId],
-                });
-            }
-
-            return { previousState };
-        },
-        onError: (error, _commentId, context) => {
-            if (context?.previousState) {
-                queryClient.setQueryData(queryKey, context.previousState);
-            }
-
-            setRequestError(getErrorMessage(error));
-        },
-        onSuccess: (payload) => {
-            updateCachedEngagement((current) => ({
-                ...current,
-                comments: updateCommentInTree(current.comments, payload.commentId, (comment) => ({
-                    ...comment,
-                    upvotes: payload.upvotes,
-                })),
-                upvotedCommentIds: payload.userUpvoted
-                    ? [...new Set([...current.upvotedCommentIds, payload.commentId])]
-                    : current.upvotedCommentIds.filter((id) => id !== payload.commentId),
-            }));
-        },
-    });
-
-    const pendingCommentIds = useMutationState<string>({
-        filters: {
-            mutationKey: commentUpvoteMutationKey,
-            status: 'pending',
-        },
-        select: (mutation) => mutation.state.variables as string,
-    });
-
-    const pendingCommentSubmissions = useMutationState<CreateCommentInput>({
-        filters: {
-            mutationKey: createCommentMutationKey,
-            status: 'pending',
-        },
-        select: (mutation) => mutation.state.variables as CreateCommentInput,
+        onRequestError: setRequestError,
     });
 
     useEffect(() => {
@@ -519,21 +280,6 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
         setFormError(null);
         setReplyFormError(null);
     }, [isSignedIn]);
-
-    const state = engagementQuery.data ?? createInitialState();
-    const isInitialLoading = isLoaded && engagementQuery.isPending && !engagementQuery.data;
-    const isSyncing = Boolean(engagementQuery.data) && engagementQuery.isFetching;
-    const isSubmittingComment = pendingCommentSubmissions.some(
-        (variables) => !variables.parentCommentId,
-    );
-    const submittingReplyToId =
-        pendingCommentSubmissions.find((variables) => Boolean(variables.parentCommentId))
-            ?.parentCommentId ?? null;
-    const loadError =
-        requestError ??
-        (!engagementQuery.data && engagementQuery.error
-            ? getErrorMessage(engagementQuery.error)
-            : null);
 
     const openSignInModal = (messageText: string, scope: SignInPromptScope = 'general') => {
         if (scope === 'comment') {
@@ -554,7 +300,7 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
         }
 
         try {
-            await articleUpvoteMutation.mutateAsync();
+            await toggleArticleUpvote();
         } catch {
             return;
         }
@@ -583,7 +329,7 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
         setFormError(null);
 
         try {
-            await createCommentMutation.mutateAsync({ message: cleanMessage });
+            await createComment({ message: cleanMessage });
             setMessage('');
         } catch (error) {
             setFormError(getErrorMessage(error));
@@ -639,7 +385,7 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
         setReplyFormError(null);
 
         try {
-            await createCommentMutation.mutateAsync({
+            await createComment({
                 message: cleanMessage,
                 parentCommentId,
             });
@@ -666,7 +412,7 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
         }
 
         try {
-            await commentUpvoteMutation.mutateAsync(commentId);
+            await toggleCommentUpvote(commentId);
         } catch {
             return;
         }
@@ -710,10 +456,10 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                             size='sm'
                             aria-pressed={state.userUpvotedArticle}
                             onClick={handleArticleUpvote}
-                            disabled={articleUpvoteMutation.isPending || isInitialLoading || !isLoaded}
+                            disabled={isTogglingArticleUpvote || isInitialLoading || !isLoaded}
                             className='min-w-[130px] justify-between'>
                             <span className='inline-flex items-center gap-2'>
-                                {articleUpvoteMutation.isPending ? (
+                                {isTogglingArticleUpvote ? (
                                     <Loader2 className='h-4 w-4 animate-spin' />
                                 ) : (
                                     <ChevronUp className='h-4 w-4' />
@@ -765,7 +511,7 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                         size='sm'
                         onClick={() => {
                             setRequestError(null);
-                            void engagementQuery.refetch();
+                            void refetch();
                         }}>
                         Retry
                     </Button>
