@@ -1,6 +1,6 @@
 # Learn. Build. Share.
 
-A modern technical blog built with Next.js 15, Fumadocs MDX, Tailwind CSS, Clerk, Neon, and Drizzle. It includes article pages, SEO metadata, an embedded AI assistant, and a synced engagement system with article upvotes, comments, and comment upvotes.
+A modern technical blog built with Next.js 15, Fumadocs MDX, Tailwind CSS, Clerk, Neon, Drizzle, and TanStack Query. It includes article pages, SEO metadata, an embedded AI assistant, and a synced engagement system with article upvotes, comments, and comment upvotes.
 
 ## Highlights
 
@@ -8,6 +8,7 @@ A modern technical blog built with Next.js 15, Fumadocs MDX, Tailwind CSS, Clerk
 - Automatic read-time generation for every post
 - Embedded article-aware AI assistant
 - Clerk-authenticated engagement system
+- TanStack Query-powered client caching, syncing, and optimistic engagement updates
 - Neon Postgres persistence through Drizzle ORM
 - Responsive UI, dark mode, RSS, sitemap, and Open Graph images
 
@@ -18,10 +19,20 @@ A modern technical blog built with Next.js 15, Fumadocs MDX, Tailwind CSS, Clerk
 - TypeScript
 - Fumadocs MDX
 - Tailwind CSS 4
+- TanStack Query
 - Clerk
 - Neon Postgres
 - Drizzle ORM and Drizzle Kit
 - OpenRouter or any OpenAI-compatible inference endpoint
+
+## Client Data Layer
+
+TanStack Query is used for client-side server state, especially around engagement features such as article upvotes, comments, and comment upvotes.
+
+- A shared `QueryClient` is created in `components/query-provider.tsx`.
+- Engagement queries and mutations are organized in `lib/hooks/use-engagement.ts`.
+- Comment tree update helpers live in `lib/engagement-client.ts`.
+- Current defaults use a 30 second `staleTime`, a 5 minute `gcTime`, background refetching on window focus and reconnect, and optimistic mutation updates for engagement interactions.
 
 ## Prerequisites
 
@@ -167,6 +178,7 @@ Add a new author there, then reference that key in your post frontmatter.
 
 - The site includes RSS, sitemap, metadata, and Open Graph image generation.
 - Engagement routes live under `app/api/engagement`.
+- Client-side engagement state is cached and synchronized through TanStack Query.
 - If Clerk keys are missing, the site still renders, but synced engagement features remain unavailable until auth is configured.
 
 ## License
