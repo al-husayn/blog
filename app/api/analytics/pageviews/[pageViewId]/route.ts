@@ -1,0 +1,33 @@
+import { NextResponse } from 'next/server';
+import { ZodError } from 'zod';
+import { completePageView } from '@/lib/analytics';
+import { isAnalyticsConfigured } from '@/lib/env';
+
+export async function POST(request: Request) {
+    if (!isAnalyticsConfigured()) {
+        return new Response(null, { status: 204 });
+    }
+
+    try {
+        const payload = await request.json();
+        await completePageView(payload);
+
+        return NextResponse.json({ ok: true });
+    } catch (error) {
+        if (error instanceof ZodError) {
+            return NextResponse.json(
+                {
+                    message: 'Invalid page view completion payload.',
+                    issues: error.issues,
+                },
+                { status: 400 },
+            );
+        }
+
+        console.error('Failed to finalize page view.', error);
+        return NextResponse.json(
+            { message: 'Could not finalize page view.' },
+            { status: 500 },
+        );
+    }
+}

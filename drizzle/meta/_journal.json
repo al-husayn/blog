@@ -15,6 +15,13 @@
       "when": 1773807296692,
       "tag": "0001_lethal_rhino",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1774571979202,
+      "tag": "0002_acoustic_synch",
+      "breakpoints": true
     }
   ]
 }

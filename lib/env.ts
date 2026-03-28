@@ -1,6 +1,14 @@
 const hasValue = (value: string | undefined): value is string =>
     typeof value === 'string' && value.trim().length > 0;
 
+const parseCsv = (value: string | undefined): string[] =>
+    hasValue(value)
+        ? value
+              .split(',')
+              .map((item) => item.trim())
+              .filter(Boolean)
+        : [];
+
 export const isDatabaseConfigured = (): boolean => hasValue(process.env.DATABASE_URL);
 
 export const isClerkConfigured = (): boolean =>
@@ -9,3 +17,12 @@ export const isClerkConfigured = (): boolean =>
 
 export const isEngagementConfigured = (): boolean =>
     isDatabaseConfigured() && isClerkConfigured();
+
+export const isAnalyticsConfigured = (): boolean => isDatabaseConfigured();
+
+export const getAdminUserIds = (): string[] => parseCsv(process.env.ADMIN_USER_IDS);
+
+export const isAdminUserId = (userId: string | null | undefined): boolean =>
+    userId ? getAdminUserIds().includes(userId) : false;
+
+export const isAdminConfigured = (): boolean => getAdminUserIds().length > 0;
