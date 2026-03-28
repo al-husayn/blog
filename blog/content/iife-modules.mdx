@@ -48,12 +48,12 @@ An **[IIFE](https://developer.mozilla.org/en-US/docs/Glossary/IIFE)** (Immediate
 ```javascript
 // An IIFE — runs immediately, no calling needed
 (function() {
-  const private = "I'm hidden from the outside world";
-  console.log(private);
+  const secret = "I'm hidden from the outside world";
+  console.log(secret);
 })();  // Runs right away!
 
-// The variable "private" doesn't exist out here
-// console.log(private);  // ReferenceError: private is not defined
+// The variable "secret" doesn't exist out here
+// console.log(secret);  // ReferenceError: secret is not defined
 ```
 
 The parentheses around the function turn it from a declaration into an expression, and the `()` at the end immediately invokes it. This was the go-to pattern for creating private scope before JavaScript had built-in modules. According to the 2023 State of JS survey, ES modules are now used by the vast majority of JavaScript developers, but IIFEs remain common in bundler output and legacy codebases.
@@ -874,7 +874,8 @@ export { isEmail, isPhone } from './validate.js';
 
 // Now in main.js, you can import from the folder
 import { formatDate, isEmail } from './utils/index.js';
-// Or even shorter (works with bundlers and Node.js, not native browser modules):
+// Shorthand below works with bundlers (e.g., Webpack, Vite) but will FAIL in native 
+// Node.js ESM, which requires explicit file extensions and full directory paths.
 import { formatDate, isEmail } from './utils';
 ```
 
@@ -1170,7 +1171,7 @@ export function formatDate(date) {
 
 // ❌ WRONG — Importing without braces looks for a default export
 import formatDate from './utils.js'
-console.log(formatDate)  // undefined! No default export exists
+console.log(formatDate)  // SyntaxError: The requested module './utils.js' does not provide an export named 'default'
 
 // ✓ CORRECT — Use braces for named exports
 import { formatDate } from './utils.js'
