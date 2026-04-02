@@ -1,27 +1,40 @@
 import { Coffee } from 'lucide-react';
 import { siteConfig } from '@/lib/site';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface BuyMeACoffeeButtonProps {
     className?: string;
     size?: 'default' | 'sm' | 'lg' | 'icon';
-    variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
     label?: string;
 }
+
+const sizeClasses: Record<NonNullable<BuyMeACoffeeButtonProps['size']>, string> = {
+    default: 'min-h-11 px-5 text-sm',
+    sm: 'min-h-10 px-4 text-sm',
+    lg: 'min-h-12 px-6 text-base',
+    icon: 'size-11 px-0',
+};
 
 export function BuyMeACoffeeButton({
     className,
     size = 'default',
-    variant = 'default',
     label = 'Buy me a coffee',
 }: BuyMeACoffeeButtonProps) {
     return (
-        <Button asChild size={size} variant={variant} className={cn('gap-2', className)}>
-            <a href={siteConfig.buyMeACoffeeUrl} target='_blank' rel='noopener noreferrer'>
+        <a
+            href={siteConfig.buyMeACoffeeUrl}
+            target='_blank'
+            rel='noopener noreferrer'
+            className={cn(
+                'inline-flex items-center justify-center gap-3 rounded-full border border-black/10 bg-[#ffdd00] font-extrabold tracking-tight text-[#111111] shadow-[0_4px_0_rgba(17,17,17,0.18)] transition-[transform,box-shadow,background-color] duration-200 hover:-translate-y-0.5 hover:bg-[#ffe45c] hover:shadow-[0_6px_0_rgba(17,17,17,0.16)] active:translate-y-0 active:shadow-[0_2px_0_rgba(17,17,17,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffdd00] focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+                sizeClasses[size],
+                className,
+            )}>
+            <span className='inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-white/95 text-[#111111] shadow-sm'>
                 <Coffee className='h-4 w-4' aria-hidden='true' />
-                <span>{label}</span>
-            </a>
-        </Button>
+            </span>
+            {size === 'icon' ? <span className='sr-only'>{label}</span> : <span>{label}</span>}
+            <span className='sr-only'>(opens in a new tab)</span>
+        </a>
     );
 }

@@ -246,7 +246,7 @@ export default function AboutPage() {
             </Link>
           </div>
 
-          <div className='rounded-xl border border-border bg-card p-5 space-y-4'>
+          {/* <div className='rounded-xl border border-border bg-card p-5 space-y-4'>
             <div className='space-y-2'>
               <p className='text-xs font-semibold uppercase tracking-[0.18em] text-primary'>Support</p>
               <h2 className='text-xl font-semibold tracking-tight'>Fuel the next tutorial</h2>
@@ -255,7 +255,7 @@ export default function AboutPage() {
               </p>
             </div>
             <BuyMeACoffeeButton className='w-full justify-center sm:w-auto' />
-          </div>
+          </div> */}
         </aside>
       </section>
 

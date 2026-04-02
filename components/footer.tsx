@@ -65,7 +65,7 @@ export default function Footer() {
                   </div>
 
                   <div className='space-y-2'>
-                      <h3 className='text-sm font-semibold'>Support the blog</h3>
+                      <h3 className='text-sm font-semibold'>Support The Blog</h3>
                       <div className='space-y-3 text-sm'>
                           <p className='text-muted-foreground'>
                               Enjoying the tutorials? A coffee helps keep practical guides and deep dives coming.
