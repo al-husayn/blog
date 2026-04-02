@@ -1,4 +1,4 @@
-import { Coffee } from 'lucide-react';
+import { ArrowUpRight, Coffee } from 'lucide-react';
 import { siteConfig } from '@/lib/site';
 import { cn } from '@/lib/utils';
 
@@ -34,6 +34,34 @@ export function BuyMeACoffeeButton({
                 <Coffee className='h-4 w-4' aria-hidden='true' />
             </span>
             {size === 'icon' ? <span className='sr-only'>{label}</span> : <span>{label}</span>}
+            <span className='sr-only'>(opens in a new tab)</span>
+        </a>
+    );
+}
+
+interface BuyMeACoffeeBadgeProps {
+    className?: string;
+    label?: string;
+}
+
+export function BuyMeACoffeeBadge({
+    className,
+    label = 'Buy me a coffee',
+}: BuyMeACoffeeBadgeProps) {
+    return (
+        <a
+            href={siteConfig.buyMeACoffeeUrl}
+            target='_blank'
+            rel='noopener noreferrer'
+            className={cn(
+                'group inline-flex w-fit items-center gap-2.5 rounded-full border border-[#ffdd00]/55 bg-[linear-gradient(135deg,rgba(255,221,0,0.16),rgba(255,255,255,0.92))] px-3.5 py-2 text-left text-foreground shadow-sm transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-[#ffdd00]/80 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffdd00] focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+                className,
+            )}>
+            <span className='inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-[#ffdd00] text-[#111111] shadow-sm'>
+                <Coffee className='h-3.5 w-3.5' aria-hidden='true' />
+            </span>
+            <span className='text-sm font-semibold tracking-tight'>{label}</span>
+            <ArrowUpRight className='h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5' aria-hidden='true' />
             <span className='sr-only'>(opens in a new tab)</span>
         </a>
     );
