@@ -2,12 +2,7 @@ import { and, count, desc, eq, gte, inArray, isNotNull, lt, sql } from 'drizzle-
 import { z } from 'zod';
 import { getBlogPages, getSlugFromPageUrl } from '@/lib/blog';
 import { getDb } from '@/lib/db/client';
-import {
-    articlePageViews,
-    articleShareEvents,
-    articleUpvotes,
-    comments,
-} from '@/lib/db/schema';
+import { articlePageViews, articleShareEvents, articleUpvotes, comments } from '@/lib/db/schema';
 import { parseDate } from '@/lib/utils';
 import type {
     AnalyticsPageViewCompletionInput,
@@ -147,6 +142,20 @@ const prettifyHost = (value: string): string =>
         .replace(/[-_]/g, ' ')
         .replace(/\b\w/g, (character) => character.toUpperCase()) || value;
 
+const stripReferrerPath = (value: string | null | undefined): string | null => {
+    const normalizedValue = normalizeNullableString(value);
+    if (!normalizedValue) {
+        return null;
+    }
+
+    try {
+        const referrerUrl = new URL(normalizedValue);
+        return referrerUrl.origin;
+    } catch {
+        return null;
+    }
+};
+
 const formatDayKey = (value: Date): string => value.toISOString().slice(0, 10);
 
 const formatDayLabel = (value: Date): string => UTC_DAY_FORMATTER.format(value);
@@ -162,12 +171,14 @@ const startOfUtcDay = (value: Date): Date =>
 const startOfUtcMonth = (value: Date): Date =>
     new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), 1));
 
-const subtractDays = (value: Date, days: number): Date => new Date(value.getTime() - days * DAY_IN_MS);
+const subtractDays = (value: Date, days: number): Date =>
+    new Date(value.getTime() - days * DAY_IN_MS);
 
 const subtractMonths = (value: Date, months: number): Date =>
     new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth() - months, 1));
 
-const buildSinceDate = (days: number, now: Date): Date => startOfUtcDay(subtractDays(now, days - 1));
+const buildSinceDate = (days: number, now: Date): Date =>
+    startOfUtcDay(subtractDays(now, days - 1));
 
 const getGrowthDelta = (currentValue: number, previousValue: number): number | null => {
     if (previousValue === 0) {
@@ -215,13 +226,20 @@ const inferSourceFromUtm = (
         };
     }
 
+    if (normalizedMedium.includes('social')) {
+        return {
+            group: 'social',
+            detail: prettifyHost(normalizedSource || 'Social'),
+        };
+    }
+
+    const sourceTokens = normalizedSource.split(/[^a-z0-9]+/);
     if (
-        normalizedMedium.includes('social') ||
-        normalizedSource.includes('x') ||
-        normalizedSource.includes('twitter') ||
-        normalizedSource.includes('linkedin') ||
-        normalizedSource.includes('reddit') ||
-        normalizedSource.includes('hn')
+        sourceTokens.includes('x') ||
+        sourceTokens.includes('twitter') ||
+        sourceTokens.includes('linkedin') ||
+        sourceTokens.includes('reddit') ||
+        sourceTokens.includes('hn')
     ) {
         return {
             group: 'social',
@@ -511,7 +529,9 @@ const getPeriodTotals = async (
             const [row] =
                 period.days === null
                     ? await baseQuery
-                    : await baseQuery.where(gte(articlePageViews.createdAt, buildSinceDate(period.days, now)));
+                    : await baseQuery.where(
+                          gte(articlePageViews.createdAt, buildSinceDate(period.days, now)),
+                      );
 
             return {
                 label: period.label,
@@ -681,14 +701,18 @@ const getTopKeywords = async (now: Date): Promise<DashboardKeywordMetric[]> => {
         .filter((row) => row.keyword.length > 0);
 };
 
-const getEngagementSummary = async (now: Date): Promise<Pick<
-    DashboardAnalytics,
-    | 'avgEngagementSeconds30d'
-    | 'engagementScore30d'
-    | 'bounceRate30d'
-    | 'avgScrollDepth30d'
-    | 'scrollReach30d'
->> => {
+const getEngagementSummary = async (
+    now: Date,
+): Promise<
+    Pick<
+        DashboardAnalytics,
+        | 'avgEngagementSeconds30d'
+        | 'engagementScore30d'
+        | 'bounceRate30d'
+        | 'avgScrollDepth30d'
+        | 'scrollReach30d'
+    >
+> => {
     const db = getDb();
     const sinceDate = buildSinceDate(30, now);
 
@@ -725,7 +749,9 @@ const getEngagementSummary = async (now: Date): Promise<Pick<
     };
 };
 
-const getNewVsReturningVisitors = async (now: Date): Promise<DashboardAnalytics['newVsReturning30d']> => {
+const getNewVsReturningVisitors = async (
+    now: Date,
+): Promise<DashboardAnalytics['newVsReturning30d']> => {
     const db = getDb();
     const sinceDate = buildSinceDate(30, now);
     const activeVisitorRows = await db
@@ -771,7 +797,9 @@ const getNewVsReturningVisitors = async (now: Date): Promise<DashboardAnalytics[
     };
 };
 
-const getShareMetrics = async (now: Date): Promise<{
+const getShareMetrics = async (
+    now: Date,
+): Promise<{
     shareBreakdown30d: DashboardShareMetric[];
     totalShares30d: number;
     shares30dBySlug: Map<string, number>;
@@ -867,7 +895,10 @@ const getCommentVelocityMap = async (
         })
         .from(comments);
 
-    const velocityBySlug = new Map<string, { comments48h: number; commentsVelocityPerHour: number }>();
+    const velocityBySlug = new Map<
+        string,
+        { comments48h: number; commentsVelocityPerHour: number }
+    >();
 
     for (const row of commentRows) {
         const metadata = articleMetadataBySlug.get(row.articleSlug);
@@ -902,7 +933,9 @@ const getCommentVelocityMap = async (
     return velocityBySlug;
 };
 
-const getTopPosts = async (now: Date): Promise<{
+const getTopPosts = async (
+    now: Date,
+): Promise<{
     topPosts: DashboardTopPostMetric[];
     topPostsAllTime: DashboardTopPostMetric[];
     totalReactionsAllTime: number;
@@ -1024,7 +1057,9 @@ const getTopPosts = async (now: Date): Promise<{
     }, 0);
 
     const avgInteractionsPerPost =
-        candidateSlugs.size === 0 ? 0 : roundToOneDecimal(totalReactionsAllTime / candidateSlugs.size);
+        candidateSlugs.size === 0
+            ? 0
+            : roundToOneDecimal(totalReactionsAllTime / candidateSlugs.size);
 
     return {
         topPosts,
@@ -1054,7 +1089,7 @@ export const createPageView = async (input: AnalyticsPageViewInput): Promise<voi
             sourceGroup: derivedTrafficSource.group,
             sourceDetail: derivedTrafficSource.detail,
             referrerHost: derivedTrafficSource.referrerHost,
-            referrerUrl: normalizeNullableString(payload.referrer),
+            referrerUrl: stripReferrerPath(payload.referrer),
             keyword: derivedTrafficSource.keyword,
             utmSource: normalizeNullableString(payload.utmSource),
             utmMedium: normalizeNullableString(payload.utmMedium),
@@ -1063,9 +1098,7 @@ export const createPageView = async (input: AnalyticsPageViewInput): Promise<voi
         .onConflictDoNothing();
 };
 
-export const completePageView = async (
-    input: AnalyticsPageViewCompletionInput,
-): Promise<void> => {
+export const completePageView = async (input: AnalyticsPageViewCompletionInput): Promise<void> => {
     const payload = pageViewCompletionSchema.parse(input);
     const db = getDb();
     const maxScrollDepth = Math.round(clampNumber(payload.maxScrollDepth, 0, 100));
@@ -1074,6 +1107,19 @@ export const completePageView = async (
         engagedTimeSeconds < SESSION_ENGAGEMENT_THRESHOLD_SECONDS &&
         maxScrollDepth < 50 &&
         !payload.reached50;
+
+    // Verify the page view start record exists before completing
+    const [existingRecord] = await db
+        .select({ id: articlePageViews.id })
+        .from(articlePageViews)
+        .where(eq(articlePageViews.id, payload.pageViewId));
+
+    if (!existingRecord) {
+        console.warn(
+            `[analytics] Page view completion received for non-existent start record: ${payload.pageViewId}`,
+        );
+        return;
+    }
 
     await db
         .update(articlePageViews)
