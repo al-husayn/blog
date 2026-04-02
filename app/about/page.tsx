@@ -13,6 +13,7 @@ import {
   Linkedin,
   Twitter,
 } from 'lucide-react';
+import { BuyMeACoffeeBadge } from '@/components/buy-me-a-coffee-button';
 import { siteConfig } from '@/lib/site';
 import { getAbsoluteUrl } from '@/lib/seo';
 import type { ConnectLink } from '@/types/social';
@@ -142,6 +143,7 @@ export default function AboutPage() {
                 and stories from my journey in software development.
               </p>
               <div className='mt-6 flex flex-wrap gap-3 text-xs md:text-sm'>
+                <BuyMeACoffeeBadge />
                 <p className='inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5'>
                   <Code2 className='h-4 w-4 text-primary' />
                   <span className='font-medium'>{allPages.length}</span> published articles

@@ -10,7 +10,7 @@ import { SiteNav } from '@/components/site-nav';
 import Footer from '@/components/footer';
 import { getAbsoluteUrl, toJsonLd } from '@/lib/seo';
 import { isClerkConfigured } from '@/lib/env';
-import '@/app/globals.css';
+import './globals.css';
 
 export const viewport: Viewport = {
     themeColor: 'black',
@@ -123,7 +123,13 @@ const globalStructuredData = {
             name: siteConfig.creator,
             url: siteConfig.creatorUrl,
             image: getAbsoluteUrl('/authors/AL.png'),
-            sameAs: [siteConfig.creatorUrl],
+            sameAs: [
+                siteConfig.creatorUrl,
+                siteConfig.githubUrl,
+                siteConfig.linkedinUrl,
+                `https://x.com/${siteConfig.twitterHandle.replace('@', '')}`,
+                siteConfig.buyMeACoffeeUrl,
+            ],
         },
     ],
 };

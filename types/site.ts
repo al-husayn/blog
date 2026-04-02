@@ -7,6 +7,8 @@ export interface SiteConfig {
   creatorUrl: string;
   githubUrl: string;
   linkedinUrl: string;
+  buyMeACoffeeUsername: string;
+  buyMeACoffeeUrl: string;
   locale: string;
   language: string;
   twitterHandle: string;
