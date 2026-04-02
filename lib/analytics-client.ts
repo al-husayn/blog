@@ -121,16 +121,23 @@ const getCurrentAttribution = (): AcquisitionState => {
 
 const getOrCreateAcquisitionState = (): AcquisitionState => {
     const storage = getSessionStorage();
-    const existingState = safeParseJson<AcquisitionState>(
+    const currentSessionId = getOrCreateSessionId();
+    const storedData = safeParseJson<AcquisitionState & { sessionId: string }>(
         storage?.getItem(ACQUISITION_STORAGE_KEY) ?? null,
     );
 
-    if (existingState) {
-        return existingState;
+    if (storedData && storedData.sessionId === currentSessionId) {
+        return storedData;
     }
 
     const nextState = getCurrentAttribution();
-    storage?.setItem(ACQUISITION_STORAGE_KEY, JSON.stringify(nextState));
+    storage?.setItem(
+        ACQUISITION_STORAGE_KEY,
+        JSON.stringify({
+            ...nextState,
+            sessionId: currentSessionId,
+        }),
+    );
     return nextState;
 };
 
@@ -185,9 +192,7 @@ export const trackArticlePageViewStart = async (
     } satisfies AnalyticsPageViewInput);
 };
 
-export const trackArticlePageViewComplete = (
-    input: AnalyticsPageViewCompletionInput,
-): void => {
+export const trackArticlePageViewComplete = (input: AnalyticsPageViewCompletionInput): void => {
     sendBeaconJson(`/api/analytics/pageviews/${encodeURIComponent(input.pageViewId)}`, input);
 };
 
