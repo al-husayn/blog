@@ -17,6 +17,7 @@ import { FlickeringGrid } from '@/components/magicui/flickering-grid';
 import { HashScrollHandler } from '@/components/hash-scroll-handler';
 import { DeferredArticleEngagement } from '@/components/deferred-article-engagement';
 import { DeferredBlogPostAssistant } from '@/components/deferred-blog-post-assistant';
+import { ArticleAnalyticsTracker } from '@/components/article-analytics-tracker';
 import { getAbsoluteUrl, getIsoDate, toJsonLd } from '@/lib/seo';
 import { siteConfig } from '@/lib/site';
 import type { BlogPostData, BlogPostPage, BlogPostPageProps } from '@/types/pages/blog-post';
@@ -126,6 +127,7 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
                 }}
             />
             <HashScrollHandler />
+            <ArticleAnalyticsTracker articleSlug={slug} path={`/blog/${slug}`} />
             <div className='absolute top-0 left-0 z-0 w-full h-[200px] [mask-image:linear-gradient(to_top,transparent_25%,black_95%)]'>
                 <FlickeringGrid
                     className='absolute top-0 left-0 size-full'
@@ -171,6 +173,7 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
                     )}
 
                     <ArticleShare
+                        articleSlug={slug}
                         title={page.data.title}
                         description={page.data.description}
                         url={articleUrl}

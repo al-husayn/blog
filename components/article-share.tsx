@@ -11,12 +11,17 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { copyTextToClipboard } from '@/lib/clipboard';
+import { trackArticleShare } from '@/lib/analytics-client';
 import { Button } from '@/components/ui/button';
 import type { ArticleShareProps } from '@/types/components/article-share';
 
 const COPY_RESET_DELAY_MS = 2000;
 
-const createShareLinks = ({ title, description, url }: ArticleShareProps) => {
+const createShareLinks = ({
+    title,
+    description,
+    url,
+}: Pick<ArticleShareProps, 'title' | 'description' | 'url'>) => {
     const encodedUrl = encodeURIComponent(url);
     const encodedTitle = encodeURIComponent(title);
     const encodedMessage = encodeURIComponent(`${title}\n\n${description}\n\n${url}`);
@@ -45,7 +50,7 @@ const createShareLinks = ({ title, description, url }: ArticleShareProps) => {
     ] as const;
 };
 
-export function ArticleShare({ title, description, url }: ArticleShareProps) {
+export function ArticleShare({ articleSlug, title, description, url }: ArticleShareProps) {
     const [hasCopied, setHasCopied] = useState(false);
     const [nativeShareAvailable, setNativeShareAvailable] = useState(false);
     const [shareError, setShareError] = useState<string | null>(null);
@@ -64,6 +69,7 @@ export function ArticleShare({ title, description, url }: ArticleShareProps) {
     const handleCopy = async () => {
         try {
             await copyTextToClipboard(url);
+            await trackArticleShare({ articleSlug, network: 'copy_link' });
             setShareError(null);
             setHasCopied(true);
 
@@ -91,6 +97,7 @@ export function ArticleShare({ title, description, url }: ArticleShareProps) {
                 text: description,
                 url,
             });
+            await trackArticleShare({ articleSlug, network: 'native' });
             setShareError(null);
         } catch (error) {
             if (error instanceof DOMException && error.name === 'AbortError') {
@@ -129,6 +136,18 @@ export function ArticleShare({ title, description, url }: ArticleShareProps) {
                                 href={link.href}
                                 target='_blank'
                                 rel='noopener noreferrer'
+                                onClick={() => {
+                                    const network =
+                                        link.label === 'X'
+                                            ? 'x'
+                                            : link.label === 'LinkedIn'
+                                              ? 'linkedin'
+                                              : link.label === 'Facebook'
+                                                ? 'facebook'
+                                                : 'whatsapp';
+
+                                    void trackArticleShare({ articleSlug, network });
+                                }}
                                 aria-label={`Share this article on ${link.label}`}>
                                 <link.icon className='h-4 w-4' />
                                 {link.label}

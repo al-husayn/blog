@@ -8,6 +8,7 @@ A modern technical blog built with Next.js 15, Fumadocs MDX, Tailwind CSS, Clerk
 - Automatic read-time generation for every post
 - Embedded article-aware AI assistant
 - Clerk-authenticated engagement system
+- Private admin analytics dashboard with first-party article tracking
 - TanStack Query-powered client caching, syncing, and optimistic engagement updates
 - Neon Postgres persistence through Drizzle ORM
 - Responsive UI, dark mode, RSS, sitemap, and Open Graph images
@@ -56,6 +57,8 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 DATABASE_URL=postgres://user:password@host/dbname?sslmode=require
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_your_publishable_key
 CLERK_SECRET_KEY=sk_test_your_secret_key
+ADMIN_USER_IDS=user_123,user_456
+ADMIN_EMAILS=admin@example.com
 AI_API_BASE_URL=https://openrouter.ai/api/v1
 AI_API_KEY=your_cloud_api_key_here
 AI_MODEL=openrouter/free
@@ -90,6 +93,8 @@ pnpm build
 - `DATABASE_URL`: Neon Postgres connection string.
 - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`: Clerk publishable key for client auth.
 - `CLERK_SECRET_KEY`: Clerk secret key for server auth.
+- `ADMIN_USER_IDS`: Comma-separated Clerk user IDs allowed to access `/admin`.
+- `ADMIN_EMAILS`: Comma-separated email addresses allowed to access `/admin` (case-insensitive).
 
 ### AI Assistant
 
@@ -106,6 +111,23 @@ The engagement system is backed by Neon and Drizzle and is tied to Clerk authent
 - Comments are persisted and linked to the authenticated Clerk user.
 - Comment upvotes are persisted per signed-in user.
 - The schema is aligned with the live engagement tables: `article_comments`, `article_upvotes`, and `comment_upvotes`.
+- The analytics dashboard stores article page views and share events in `article_page_views` and `article_share_events`.
+
+## Admin Analytics Dashboard
+
+Visit `/admin` after signing in with a Clerk user ID listed in `ADMIN_USER_IDS` or an email address listed in `ADMIN_EMAILS`.
+
+The dashboard includes:
+
+- 7d, 30d, 90d, and all-time pageviews
+- Unique visitors and new vs returning reader ratios
+- Top posts by 30d and all-time views
+- Traffic source attribution for direct, organic, social, and referrals
+- Average engaged time, bounce rate, and scroll depth completion
+- Organic search trend lines and top referrer keywords when available
+- Share tracking and first-48-hour comment velocity
+
+Article analytics are collected with lightweight first-party tracking on blog post pages and the built-in share controls.
 
 Useful commands:
 
@@ -130,19 +152,19 @@ Create a new `.mdx` file inside `blog/content/`.
 
 Example frontmatter:
 
-````mdx
+```mdx
 ---
-title: "Your Blog Post Title"
-description: "A brief description of your post"
-date: "2026-03-17"
-tags: ["JavaScript", "Next.js", "Tutorial"]
+title: 'Your Blog Post Title'
+description: 'A brief description of your post'
+date: '2026-03-17'
+tags: ['JavaScript', 'Next.js', 'Tutorial']
 featured: true
-author: "al"
-thumbnail: "/blog/example-cover.png"
+author: 'al'
+thumbnail: '/blog/example-cover.png'
 ---
 
 Your blog post content here...
-````
+```
 
 Notes:
 
