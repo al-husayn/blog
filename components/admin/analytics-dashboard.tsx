@@ -114,10 +114,10 @@ function Card({ title, description, className, children }: CardProps) {
     return (
         <section
             className={cn(
-                'rounded-[28px] border border-border/70 bg-card/95 p-5 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur sm:p-6',
+                'min-w-0 rounded-[24px] border border-border/70 bg-card/95 p-4 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur sm:rounded-[28px] sm:p-6',
                 className,
             )}>
-            <div className='mb-5 flex items-start justify-between gap-4'>
+            <div className='mb-4 flex items-start justify-between gap-4 sm:mb-5'>
                 <div className='space-y-1'>
                     <h2 className='text-lg font-semibold tracking-tight text-foreground'>{title}</h2>
                     <p className='max-w-2xl text-sm text-muted-foreground'>{description}</p>
@@ -144,7 +144,7 @@ function Sparkline({
     const chartPoints = buildChartPoints(points, width, height, padding);
 
     if (chartPoints.length === 0) {
-        return <div className='h-24 rounded-2xl bg-muted/40' />;
+        return <div className='h-20 rounded-2xl bg-muted/40 sm:h-24' />;
     }
 
     const linePath = buildPath(chartPoints);
@@ -184,6 +184,12 @@ function LineChart({
     const chartPoints = buildChartPoints(points, width, height, padding);
     const maxValue = Math.max(...points.map((point) => point.value), 1);
     const yAxisValues = [maxValue, Math.round(maxValue / 2), 0];
+    const labelStep = Math.max(1, Math.ceil(points.length / 6));
+    const sampledPoints = points.filter((_, index) => index % labelStep === 0);
+    const finalSampledPoints =
+        points.length > 0 && sampledPoints[sampledPoints.length - 1]?.date !== points[points.length - 1]?.date
+            ? [...sampledPoints, points[points.length - 1]!]
+            : sampledPoints;
 
     if (chartPoints.length === 0) {
         return <div className='h-[220px] rounded-3xl bg-muted/40' />;
@@ -229,8 +235,8 @@ function LineChart({
                     strokeWidth='3'
                 />
             </svg>
-            <div className='grid grid-cols-3 gap-2 text-xs text-muted-foreground sm:grid-cols-6'>
-                {points.filter((_, index) => index % Math.ceil(points.length / 6) === 0).map((point) => (
+            <div className='grid grid-cols-2 gap-3 text-xs text-muted-foreground sm:grid-cols-3 xl:grid-cols-6'>
+                {finalSampledPoints.map((point) => (
                     <div key={point.date}>
                         <p className='font-medium text-foreground'>{point.label}</p>
                         <p>{formatNumber(point.value)} visits</p>
@@ -254,9 +260,9 @@ function DonutChart({
 
     if (total === 0) {
         return (
-            <div className='flex h-44 w-44 items-center justify-center rounded-full border border-dashed border-border bg-muted/20 text-center'>
+            <div className='flex h-36 w-36 items-center justify-center rounded-full border border-dashed border-border bg-muted/20 text-center sm:h-44 sm:w-44'>
                 <div>
-                    <p className='text-lg font-semibold'>0</p>
+                    <p className='text-lg font-semibold sm:text-xl'>0</p>
                     <p className='text-xs text-muted-foreground'>No data yet</p>
                 </div>
             </div>
@@ -275,12 +281,12 @@ function DonutChart({
 
     return (
         <div
-            className='relative flex h-44 w-44 items-center justify-center rounded-full'
+            className='relative flex h-36 w-36 items-center justify-center rounded-full sm:h-44 sm:w-44'
             style={{
                 backgroundImage: `conic-gradient(${gradient})`,
             }}>
-            <div className='flex h-28 w-28 flex-col items-center justify-center rounded-full bg-card text-center shadow-inner'>
-                <p className='text-2xl font-semibold'>{centerLabel}</p>
+            <div className='flex h-24 w-24 flex-col items-center justify-center rounded-full bg-card text-center shadow-inner sm:h-28 sm:w-28'>
+                <p className='text-xl font-semibold sm:text-2xl'>{centerLabel}</p>
                 <p className='text-xs text-muted-foreground'>{centerSubLabel}</p>
             </div>
         </div>
@@ -299,12 +305,12 @@ function EngagementGauge({
     return (
         <div className='flex flex-col items-center gap-4'>
             <div
-                className='relative flex h-44 w-44 items-center justify-center rounded-full'
+                className='relative flex h-36 w-36 items-center justify-center rounded-full sm:h-44 sm:w-44'
                 style={{
                     backgroundImage: `conic-gradient(#ea580c 0% ${clampedScore}%, rgba(148,163,184,0.15) ${clampedScore}% 100%)`,
                 }}>
-                <div className='flex h-[7.5rem] w-[7.5rem] flex-col items-center justify-center rounded-full bg-card text-center shadow-inner'>
-                    <p className='text-4xl font-semibold tracking-tight'>{clampedScore}</p>
+                <div className='flex h-24 w-24 flex-col items-center justify-center rounded-full bg-card text-center shadow-inner sm:h-[7.5rem] sm:w-[7.5rem]'>
+                    <p className='text-3xl font-semibold tracking-tight sm:text-4xl'>{clampedScore}</p>
                     <p className='text-xs uppercase tracking-[0.22em] text-muted-foreground'>Score</p>
                 </div>
             </div>
@@ -325,30 +331,41 @@ function LeaderboardList({
     metricValue: (post: DashboardTopPostMetric) => string;
 }) {
     return (
-        <div className='rounded-[24px] border border-border/70 bg-background/60 p-4'>
+        <div className='rounded-[22px] border border-border/70 bg-background/60 p-4 sm:rounded-[24px] sm:p-5'>
             <div className='mb-4 flex items-center justify-between gap-3'>
                 <h3 className='text-base font-semibold tracking-tight'>{title}</h3>
-                <p className='text-xs uppercase tracking-[0.22em] text-muted-foreground'>{metricLabel}</p>
+                <p className='hidden text-xs uppercase tracking-[0.22em] text-muted-foreground sm:block'>
+                    {metricLabel}
+                </p>
             </div>
             <div className='space-y-3'>
                 {posts.length > 0 ? (
                     posts.map((post, index) => (
-                        <div key={`${title}-${post.slug}`} className='flex items-start gap-3'>
-                            <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground'>
-                                {index + 1}
+                        <div
+                            key={`${title}-${post.slug}`}
+                            className='rounded-2xl border border-border/60 bg-background/70 p-3'>
+                            <div className='flex flex-col gap-3 sm:flex-row sm:items-start'>
+                                <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground'>
+                                    {index + 1}
+                                </div>
+                                <div className='min-w-0 flex-1'>
+                                    <Link
+                                        href={`/blog/${post.slug}`}
+                                        className='inline-flex max-w-full items-center gap-2 font-medium text-foreground transition-colors hover:text-orange-600'>
+                                        <span className='truncate'>{post.title}</span>
+                                        <ArrowRight className='h-4 w-4 shrink-0' />
+                                    </Link>
+                                    <p className='mt-1 line-clamp-2 text-sm text-muted-foreground'>
+                                        {post.description}
+                                    </p>
+                                </div>
+                                <div className='flex items-center justify-between gap-3 sm:block sm:shrink-0 sm:text-right'>
+                                    <p className='text-[11px] uppercase tracking-[0.22em] text-muted-foreground sm:hidden'>
+                                        {metricLabel}
+                                    </p>
+                                    <p className='text-base font-semibold'>{metricValue(post)}</p>
+                                </div>
                             </div>
-                            <div className='min-w-0 flex-1'>
-                                <Link
-                                    href={`/blog/${post.slug}`}
-                                    className='inline-flex items-center gap-2 font-medium text-foreground transition-colors hover:text-orange-600'>
-                                    <span className='truncate'>{post.title}</span>
-                                    <ArrowRight className='h-4 w-4 shrink-0' />
-                                </Link>
-                                <p className='mt-1 line-clamp-2 text-sm text-muted-foreground'>
-                                    {post.description}
-                                </p>
-                            </div>
-                            <p className='shrink-0 text-base font-semibold'>{metricValue(post)}</p>
                         </div>
                     ))
                 ) : (
@@ -364,16 +381,16 @@ function ViewsCard({ data }: AnalyticsDashboardProps) {
         <Card
             title='Traffic & Reach'
             description='Pageviews across the core reporting windows, with the current month front and center and mini trends for each period.'
-            className='lg:col-span-2'>
-            <div className='grid gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,0.9fr)]'>
-                <div className='space-y-5 rounded-[24px] border border-orange-500/20 bg-[linear-gradient(135deg,rgba(234,88,12,0.12),rgba(234,88,12,0.02)_55%,rgba(255,255,255,0))] p-5'>
-                    <div className='flex flex-wrap items-start justify-between gap-4'>
+            className='md:col-span-2 xl:col-span-7'>
+            <div className='grid gap-4 2xl:grid-cols-[minmax(0,1.45fr)_minmax(17rem,0.95fr)]'>
+                <div className='space-y-5 rounded-[24px] border border-orange-500/20 bg-[linear-gradient(135deg,rgba(234,88,12,0.12),rgba(234,88,12,0.02)_55%,rgba(255,255,255,0))] p-4 sm:p-5'>
+                    <div className='flex flex-col items-start justify-between gap-4 sm:flex-row'>
                         <div>
                             <p className='text-sm font-medium uppercase tracking-[0.24em] text-orange-600'>
                                 30d Views
                             </p>
                             <div className='mt-3 flex flex-wrap items-end gap-3'>
-                                <p className='text-5xl font-semibold tracking-tight'>
+                                <p className='text-4xl font-semibold tracking-tight sm:text-5xl'>
                                     {formatCompactNumber(data.views30d)}
                                 </p>
                                 <p className='mb-1 rounded-full border border-orange-500/20 bg-orange-500/10 px-3 py-1 text-sm font-medium text-orange-700 dark:text-orange-300'>
@@ -384,7 +401,7 @@ function ViewsCard({ data }: AnalyticsDashboardProps) {
                                 Previous 30 days comparison, based on first-party article visits.
                             </p>
                         </div>
-                        <div className='rounded-2xl border border-border/70 bg-background/80 px-4 py-3 text-right'>
+                        <div className='w-full rounded-2xl border border-border/70 bg-background/80 px-4 py-3 text-left sm:w-auto sm:text-right'>
                             <p className='text-xs uppercase tracking-[0.2em] text-muted-foreground'>
                                 Unique 30d
                             </p>
@@ -396,7 +413,7 @@ function ViewsCard({ data }: AnalyticsDashboardProps) {
                     <Sparkline points={data.pageviewSparkline} />
                 </div>
 
-                <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-2'>
+                <div className='grid gap-3 sm:grid-cols-2'>
                     {data.periods.map((period, index) => (
                         <div
                             key={period.label}
@@ -444,13 +461,16 @@ function AudienceCard({ data }: AnalyticsDashboardProps) {
     return (
         <Card
             title='Audience Mix'
-            description='Unique reader counts and how much of the current month is driven by fresh discovery versus repeat attention.'>
-            <div className='flex flex-col gap-6 lg:flex-row lg:items-center'>
-                <DonutChart
-                    segments={audienceSegments}
-                    centerLabel={formatNumber(data.uniqueVisitors30d)}
-                    centerSubLabel='visitors'
-                />
+            description='Unique reader counts and how much of the current month is driven by fresh discovery versus repeat attention.'
+            className='xl:col-span-5'>
+            <div className='grid gap-6 lg:grid-cols-[minmax(0,180px)_minmax(0,1fr)] lg:items-center'>
+                <div className='flex justify-center lg:justify-start'>
+                    <DonutChart
+                        segments={audienceSegments}
+                        centerLabel={formatNumber(data.uniqueVisitors30d)}
+                        centerSubLabel='visitors'
+                    />
+                </div>
                 <div className='flex-1 space-y-4'>
                     <div className='grid gap-3 sm:grid-cols-2'>
                         <div className='rounded-2xl border border-border/70 bg-background/60 p-4'>
@@ -509,13 +529,15 @@ function SourcesCard({ data }: AnalyticsDashboardProps) {
         <Card
             title='Traffic Sources'
             description='Where readers are coming from in the last 30 days, with both share-of-traffic context and the strongest referrer details.'
-            className='lg:col-span-2'>
-            <div className='grid gap-6 xl:grid-cols-[220px_minmax(0,1fr)]'>
-                <DonutChart
-                    segments={sourceSegments}
-                    centerLabel={formatNumber(totalSources)}
-                    centerSubLabel='30d visits'
-                />
+            className='md:col-span-2 xl:col-span-7'>
+            <div className='grid gap-6 xl:grid-cols-[minmax(0,220px)_minmax(0,1fr)] xl:items-start'>
+                <div className='flex justify-center xl:justify-start'>
+                    <DonutChart
+                        segments={sourceSegments}
+                        centerLabel={formatNumber(totalSources)}
+                        centerSubLabel='30d visits'
+                    />
+                </div>
                 <div className='space-y-4'>
                     <div className='overflow-hidden rounded-full bg-muted/60'>
                         <div className='flex h-4 w-full'>
@@ -579,9 +601,12 @@ function EngagementCard({ data }: AnalyticsDashboardProps) {
     return (
         <Card
             title='Engagement Quality'
-            description='Engaged time, bounce rate, scroll completion, and a single score to judge how healthy article sessions feel overall.'>
-            <div className='grid gap-6 xl:grid-cols-[220px_minmax(0,1fr)] xl:items-center'>
-                <EngagementGauge score={data.engagementScore30d} label='30d reading quality' />
+            description='Engaged time, bounce rate, scroll completion, and a single score to judge how healthy article sessions feel overall.'
+            className='xl:col-span-5'>
+            <div className='grid gap-6 xl:grid-cols-[minmax(0,220px)_minmax(0,1fr)] xl:items-center'>
+                <div className='flex justify-center xl:justify-start'>
+                    <EngagementGauge score={data.engagementScore30d} label='30d reading quality' />
+                </div>
                 <div className='space-y-4'>
                     <div className='grid gap-3 sm:grid-cols-3'>
                         <div className='rounded-2xl border border-border/70 bg-background/60 p-4'>
@@ -643,7 +668,7 @@ function ViralityCard({ data }: AnalyticsDashboardProps) {
         <Card
             title='Social & Virality'
             description='Share actions, interaction density, and early comment momentum within the first 48 hours after publishing.'
-            className='lg:col-span-2'>
+            className='md:col-span-2 xl:col-span-7'>
             <div className='space-y-5'>
                 <div className='grid gap-3 sm:grid-cols-3'>
                     <div className='rounded-2xl border border-border/70 bg-background/60 p-4'>
@@ -706,7 +731,9 @@ function ViralityCard({ data }: AnalyticsDashboardProps) {
                     <div className='mt-3 space-y-3'>
                         {topVelocityPosts.length > 0 ? (
                             topVelocityPosts.map((post) => (
-                                <div key={post.slug} className='flex items-start justify-between gap-4'>
+                                <div
+                                    key={post.slug}
+                                    className='flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4'>
                                     <div className='min-w-0'>
                                         <p className='truncate font-medium'>{post.title}</p>
                                         <p className='text-sm text-muted-foreground'>
@@ -736,7 +763,8 @@ function OrganicCard({ data }: AnalyticsDashboardProps) {
     return (
         <Card
             title='SEO & Growth'
-            description='Organic search trend over the last 90 days, plus the keyword fragments still available from search referrers.'>
+            description='Organic search trend over the last 90 days, plus the keyword fragments still available from search referrers.'
+            className='xl:col-span-5'>
             <div className='space-y-5'>
                 <div className='grid gap-3 sm:grid-cols-2'>
                     <div className='rounded-2xl border border-border/70 bg-background/60 p-4'>
@@ -762,7 +790,9 @@ function OrganicCard({ data }: AnalyticsDashboardProps) {
                     <div className='mt-3 space-y-3'>
                         {data.topKeywords90d.length > 0 ? (
                             data.topKeywords90d.map((keyword) => (
-                                <div key={keyword.keyword} className='flex items-center justify-between gap-4'>
+                                <div
+                                    key={keyword.keyword}
+                                    className='flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4'>
                                     <p className='text-sm text-foreground'>{keyword.keyword}</p>
                                     <p className='text-sm font-medium text-muted-foreground'>
                                         {formatNumber(keyword.visits)} visits
@@ -786,7 +816,7 @@ function TopPostsCard({ data }: AnalyticsDashboardProps) {
         <Card
             title='Top Posts'
             description='Separate leaders for the last 30 days and all-time, followed by a detailed table that combines traffic and quality metrics.'
-            className='lg:col-span-3'>
+            className='md:col-span-2 xl:col-span-12'>
             <div className='space-y-5'>
                 <div className='grid gap-4 xl:grid-cols-2'>
                     <LeaderboardList
@@ -803,8 +833,102 @@ function TopPostsCard({ data }: AnalyticsDashboardProps) {
                     />
                 </div>
 
-                <div className='overflow-x-auto'>
-                    <table className='min-w-full border-separate border-spacing-y-3'>
+                <div className='grid gap-3 xl:hidden'>
+                    {data.topPosts.length > 0 ? (
+                        data.topPosts.map((post) => (
+                            <article
+                                key={`mobile-${post.slug}`}
+                                className='rounded-[22px] border border-border/70 bg-background/60 p-4 shadow-[0_8px_30px_rgba(15,23,42,0.05)]'>
+                                <div className='space-y-2'>
+                                    <Link
+                                        href={`/blog/${post.slug}`}
+                                        className='inline-flex max-w-full items-center gap-2 font-medium text-foreground transition-colors hover:text-orange-600'>
+                                        <span className='truncate'>{post.title}</span>
+                                        <ArrowRight className='h-4 w-4 shrink-0' />
+                                    </Link>
+                                    <p className='line-clamp-2 text-sm text-muted-foreground'>
+                                        {post.description}
+                                    </p>
+                                </div>
+                                <div className='mt-4 grid gap-3 sm:grid-cols-2'>
+                                    <div className='rounded-2xl border border-border/60 bg-background/70 p-3'>
+                                        <p className='text-[11px] uppercase tracking-[0.2em] text-muted-foreground'>
+                                            30d Views
+                                        </p>
+                                        <p className='mt-2 text-xl font-semibold'>
+                                            {formatNumber(post.views30d)}
+                                        </p>
+                                    </div>
+                                    <div className='rounded-2xl border border-border/60 bg-background/70 p-3'>
+                                        <p className='text-[11px] uppercase tracking-[0.2em] text-muted-foreground'>
+                                            All-time Views
+                                        </p>
+                                        <p className='mt-2 text-xl font-semibold'>
+                                            {formatNumber(post.viewsAllTime)}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className='mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3'>
+                                    <div>
+                                        <p className='text-[11px] uppercase tracking-[0.18em] text-muted-foreground'>
+                                            Unique 30d
+                                        </p>
+                                        <p className='mt-1 text-sm font-medium text-foreground'>
+                                            {formatNumber(post.uniqueVisitors30d)}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className='text-[11px] uppercase tracking-[0.18em] text-muted-foreground'>
+                                            Engagement
+                                        </p>
+                                        <p className='mt-1 text-sm font-medium text-foreground'>
+                                            {formatDuration(post.avgEngagementSeconds)}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className='text-[11px] uppercase tracking-[0.18em] text-muted-foreground'>
+                                            Bounce
+                                        </p>
+                                        <p className='mt-1 text-sm font-medium text-foreground'>
+                                            {formatPercent(post.bounceRate)}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className='text-[11px] uppercase tracking-[0.18em] text-muted-foreground'>
+                                            Reactions
+                                        </p>
+                                        <p className='mt-1 text-sm font-medium text-foreground'>
+                                            {formatNumber(post.reactions)}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className='text-[11px] uppercase tracking-[0.18em] text-muted-foreground'>
+                                            Comments
+                                        </p>
+                                        <p className='mt-1 text-sm font-medium text-foreground'>
+                                            {formatNumber(post.comments)}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className='text-[11px] uppercase tracking-[0.18em] text-muted-foreground'>
+                                            Shares 30d
+                                        </p>
+                                        <p className='mt-1 text-sm font-medium text-foreground'>
+                                            {formatNumber(post.shares30d)}
+                                        </p>
+                                    </div>
+                                </div>
+                            </article>
+                        ))
+                    ) : (
+                        <div className='rounded-2xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground'>
+                            Post rankings will appear after article visits are recorded.
+                        </div>
+                    )}
+                </div>
+
+                <div className='hidden overflow-x-auto xl:block'>
+                    <table className='min-w-[980px] border-separate border-spacing-y-3'>
                         <thead>
                             <tr className='text-left text-xs uppercase tracking-[0.18em] text-muted-foreground'>
                                 <th className='pb-1 pr-4 font-medium'>Post</th>
@@ -880,15 +1004,15 @@ function TopPostsCard({ data }: AnalyticsDashboardProps) {
 
 export function AnalyticsDashboard({ data }: AnalyticsDashboardProps) {
     return (
-        <div className='space-y-6'>
-            <header className='rounded-[30px] border border-border/70 bg-[linear-gradient(135deg,rgba(15,118,110,0.14),rgba(37,99,235,0.06)_45%,rgba(234,88,12,0.08)_100%)] p-6 shadow-[0_24px_80px_rgba(15,23,42,0.12)] backdrop-blur'>
-                <div className='flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between'>
+        <div className='space-y-5 sm:space-y-6'>
+            <header className='rounded-[26px] border border-border/70 bg-[linear-gradient(135deg,rgba(15,118,110,0.14),rgba(37,99,235,0.06)_45%,rgba(234,88,12,0.08)_100%)] p-5 shadow-[0_24px_80px_rgba(15,23,42,0.12)] backdrop-blur sm:rounded-[30px] sm:p-6 lg:p-8'>
+                <div className='flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between'>
                     <div className='space-y-3'>
                         <p className='text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground'>
                             Admin Dashboard
                         </p>
                         <div>
-                            <h1 className='text-4xl font-semibold tracking-tight sm:text-5xl'>
+                            <h1 className='max-w-4xl text-3xl font-semibold tracking-tight sm:text-4xl xl:text-5xl'>
                                 Blog analytics that actually help you make decisions
                             </h1>
                             <p className='mt-3 max-w-3xl text-sm text-muted-foreground sm:text-base'>
@@ -897,13 +1021,13 @@ export function AnalyticsDashboard({ data }: AnalyticsDashboardProps) {
                             </p>
                         </div>
                     </div>
-                    <div className='rounded-2xl border border-border/70 bg-background/75 px-4 py-3 text-sm text-muted-foreground'>
+                    <div className='w-full rounded-2xl border border-border/70 bg-background/75 px-4 py-3 text-sm text-muted-foreground sm:w-fit'>
                         Updated {dateTimeFormatter.format(new Date(data.generatedAt))}
                     </div>
                 </div>
             </header>
 
-            <div className='grid gap-6 lg:grid-cols-3'>
+            <div className='grid gap-4 md:grid-cols-2 xl:grid-cols-12 xl:gap-6'>
                 <ViewsCard data={data} />
                 <AudienceCard data={data} />
                 <SourcesCard data={data} />
