@@ -10,7 +10,7 @@ import { SiteNav } from '@/components/site-nav';
 import Footer from '@/components/footer';
 import { getAbsoluteUrl, toJsonLd } from '@/lib/seo';
 import { isClerkConfigured } from '@/lib/env';
-import '@/app/globals.css';
+import './globals.css';
 
 export const viewport: Viewport = {
     themeColor: 'black',
