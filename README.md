@@ -94,6 +94,7 @@ pnpm build
 - `CLERK_SECRET_KEY`: Clerk secret key for server auth.
 - `ADMIN_USER_IDS`: Comma-separated Clerk user IDs allowed to access `/admin`.
 - `ADMIN_EMAILS`: Comma-separated email addresses allowed to access `/admin` (case-insensitive).
+- `ADMIN_EMAILS`: Comma-separated email addresses allowed to access `/admin` (case-insensitive).
 
 ### AI Assistant
 
