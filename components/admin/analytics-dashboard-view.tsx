@@ -81,8 +81,8 @@ export function AnalyticsDashboardView({
                 <SourcesCard data={data} />
                 <EngagementCard data={data} />
                 <ViralityCard data={data} />
-                <TopPostsCard data={data} />
                 <OrganicCard data={data} />
+                <TopPostsCard data={data} />
             </div>
         </div>
     );
