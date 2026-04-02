@@ -1,5 +1,7 @@
 import type { SiteConfig } from '@/types/site';
 
+const buyMeACoffeeUsername = 'atldrake53i';
+
 export const siteConfig: SiteConfig = {
     name: 'Learn. Build. Share',
     shortName: 'Learn Build Share',
@@ -10,8 +12,8 @@ export const siteConfig: SiteConfig = {
     creatorUrl: 'https://www.al-husayn.dev',
     githubUrl: 'https://github.com/al-husayn',
     linkedinUrl: 'https://www.linkedin.com/in/al-hussein-abubakar/',
-    buyMeACoffeeUsername: 'atldrake53i',
-    buyMeACoffeeUrl: 'https://buymeacoffee.com/atldrake53i',
+    buyMeACoffeeUsername,
+    buyMeACoffeeUrl: `https://buymeacoffee.com/${buyMeACoffeeUsername}`,
     locale: 'en_US',
     language: 'en-US',
     twitterHandle: '@al_drake3',
