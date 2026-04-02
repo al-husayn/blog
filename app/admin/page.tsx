@@ -1,19 +1,14 @@
 import type React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { auth, currentUser } from '@clerk/nextjs/server';
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import { LockKeyhole, Settings2 } from 'lucide-react';
 import { AnalyticsDashboard } from '@/components/admin/analytics-dashboard';
 import { FlickeringGrid } from '@/components/magicui/flickering-grid';
 import { Button } from '@/components/ui/button';
+import { getAdminAccessState } from '@/lib/admin-access';
+import { adminAnalyticsQueryKey } from '@/lib/api/admin-analytics';
 import { getDashboardAnalytics, isMissingAnalyticsTablesError } from '@/lib/analytics';
-import {
-    isAdminConfigured,
-    isAdminEmail,
-    isAdminUserId,
-    isAnalyticsConfigured,
-    isClerkConfigured,
-} from '@/lib/env';
 
 export const metadata: Metadata = {
     title: 'Admin Dashboard',
@@ -69,67 +64,57 @@ function AccessState({
 }
 
 export default async function AdminDashboardPage() {
-    if (!isAnalyticsConfigured()) {
-        return (
-            <AccessState
-                icon={<Settings2 className='h-6 w-6 text-muted-foreground' />}
-                title='Analytics storage is not configured'
-                description='Add a DATABASE_URL so page views, traffic sources, scroll depth, and share events can be recorded for the dashboard.'
-            />
-        );
-    }
+    const accessState = await getAdminAccessState();
 
-    if (!isClerkConfigured()) {
-        return (
-            <AccessState
-                icon={<LockKeyhole className='h-6 w-6 text-muted-foreground' />}
-                title='Authentication is required for admin access'
-                description='Configure Clerk keys so the admin dashboard can verify who is signed in before serving private analytics data.'
-            />
-        );
-    }
-
-    if (!isAdminConfigured()) {
-        return (
-            <AccessState
-                icon={<Settings2 className='h-6 w-6 text-muted-foreground' />}
-                title='Admin access has not been assigned yet'
-                description='Set ADMIN_USER_IDS or ADMIN_EMAILS in your environment to define who can access this dashboard.'
-            />
-        );
-    }
-
-    const { userId } = await auth();
-
-    if (!userId) {
-        return (
-            <AccessState
-                icon={<LockKeyhole className='h-6 w-6 text-muted-foreground' />}
-                title='Sign in to view the dashboard'
-                description='This dashboard is private to the blog author account, so you need an authenticated admin session before analytics data is shown.'
-            />
-        );
-    }
-
-    const user = await currentUser();
-    const primaryEmail =
-        user?.emailAddresses.find(
-            (emailAddress) => emailAddress.id === user.primaryEmailAddressId,
-        )?.emailAddress ?? user?.emailAddresses[0]?.emailAddress ?? null;
-    const hasAdminAccess = isAdminUserId(userId) || isAdminEmail(primaryEmail);
-
-    if (!hasAdminAccess) {
-        return (
-            <AccessState
-                icon={<LockKeyhole className='h-6 w-6 text-muted-foreground' />}
-                title='This account does not have dashboard access'
-                description={`The signed-in account is not listed in ADMIN_USER_IDS or ADMIN_EMAILS. Current user ID: ${userId}${primaryEmail ? `. Current email: ${primaryEmail}.` : '.'}`}
-            />
-        );
+    switch (accessState.kind) {
+        case 'analytics-unconfigured':
+            return (
+                <AccessState
+                    icon={<Settings2 className='h-6 w-6 text-muted-foreground' />}
+                    title='Analytics storage is not configured'
+                    description='Add a DATABASE_URL so page views, traffic sources, scroll depth, and share events can be recorded for the dashboard.'
+                />
+            );
+        case 'clerk-unconfigured':
+            return (
+                <AccessState
+                    icon={<LockKeyhole className='h-6 w-6 text-muted-foreground' />}
+                    title='Authentication is required for admin access'
+                    description='Configure Clerk keys so the admin dashboard can verify who is signed in before serving private analytics data.'
+                />
+            );
+        case 'admin-unconfigured':
+            return (
+                <AccessState
+                    icon={<Settings2 className='h-6 w-6 text-muted-foreground' />}
+                    title='Admin access has not been assigned yet'
+                    description='Set ADMIN_USER_IDS or ADMIN_EMAILS in your environment to define who can access this dashboard.'
+                />
+            );
+        case 'signed-out':
+            return (
+                <AccessState
+                    icon={<LockKeyhole className='h-6 w-6 text-muted-foreground' />}
+                    title='Sign in to view the dashboard'
+                    description='This dashboard is private to the blog author account, so you need an authenticated admin session before analytics data is shown.'
+                />
+            );
+        case 'forbidden':
+            return (
+                <AccessState
+                    icon={<LockKeyhole className='h-6 w-6 text-muted-foreground' />}
+                    title='This account does not have dashboard access'
+                    description={`The signed-in account is not listed in ADMIN_USER_IDS or ADMIN_EMAILS. Current user ID: ${accessState.userId}${accessState.primaryEmail ? `. Current email: ${accessState.primaryEmail}.` : '.'}`}
+                />
+            );
+        case 'authorized':
+            break;
     }
 
     try {
         const analytics = await getDashboardAnalytics();
+        const queryClient = new QueryClient();
+        queryClient.setQueryData(adminAnalyticsQueryKey, analytics);
 
         return (
             <main className='relative min-h-screen overflow-hidden bg-background'>
@@ -146,7 +131,9 @@ export default async function AdminDashboardPage() {
                     />
                 </div>
                 <div className='relative mx-auto max-w-[1440px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10'>
-                    <AnalyticsDashboard data={analytics} />
+                    <HydrationBoundary state={dehydrate(queryClient)}>
+                        <AnalyticsDashboard />
+                    </HydrationBoundary>
                 </div>
             </main>
         );
