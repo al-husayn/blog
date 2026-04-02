@@ -278,7 +278,6 @@ export default async function HomePage({
     const currentPage = Math.min(requestedPage, totalPages);
     const paginatedBlogs = listBlogs.slice((currentPage - 1) * POSTS_PER_PAGE, currentPage * POSTS_PER_PAGE);
     const paginationItems = buildPaginationItems(totalPages, currentPage);
-    const newsletterCtaUrl = process.env.NEXT_PUBLIC_NEWSLETTER_URL;
     const emptyStateLabel = searchQuery ? `"${searchQuery}"` : selectedTag !== ALL_TAG ? selectedTag : 'the selected filters';
     const visibleBlogs = [...(showFeaturedPost && featuredBlog ? [featuredBlog] : []), ...paginatedBlogs];
     const featuredAuthorName = featuredBlog ? resolveAuthorMetadata(featuredBlog).authorName : undefined;
@@ -524,25 +523,6 @@ export default async function HomePage({
                 )}
             </section>
 
-            {newsletterCtaUrl && (
-                <section className='max-w-7xl mx-auto w-full px-6 lg:px-0 py-10'>
-                    <div className='rounded-xl border border-border bg-card p-6 md:p-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
-                        <div className='space-y-1'>
-                            <h2 className='text-xl font-medium tracking-tight'>Get new posts in your inbox</h2>
-                            <p className='text-sm text-muted-foreground'>
-                                Optional newsletter for JavaScript, React, and Next.js deep dives.
-                            </p>
-                        </div>
-                        <a
-                            href={newsletterCtaUrl}
-                            target='_blank'
-                            rel='noopener noreferrer'
-                            className='inline-flex h-10 items-center justify-center rounded-md border border-border px-4 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'>
-                            Subscribe
-                        </a>
-                    </div>
-                </section>
-            )}
         </main>
     );
 }
