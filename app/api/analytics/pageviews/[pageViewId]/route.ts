@@ -3,14 +3,14 @@ import { ZodError } from 'zod';
 import { completePageView } from '@/lib/analytics';
 import { isAnalyticsConfigured } from '@/lib/env';
 
-export async function POST(request: Request) {
+export async function POST(request: Request, { params }: { params: { pageViewId: string } }) {
     if (!isAnalyticsConfigured()) {
         return new Response(null, { status: 204 });
     }
 
     try {
         const payload = await request.json();
-        await completePageView(payload);
+        await completePageView({ ...payload, pageViewId: params.pageViewId });
 
         return NextResponse.json({ ok: true });
     } catch (error) {
@@ -25,9 +25,6 @@ export async function POST(request: Request) {
         }
 
         console.error('Failed to finalize page view.', error);
-        return NextResponse.json(
-            { message: 'Could not finalize page view.' },
-            { status: 500 },
-        );
+        return NextResponse.json({ message: 'Could not finalize page view.' }, { status: 500 });
     }
 }
