@@ -93,6 +93,7 @@ pnpm build
 - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`: Clerk publishable key for client auth.
 - `CLERK_SECRET_KEY`: Clerk secret key for server auth.
 - `ADMIN_USER_IDS`: Comma-separated Clerk user IDs allowed to access `/admin`.
+- `ADMIN_EMAILS`: Comma-separated email addresses allowed to access `/admin` (case-insensitive).
 
 ### AI Assistant
 
@@ -150,19 +151,19 @@ Create a new `.mdx` file inside `blog/content/`.
 
 Example frontmatter:
 
-````mdx
+```mdx
 ---
-title: "Your Blog Post Title"
-description: "A brief description of your post"
-date: "2026-03-17"
-tags: ["JavaScript", "Next.js", "Tutorial"]
+title: 'Your Blog Post Title'
+description: 'A brief description of your post'
+date: '2026-03-17'
+tags: ['JavaScript', 'Next.js', 'Tutorial']
 featured: true
-author: "al"
-thumbnail: "/blog/example-cover.png"
+author: 'al'
+thumbnail: '/blog/example-cover.png'
 ---
 
 Your blog post content here...
-````
+```
 
 Notes:
 
