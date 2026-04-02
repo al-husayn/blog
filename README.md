@@ -58,6 +58,7 @@ DATABASE_URL=postgres://user:password@host/dbname?sslmode=require
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_your_publishable_key
 CLERK_SECRET_KEY=sk_test_your_secret_key
 ADMIN_USER_IDS=user_123,user_456
+ADMIN_EMAILS=admin@example.com
 AI_API_BASE_URL=https://openrouter.ai/api/v1
 AI_API_KEY=your_cloud_api_key_here
 AI_MODEL=openrouter/free
@@ -114,7 +115,7 @@ The engagement system is backed by Neon and Drizzle and is tied to Clerk authent
 
 ## Admin Analytics Dashboard
 
-Visit `/admin` after signing in with a Clerk user ID listed in `ADMIN_USER_IDS`.
+Visit `/admin` after signing in with a Clerk user ID listed in `ADMIN_USER_IDS` or an email address listed in `ADMIN_EMAILS`.
 
 The dashboard includes:
 
