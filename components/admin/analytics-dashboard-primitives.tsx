@@ -92,8 +92,10 @@ export function Sparkline({
 
 export function LineChart({
     points,
+    gradientId = 'line-fill',
 }: {
     points: AnalyticsTimeseriesPoint[];
+    gradientId?: string;
 }) {
     const width = 540;
     const height = 220;
@@ -121,7 +123,7 @@ export function LineChart({
         <div className='space-y-3'>
             <svg viewBox={`0 0 ${width} ${height}`} className='h-[220px] w-full'>
                 <defs>
-                    <linearGradient id='line-fill' x1='0' x2='0' y1='0' y2='1'>
+                    <linearGradient id={gradientId} x1='0' x2='0' y1='0' y2='1'>
                         <stop offset='0%' stopColor='#0f766e' stopOpacity='0.3' />
                         <stop offset='100%' stopColor='#0f766e' stopOpacity='0' />
                     </linearGradient>
@@ -142,7 +144,7 @@ export function LineChart({
                         />
                     );
                 })}
-                <path d={areaPath} fill='url(#line-fill)' />
+                <path d={areaPath} fill={`url(#${gradientId})`} />
                 <path
                     d={linePath}
                     fill='none'

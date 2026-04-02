@@ -449,7 +449,7 @@ export function OrganicCard({ data }: AnalyticsDashboardSectionProps) {
                         <p className='mt-1 text-sm text-muted-foreground'>Most recent day on record</p>
                     </div>
                 </div>
-                <LineChart points={data.organicTrend90d} />
+                <LineChart points={data.organicTrend90d} gradientId='organic-trend-fill' />
                 <div className='rounded-2xl border border-border/70 bg-background/60 p-4'>
                     <p className='text-sm font-medium'>Top keywords driving traffic</p>
                     <div className='mt-3 space-y-3'>
