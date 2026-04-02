@@ -123,7 +123,13 @@ const globalStructuredData = {
             name: siteConfig.creator,
             url: siteConfig.creatorUrl,
             image: getAbsoluteUrl('/authors/AL.png'),
-            sameAs: [siteConfig.creatorUrl],
+            sameAs: [
+                siteConfig.creatorUrl,
+                siteConfig.githubUrl,
+                siteConfig.linkedinUrl,
+                `https://x.com/${siteConfig.twitterHandle.replace('@', '')}`,
+                siteConfig.buyMeACoffeeUrl,
+            ],
         },
     ],
 };

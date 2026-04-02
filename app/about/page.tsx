@@ -7,12 +7,14 @@ import {
   ArrowRight,
   ArrowUpRight,
   BriefcaseBusiness,
+  Coffee,
   Code2,
   Github,
   Layers,
   Linkedin,
   Twitter,
 } from 'lucide-react';
+import { BuyMeACoffeeButton } from '@/components/buy-me-a-coffee-button';
 import { siteConfig } from '@/lib/site';
 import { getAbsoluteUrl } from '@/lib/seo';
 import type { ConnectLink } from '@/types/social';
@@ -64,6 +66,13 @@ const connectLinks: ConnectLink[] = [
     href: siteConfig.linkedinUrl,
     description: 'Connect professionally and follow career updates.',
     icon: Linkedin,
+    external: true,
+  },
+  {
+    label: 'Buy Me a Coffee',
+    href: siteConfig.buyMeACoffeeUrl,
+    description: 'Support the blog and help fund new practical tutorials.',
+    icon: Coffee,
     external: true,
   },
   {
@@ -235,6 +244,17 @@ export default function AboutPage() {
               Browse all articles
               <ArrowRight className='h-4 w-4' />
             </Link>
+          </div>
+
+          <div className='rounded-xl border border-border bg-card p-5 space-y-4'>
+            <div className='space-y-2'>
+              <p className='text-xs font-semibold uppercase tracking-[0.18em] text-primary'>Support</p>
+              <h2 className='text-xl font-semibold tracking-tight'>Fuel the next tutorial</h2>
+              <p className='text-sm text-muted-foreground'>
+                If the blog has helped you learn something useful, you can support future articles with a quick coffee.
+              </p>
+            </div>
+            <BuyMeACoffeeButton className='w-full justify-center sm:w-auto' />
           </div>
         </aside>
       </section>

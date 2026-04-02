@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BriefcaseBusiness, Github, Linkedin, Twitter } from 'lucide-react';
+import { BuyMeACoffeeButton } from '@/components/buy-me-a-coffee-button';
 import { siteConfig } from '@/lib/site';
 import type { FooterSocialLink } from '@/types/social';
 
@@ -25,7 +26,7 @@ export default function Footer() {
   return (
       <footer className='bg-background border-t border-border'>
           <div className='max-w-7xl mx-auto p-6 space-y-6'>
-              <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
+              <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-4'>
                   <div className='space-y-2'>
                       <h2 className='text-sm font-semibold'>{siteConfig.name}</h2>
                       <p className='text-sm text-muted-foreground max-w-sm'>
@@ -61,6 +62,16 @@ export default function Footer() {
                               </a>
                           ))}
                       </nav>
+                  </div>
+
+                  <div className='space-y-2'>
+                      <h3 className='text-sm font-semibold'>Support the blog</h3>
+                      <div className='space-y-3 text-sm'>
+                          <p className='text-muted-foreground'>
+                              Enjoying the tutorials? A coffee helps keep practical guides and deep dives coming.
+                          </p>
+                          <BuyMeACoffeeButton className='w-full justify-center' />
+                      </div>
                   </div>
               </div>
 

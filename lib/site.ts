@@ -10,6 +10,8 @@ export const siteConfig: SiteConfig = {
     creatorUrl: 'https://www.al-husayn.dev',
     githubUrl: 'https://github.com/al-husayn',
     linkedinUrl: 'https://www.linkedin.com/in/al-hussein-abubakar/',
+    buyMeACoffeeUsername: 'atldrake53i',
+    buyMeACoffeeUrl: 'https://buymeacoffee.com/atldrake53i',
     locale: 'en_US',
     language: 'en-US',
     twitterHandle: '@al_drake3',
