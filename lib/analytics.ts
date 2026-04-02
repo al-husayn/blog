@@ -235,11 +235,7 @@ const inferSourceFromUtm = (
 
     const sourceTokens = normalizedSource.split(/[^a-z0-9]+/);
     if (
-        sourceTokens.includes('x') ||
-        sourceTokens.includes('twitter') ||
-        sourceTokens.includes('linkedin') ||
-        sourceTokens.includes('reddit') ||
-        sourceTokens.includes('hn')
+        sourceTokens.some((token) => ['x', 'twitter', 'linkedin', 'reddit', 'hn'].includes(token))
     ) {
         return {
             group: 'social',
