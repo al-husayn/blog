@@ -57,6 +57,11 @@ const UTC_DAY_FORMATTER = new Intl.DateTimeFormat('en-US', {
     day: 'numeric',
     timeZone: 'UTC',
 });
+const UTC_MONTH_FORMATTER = new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    year: '2-digit',
+    timeZone: 'UTC',
+});
 
 const pageViewSchema = z.object({
     pageViewId: z.string().trim().min(1).max(128),
@@ -146,10 +151,21 @@ const formatDayKey = (value: Date): string => value.toISOString().slice(0, 10);
 
 const formatDayLabel = (value: Date): string => UTC_DAY_FORMATTER.format(value);
 
+const formatMonthKey = (value: Date): string =>
+    `${value.getUTCFullYear()}-${String(value.getUTCMonth() + 1).padStart(2, '0')}`;
+
+const formatMonthLabel = (value: Date): string => UTC_MONTH_FORMATTER.format(value);
+
 const startOfUtcDay = (value: Date): Date =>
     new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate()));
 
+const startOfUtcMonth = (value: Date): Date =>
+    new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), 1));
+
 const subtractDays = (value: Date, days: number): Date => new Date(value.getTime() - days * DAY_IN_MS);
+
+const subtractMonths = (value: Date, months: number): Date =>
+    new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth() - months, 1));
 
 const buildSinceDate = (days: number, now: Date): Date => startOfUtcDay(subtractDays(now, days - 1));
 
@@ -162,6 +178,20 @@ const getGrowthDelta = (currentValue: number, previousValue: number): number | n
 };
 
 const roundToOneDecimal = (value: number): number => Math.round(value * 10) / 10;
+
+export const isMissingAnalyticsTablesError = (error: unknown): boolean => {
+    if (!error || typeof error !== 'object') {
+        return false;
+    }
+
+    const candidate = error as { code?: string; message?: string };
+
+    return (
+        candidate.code === '42P01' ||
+        candidate.message?.includes('article_page_views') === true ||
+        candidate.message?.includes('article_share_events') === true
+    );
+};
 
 const inferSourceFromUtm = (
     utmSource: string | null,
@@ -422,7 +452,51 @@ const buildFilledSeries = (
     return series;
 };
 
-const getPeriodTotals = async (now: Date): Promise<DashboardPeriodMetric[]> => {
+const buildFilledMonthlySeries = (
+    rows: Array<{ month: string; value: number | string | bigint }>,
+    months: number,
+    now: Date,
+): AnalyticsTimeseriesPoint[] => {
+    const valuesByMonth = new Map(rows.map((row) => [row.month, toNumber(row.value)]));
+    const series: AnalyticsTimeseriesPoint[] = [];
+    const firstMonth = startOfUtcMonth(subtractMonths(now, months - 1));
+
+    for (let offset = 0; offset < months; offset += 1) {
+        const currentMonth = new Date(
+            Date.UTC(firstMonth.getUTCFullYear(), firstMonth.getUTCMonth() + offset, 1),
+        );
+        const monthKey = formatMonthKey(currentMonth);
+
+        series.push({
+            date: monthKey,
+            label: formatMonthLabel(currentMonth),
+            value: valuesByMonth.get(monthKey) ?? 0,
+        });
+    }
+
+    return series;
+};
+
+const calculateEngagementScore = ({
+    avgEngagementSeconds,
+    avgScrollDepth,
+    bounceRate,
+}: {
+    avgEngagementSeconds: number;
+    avgScrollDepth: number;
+    bounceRate: number;
+}): number => {
+    const timeScore = Math.min(avgEngagementSeconds / 240, 1) * 45;
+    const scrollScore = Math.min(avgScrollDepth / 100, 1) * 35;
+    const bounceScore = Math.max(0, 1 - bounceRate / 100) * 20;
+
+    return Math.round(timeScore + scrollScore + bounceScore);
+};
+
+const getPeriodTotals = async (
+    now: Date,
+    periodTrends: Map<string, AnalyticsTimeseriesPoint[]>,
+): Promise<DashboardPeriodMetric[]> => {
     const db = getDb();
 
     return Promise.all(
@@ -444,6 +518,7 @@ const getPeriodTotals = async (now: Date): Promise<DashboardPeriodMetric[]> => {
                 days: period.days,
                 views: toNumber(row?.views),
                 uniqueVisitors: toNumber(row?.uniqueVisitors),
+                trend: periodTrends.get(period.label) ?? [],
             };
         }),
     );
@@ -460,7 +535,8 @@ const getDailyViewsSeries = async ({
 }): Promise<AnalyticsTimeseriesPoint[]> => {
     const db = getDb();
     const sinceDate = buildSinceDate(days, now);
-    const dayBucket = sql<string>`to_char(date_trunc('day', timezone('UTC', ${articlePageViews.createdAt})), 'YYYY-MM-DD')`;
+    const dayBucket = sql<string>`to_char(date_trunc('day', ${articlePageViews.createdAt} AT TIME ZONE 'UTC'), 'YYYY-MM-DD')`;
+    const bucketPosition = sql.raw('1');
 
     const rows = await db
         .select({
@@ -476,10 +552,35 @@ const getDailyViewsSeries = async ({
                   )
                 : gte(articlePageViews.createdAt, sinceDate),
         )
-        .groupBy(dayBucket)
-        .orderBy(dayBucket);
+        .groupBy(bucketPosition)
+        .orderBy(bucketPosition);
 
     return buildFilledSeries(rows, days, now);
+};
+
+const getMonthlyViewsSeries = async ({
+    months,
+    now,
+}: {
+    months: number;
+    now: Date;
+}): Promise<AnalyticsTimeseriesPoint[]> => {
+    const db = getDb();
+    const sinceDate = startOfUtcMonth(subtractMonths(now, months - 1));
+    const monthBucket = sql<string>`to_char(date_trunc('month', ${articlePageViews.createdAt} AT TIME ZONE 'UTC'), 'YYYY-MM')`;
+    const bucketPosition = sql.raw('1');
+
+    const rows = await db
+        .select({
+            month: monthBucket,
+            value: count(),
+        })
+        .from(articlePageViews)
+        .where(gte(articlePageViews.createdAt, sinceDate))
+        .groupBy(bucketPosition)
+        .orderBy(bucketPosition);
+
+    return buildFilledMonthlySeries(rows, months, now);
 };
 
 const getPreviousThirtyDayViews = async (now: Date): Promise<number> => {
@@ -582,7 +683,11 @@ const getTopKeywords = async (now: Date): Promise<DashboardKeywordMetric[]> => {
 
 const getEngagementSummary = async (now: Date): Promise<Pick<
     DashboardAnalytics,
-    'avgEngagementSeconds30d' | 'bounceRate30d' | 'avgScrollDepth30d' | 'scrollReach30d'
+    | 'avgEngagementSeconds30d'
+    | 'engagementScore30d'
+    | 'bounceRate30d'
+    | 'avgScrollDepth30d'
+    | 'scrollReach30d'
 >> => {
     const db = getDb();
     const sinceDate = buildSinceDate(30, now);
@@ -599,10 +704,19 @@ const getEngagementSummary = async (now: Date): Promise<Pick<
         .from(articlePageViews)
         .where(gte(articlePageViews.createdAt, sinceDate));
 
+    const avgEngagementSeconds30d = Math.round(toNumber(row?.avgEngagementSeconds));
+    const bounceRate30d = roundToOneDecimal(toNumber(row?.bounceRate) * 100);
+    const avgScrollDepth30d = roundToOneDecimal(toNumber(row?.avgScrollDepth));
+
     return {
-        avgEngagementSeconds30d: Math.round(toNumber(row?.avgEngagementSeconds)),
-        bounceRate30d: roundToOneDecimal(toNumber(row?.bounceRate) * 100),
-        avgScrollDepth30d: roundToOneDecimal(toNumber(row?.avgScrollDepth)),
+        avgEngagementSeconds30d,
+        engagementScore30d: calculateEngagementScore({
+            avgEngagementSeconds: avgEngagementSeconds30d,
+            avgScrollDepth: avgScrollDepth30d,
+            bounceRate: bounceRate30d,
+        }),
+        bounceRate30d,
+        avgScrollDepth30d,
         scrollReach30d: {
             reached50: roundToOneDecimal(toNumber(row?.reached50) * 100),
             reached75: roundToOneDecimal(toNumber(row?.reached75) * 100),
@@ -790,6 +904,7 @@ const getCommentVelocityMap = async (
 
 const getTopPosts = async (now: Date): Promise<{
     topPosts: DashboardTopPostMetric[];
+    topPostsAllTime: DashboardTopPostMetric[];
     totalReactionsAllTime: number;
     avgInteractionsPerPost: number;
 }> => {
@@ -848,7 +963,7 @@ const getTopPosts = async (now: Date): Promise<{
         ...articleMetadataBySlug.keys(),
     ]);
 
-    const topPosts = Array.from(candidateSlugs)
+    const postMetrics = Array.from(candidateSlugs)
         .map((slug) => {
             const metadata = articleMetadataBySlug.get(slug);
             const recentMetrics = recentMetricsBySlug.get(slug);
@@ -878,13 +993,25 @@ const getTopPosts = async (now: Date): Promise<{
                 metric.reactions > 0 ||
                 metric.comments > 0 ||
                 metric.shares30d > 0,
-        )
+        );
+
+    const topPosts = [...postMetrics]
         .sort((leftMetric, rightMetric) => {
             if (rightMetric.views30d !== leftMetric.views30d) {
                 return rightMetric.views30d - leftMetric.views30d;
             }
 
             return rightMetric.viewsAllTime - leftMetric.viewsAllTime;
+        })
+        .slice(0, TOP_POST_LIMIT);
+
+    const topPostsAllTime = [...postMetrics]
+        .sort((leftMetric, rightMetric) => {
+            if (rightMetric.viewsAllTime !== leftMetric.viewsAllTime) {
+                return rightMetric.viewsAllTime - leftMetric.viewsAllTime;
+            }
+
+            return rightMetric.views30d - leftMetric.views30d;
         })
         .slice(0, TOP_POST_LIMIT);
 
@@ -901,6 +1028,7 @@ const getTopPosts = async (now: Date): Promise<{
 
     return {
         topPosts,
+        topPostsAllTime,
         totalReactionsAllTime,
         avgInteractionsPerPost,
     };
@@ -977,7 +1105,10 @@ export const createShareEvent = async (input: AnalyticsShareEventInput): Promise
 export const getDashboardAnalytics = async (): Promise<DashboardAnalytics> => {
     const now = new Date();
     const [
-        periods,
+        trend7d,
+        trend30d,
+        trend90d,
+        trendAllTime,
         pageviewSparkline,
         previousThirtyDayViews,
         sources30d,
@@ -988,7 +1119,10 @@ export const getDashboardAnalytics = async (): Promise<DashboardAnalytics> => {
         shareMetrics,
         topPostMetrics,
     ] = await Promise.all([
-        getPeriodTotals(now),
+        getDailyViewsSeries({ days: 7, now }),
+        getDailyViewsSeries({ days: 30, now }),
+        getDailyViewsSeries({ days: 90, now }),
+        getMonthlyViewsSeries({ months: 12, now }),
         getDailyViewsSeries({ days: 30, now }),
         getPreviousThirtyDayViews(now),
         getSourceBreakdown(now),
@@ -999,6 +1133,16 @@ export const getDashboardAnalytics = async (): Promise<DashboardAnalytics> => {
         getShareMetrics(now),
         getTopPosts(now),
     ]);
+
+    const periods = await getPeriodTotals(
+        now,
+        new Map<string, AnalyticsTimeseriesPoint[]>([
+            ['7d', trend7d],
+            ['30d', trend30d],
+            ['90d', trend90d],
+            ['All-time', trendAllTime],
+        ]),
+    );
 
     const thirtyDayMetric = periods.find((period) => period.days === 30);
     const views30d = thirtyDayMetric?.views ?? 0;
@@ -1012,10 +1156,12 @@ export const getDashboardAnalytics = async (): Promise<DashboardAnalytics> => {
         uniqueVisitors30d: thirtyDayMetric?.uniqueVisitors ?? 0,
         uniqueVisitorsAllTime: periods.find((period) => period.days === null)?.uniqueVisitors ?? 0,
         topPosts: topPostMetrics.topPosts,
+        topPostsAllTime: topPostMetrics.topPostsAllTime,
         sources30d,
         organicTrend90d,
         topKeywords90d,
         avgEngagementSeconds30d: engagementSummary.avgEngagementSeconds30d,
+        engagementScore30d: engagementSummary.engagementScore30d,
         bounceRate30d: engagementSummary.bounceRate30d,
         avgScrollDepth30d: engagementSummary.avgScrollDepth30d,
         scrollReach30d: engagementSummary.scrollReach30d,

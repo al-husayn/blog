@@ -1,14 +1,15 @@
 import type React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { auth } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { LockKeyhole, Settings2 } from 'lucide-react';
 import { AnalyticsDashboard } from '@/components/admin/analytics-dashboard';
 import { FlickeringGrid } from '@/components/magicui/flickering-grid';
 import { Button } from '@/components/ui/button';
-import { getDashboardAnalytics } from '@/lib/analytics';
+import { getDashboardAnalytics, isMissingAnalyticsTablesError } from '@/lib/analytics';
 import {
     isAdminConfigured,
+    isAdminEmail,
     isAdminUserId,
     isAnalyticsConfigured,
     isClerkConfigured,
@@ -93,7 +94,7 @@ export default async function AdminDashboardPage() {
             <AccessState
                 icon={<Settings2 className='h-6 w-6 text-muted-foreground' />}
                 title='Admin access has not been assigned yet'
-                description='Set ADMIN_USER_IDS in your environment to the Clerk user IDs allowed to view this dashboard.'
+                description='Set ADMIN_USER_IDS or ADMIN_EMAILS in your environment to define who can access this dashboard.'
             />
         );
     }
@@ -110,35 +111,56 @@ export default async function AdminDashboardPage() {
         );
     }
 
-    if (!isAdminUserId(userId)) {
+    const user = await currentUser();
+    const primaryEmail =
+        user?.emailAddresses.find(
+            (emailAddress) => emailAddress.id === user.primaryEmailAddressId,
+        )?.emailAddress ?? user?.emailAddresses[0]?.emailAddress ?? null;
+    const hasAdminAccess = isAdminUserId(userId) || isAdminEmail(primaryEmail);
+
+    if (!hasAdminAccess) {
         return (
             <AccessState
                 icon={<LockKeyhole className='h-6 w-6 text-muted-foreground' />}
                 title='This account does not have dashboard access'
-                description='The current signed-in user is not listed in ADMIN_USER_IDS, so the analytics workspace stays locked down.'
+                description={`The signed-in account is not listed in ADMIN_USER_IDS or ADMIN_EMAILS. Current user ID: ${userId}${primaryEmail ? `. Current email: ${primaryEmail}.` : '.'}`}
             />
         );
     }
 
-    const analytics = await getDashboardAnalytics();
+    try {
+        const analytics = await getDashboardAnalytics();
 
-    return (
-        <main className='relative min-h-screen overflow-hidden bg-background'>
-            <div
-                aria-hidden='true'
-                className='absolute inset-x-0 top-0 h-[220px] [mask-image:linear-gradient(to_top,transparent_18%,black_95%)]'>
-                <FlickeringGrid
-                    className='absolute inset-0 h-full w-full'
-                    squareSize={4}
-                    gridGap={6}
-                    color='var(--muted-foreground)'
-                    maxOpacity={0.2}
-                    flickerChance={0.05}
+        return (
+            <main className='relative min-h-screen overflow-hidden bg-background'>
+                <div
+                    aria-hidden='true'
+                    className='absolute inset-x-0 top-0 h-[220px] [mask-image:linear-gradient(to_top,transparent_18%,black_95%)]'>
+                    <FlickeringGrid
+                        className='absolute inset-0 h-full w-full'
+                        squareSize={4}
+                        gridGap={6}
+                        color='var(--muted-foreground)'
+                        maxOpacity={0.2}
+                        flickerChance={0.05}
+                    />
+                </div>
+                <div className='relative mx-auto max-w-7xl px-6 py-8 sm:py-10'>
+                    <AnalyticsDashboard data={analytics} />
+                </div>
+            </main>
+        );
+    } catch (error) {
+        if (isMissingAnalyticsTablesError(error)) {
+            return (
+                <AccessState
+                    icon={<Settings2 className='h-6 w-6 text-muted-foreground' />}
+                    title='Analytics tables have not been applied yet'
+                    description='The dashboard code is in place, but your database is still missing the analytics tables. Run `pnpm db:push` or your preferred Drizzle migration flow, then refresh `/admin`.'
                 />
-            </div>
-            <div className='relative mx-auto max-w-7xl px-6 py-8 sm:py-10'>
-                <AnalyticsDashboard data={analytics} />
-            </div>
-        </main>
-    );
+            );
+        }
+
+        throw error;
+    }
 }

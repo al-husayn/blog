@@ -47,6 +47,7 @@ export interface DashboardPeriodMetric {
     days: number | null;
     views: number;
     uniqueVisitors: number;
+    trend: AnalyticsTimeseriesPoint[];
 }
 
 export interface DashboardSourceDetail {
@@ -104,10 +105,12 @@ export interface DashboardAnalytics {
     uniqueVisitors30d: number;
     uniqueVisitorsAllTime: number;
     topPosts: DashboardTopPostMetric[];
+    topPostsAllTime: DashboardTopPostMetric[];
     sources30d: DashboardSourceSlice[];
     organicTrend90d: AnalyticsTimeseriesPoint[];
     topKeywords90d: DashboardKeywordMetric[];
     avgEngagementSeconds30d: number;
+    engagementScore30d: number;
     bounceRate30d: number;
     avgScrollDepth30d: number;
     scrollReach30d: {

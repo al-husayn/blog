@@ -9,6 +9,9 @@ const parseCsv = (value: string | undefined): string[] =>
               .filter(Boolean)
         : [];
 
+const parseLowercaseCsv = (value: string | undefined): string[] =>
+    parseCsv(value).map((item) => item.toLowerCase());
+
 export const isDatabaseConfigured = (): boolean => hasValue(process.env.DATABASE_URL);
 
 export const isClerkConfigured = (): boolean =>
@@ -22,7 +25,13 @@ export const isAnalyticsConfigured = (): boolean => isDatabaseConfigured();
 
 export const getAdminUserIds = (): string[] => parseCsv(process.env.ADMIN_USER_IDS);
 
+export const getAdminEmails = (): string[] => parseLowercaseCsv(process.env.ADMIN_EMAILS);
+
 export const isAdminUserId = (userId: string | null | undefined): boolean =>
     userId ? getAdminUserIds().includes(userId) : false;
 
-export const isAdminConfigured = (): boolean => getAdminUserIds().length > 0;
+export const isAdminEmail = (email: string | null | undefined): boolean =>
+    email ? getAdminEmails().includes(email.toLowerCase()) : false;
+
+export const isAdminConfigured = (): boolean =>
+    getAdminUserIds().length > 0 || getAdminEmails().length > 0;

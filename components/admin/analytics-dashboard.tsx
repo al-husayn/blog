@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import type {
     AnalyticsTimeseriesPoint,
     DashboardAnalytics,
+    DashboardTopPostMetric,
 } from '@/types/analytics';
 
 const numberFormatter = new Intl.NumberFormat('en-US');
@@ -130,9 +131,13 @@ function Card({ title, description, className, children }: CardProps) {
 function Sparkline({
     points,
     height = 96,
+    stroke = '#ea580c',
+    gradientId = 'sparkline-fill',
 }: {
     points: AnalyticsTimeseriesPoint[];
     height?: number;
+    stroke?: string;
+    gradientId?: string;
 }) {
     const width = 320;
     const padding = 10;
@@ -148,18 +153,18 @@ function Sparkline({
     } ${height - padding} Z`;
 
     return (
-        <svg viewBox={`0 0 ${width} ${height}`} className='h-24 w-full'>
+        <svg viewBox={`0 0 ${width} ${height}`} className='h-full w-full'>
             <defs>
-                <linearGradient id='sparkline-fill' x1='0' x2='0' y1='0' y2='1'>
-                    <stop offset='0%' stopColor='#ea580c' stopOpacity='0.35' />
-                    <stop offset='100%' stopColor='#ea580c' stopOpacity='0' />
+                <linearGradient id={gradientId} x1='0' x2='0' y1='0' y2='1'>
+                    <stop offset='0%' stopColor={stroke} stopOpacity='0.35' />
+                    <stop offset='100%' stopColor={stroke} stopOpacity='0' />
                 </linearGradient>
             </defs>
-            <path d={areaPath} fill='url(#sparkline-fill)' />
+            <path d={areaPath} fill={`url(#${gradientId})`} />
             <path
                 d={linePath}
                 fill='none'
-                stroke='#ea580c'
+                stroke={stroke}
                 strokeLinecap='round'
                 strokeLinejoin='round'
                 strokeWidth='2.5'
@@ -203,7 +208,7 @@ function LineChart({
 
                     return (
                         <line
-                            key={value}
+                            key={`${value}-${index}`}
                             x1={padding}
                             y1={y}
                             x2={width - padding}
@@ -282,11 +287,83 @@ function DonutChart({
     );
 }
 
+function EngagementGauge({
+    score,
+    label,
+}: {
+    score: number;
+    label: string;
+}) {
+    const clampedScore = Math.min(100, Math.max(0, score));
+
+    return (
+        <div className='flex flex-col items-center gap-4'>
+            <div
+                className='relative flex h-44 w-44 items-center justify-center rounded-full'
+                style={{
+                    backgroundImage: `conic-gradient(#ea580c 0% ${clampedScore}%, rgba(148,163,184,0.15) ${clampedScore}% 100%)`,
+                }}>
+                <div className='flex h-[7.5rem] w-[7.5rem] flex-col items-center justify-center rounded-full bg-card text-center shadow-inner'>
+                    <p className='text-4xl font-semibold tracking-tight'>{clampedScore}</p>
+                    <p className='text-xs uppercase tracking-[0.22em] text-muted-foreground'>Score</p>
+                </div>
+            </div>
+            <p className='text-sm text-muted-foreground'>{label}</p>
+        </div>
+    );
+}
+
+function LeaderboardList({
+    title,
+    posts,
+    metricLabel,
+    metricValue,
+}: {
+    title: string;
+    posts: DashboardTopPostMetric[];
+    metricLabel: string;
+    metricValue: (post: DashboardTopPostMetric) => string;
+}) {
+    return (
+        <div className='rounded-[24px] border border-border/70 bg-background/60 p-4'>
+            <div className='mb-4 flex items-center justify-between gap-3'>
+                <h3 className='text-base font-semibold tracking-tight'>{title}</h3>
+                <p className='text-xs uppercase tracking-[0.22em] text-muted-foreground'>{metricLabel}</p>
+            </div>
+            <div className='space-y-3'>
+                {posts.length > 0 ? (
+                    posts.map((post, index) => (
+                        <div key={`${title}-${post.slug}`} className='flex items-start gap-3'>
+                            <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground'>
+                                {index + 1}
+                            </div>
+                            <div className='min-w-0 flex-1'>
+                                <Link
+                                    href={`/blog/${post.slug}`}
+                                    className='inline-flex items-center gap-2 font-medium text-foreground transition-colors hover:text-orange-600'>
+                                    <span className='truncate'>{post.title}</span>
+                                    <ArrowRight className='h-4 w-4 shrink-0' />
+                                </Link>
+                                <p className='mt-1 line-clamp-2 text-sm text-muted-foreground'>
+                                    {post.description}
+                                </p>
+                            </div>
+                            <p className='shrink-0 text-base font-semibold'>{metricValue(post)}</p>
+                        </div>
+                    ))
+                ) : (
+                    <p className='text-sm text-muted-foreground'>Post rankings will appear after analytics data arrives.</p>
+                )}
+            </div>
+        </div>
+    );
+}
+
 function ViewsCard({ data }: AnalyticsDashboardProps) {
     return (
         <Card
             title='Traffic & Reach'
-            description='Pageviews across the last 7, 30, and 90 days, with a quick signal for how the current month compares to the previous one.'
+            description='Pageviews across the core reporting windows, with the current month front and center and mini trends for each period.'
             className='lg:col-span-2'>
             <div className='grid gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,0.9fr)]'>
                 <div className='space-y-5 rounded-[24px] border border-orange-500/20 bg-[linear-gradient(135deg,rgba(234,88,12,0.12),rgba(234,88,12,0.02)_55%,rgba(255,255,255,0))] p-5'>
@@ -319,8 +396,8 @@ function ViewsCard({ data }: AnalyticsDashboardProps) {
                     <Sparkline points={data.pageviewSparkline} />
                 </div>
 
-                <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-1'>
-                    {data.periods.map((period) => (
+                <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-2'>
+                    {data.periods.map((period, index) => (
                         <div
                             key={period.label}
                             className='rounded-[22px] border border-border/70 bg-background/60 p-4'>
@@ -334,6 +411,14 @@ function ViewsCard({ data }: AnalyticsDashboardProps) {
                             <p className='mt-1 text-sm text-muted-foreground'>
                                 {formatNumber(period.uniqueVisitors)} unique visitors
                             </p>
+                            <div className='mt-4 h-14'>
+                                <Sparkline
+                                    points={period.trend}
+                                    height={56}
+                                    stroke={index % 2 === 0 ? '#0f766e' : '#2563eb'}
+                                    gradientId={`period-trend-${period.label}`}
+                                />
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -423,7 +508,7 @@ function SourcesCard({ data }: AnalyticsDashboardProps) {
     return (
         <Card
             title='Traffic Sources'
-            description='Where article readers are coming from over the last 30 days, including the strongest channel details inside each bucket.'
+            description='Where readers are coming from in the last 30 days, with both share-of-traffic context and the strongest referrer details.'
             className='lg:col-span-2'>
             <div className='grid gap-6 xl:grid-cols-[220px_minmax(0,1fr)]'>
                 <DonutChart
@@ -431,44 +516,59 @@ function SourcesCard({ data }: AnalyticsDashboardProps) {
                     centerLabel={formatNumber(totalSources)}
                     centerSubLabel='30d visits'
                 />
-                <div className='grid gap-4 sm:grid-cols-2'>
-                    {data.sources30d.map((source) => (
-                        <div
-                            key={source.key}
-                            className='rounded-2xl border border-border/70 bg-background/60 p-4'>
-                            <div className='flex items-center justify-between gap-3'>
-                                <div className='flex items-center gap-3'>
-                                    <span
-                                        className='h-3 w-3 rounded-full'
-                                        style={{
-                                            backgroundColor: sourceColors[source.key] ?? '#64748b',
-                                        }}
-                                    />
-                                    <p className='font-medium'>{source.label}</p>
-                                </div>
-                                <p className='text-sm text-muted-foreground'>
-                                    {formatSourceShare(source.value, totalSources)}
-                                </p>
-                            </div>
-                            <p className='mt-3 text-3xl font-semibold tracking-tight'>
-                                {formatCompactNumber(source.value)}
-                            </p>
-                            <div className='mt-4 space-y-2 text-sm text-muted-foreground'>
-                                {source.details.length > 0 ? (
-                                    source.details.map((detail) => (
-                                        <div key={detail.label} className='flex items-center justify-between gap-3'>
-                                            <p>{detail.label}</p>
-                                            <p className='font-medium text-foreground'>
-                                                {formatNumber(detail.value)}
-                                            </p>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <p>No source detail recorded yet.</p>
-                                )}
-                            </div>
+                <div className='space-y-4'>
+                    <div className='overflow-hidden rounded-full bg-muted/60'>
+                        <div className='flex h-4 w-full'>
+                            {data.sources30d.map((source) => (
+                                <div
+                                    key={`source-bar-${source.key}`}
+                                    style={{
+                                        width: `${totalSources === 0 ? 0 : (source.value / totalSources) * 100}%`,
+                                        backgroundColor: sourceColors[source.key] ?? '#64748b',
+                                    }}
+                                />
+                            ))}
                         </div>
-                    ))}
+                    </div>
+                    <div className='grid gap-4 sm:grid-cols-2'>
+                        {data.sources30d.map((source) => (
+                            <div
+                                key={source.key}
+                                className='rounded-2xl border border-border/70 bg-background/60 p-4'>
+                                <div className='flex items-center justify-between gap-3'>
+                                    <div className='flex items-center gap-3'>
+                                        <span
+                                            className='h-3 w-3 rounded-full'
+                                            style={{
+                                                backgroundColor: sourceColors[source.key] ?? '#64748b',
+                                            }}
+                                        />
+                                        <p className='font-medium'>{source.label}</p>
+                                    </div>
+                                    <p className='text-sm text-muted-foreground'>
+                                        {formatSourceShare(source.value, totalSources)}
+                                    </p>
+                                </div>
+                                <p className='mt-3 text-3xl font-semibold tracking-tight'>
+                                    {formatCompactNumber(source.value)}
+                                </p>
+                                <div className='mt-4 space-y-2 text-sm text-muted-foreground'>
+                                    {source.details.length > 0 ? (
+                                        source.details.map((detail) => (
+                                            <div key={detail.label} className='flex items-center justify-between gap-3'>
+                                                <p>{detail.label}</p>
+                                                <p className='font-medium text-foreground'>
+                                                    {formatNumber(detail.value)}
+                                                </p>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p>No source detail recorded yet.</p>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </Card>
@@ -479,51 +579,54 @@ function EngagementCard({ data }: AnalyticsDashboardProps) {
     return (
         <Card
             title='Engagement Quality'
-            description='Average engaged time, bounce rate, and the share of readers reaching meaningful scroll milestones.'>
-            <div className='space-y-4'>
-                <div className='grid gap-3 sm:grid-cols-3'>
-                    <div className='rounded-2xl border border-border/70 bg-background/60 p-4'>
-                        <Clock3 className='h-4 w-4 text-muted-foreground' />
-                        <p className='mt-3 text-3xl font-semibold'>
-                            {formatDuration(data.avgEngagementSeconds30d)}
-                        </p>
-                        <p className='mt-1 text-sm text-muted-foreground'>Avg engaged time</p>
-                    </div>
-                    <div className='rounded-2xl border border-border/70 bg-background/60 p-4'>
-                        <Gauge className='h-4 w-4 text-muted-foreground' />
-                        <p className='mt-3 text-3xl font-semibold'>{formatPercent(data.bounceRate30d)}</p>
-                        <p className='mt-1 text-sm text-muted-foreground'>Bounce rate</p>
-                    </div>
-                    <div className='rounded-2xl border border-border/70 bg-background/60 p-4'>
-                        <ChartNoAxesColumn className='h-4 w-4 text-muted-foreground' />
-                        <p className='mt-3 text-3xl font-semibold'>
-                            {formatPercent(data.avgScrollDepth30d)}
-                        </p>
-                        <p className='mt-1 text-sm text-muted-foreground'>Avg scroll depth</p>
-                    </div>
-                </div>
-                <div className='space-y-3 rounded-2xl border border-border/70 bg-background/60 p-4'>
-                    {[
-                        { label: 'Reached 50%', value: data.scrollReach30d.reached50, color: '#0f766e' },
-                        { label: 'Reached 75%', value: data.scrollReach30d.reached75, color: '#ea580c' },
-                        { label: 'Reached 100%', value: data.scrollReach30d.reached100, color: '#2563eb' },
-                    ].map((item) => (
-                        <div key={item.label} className='space-y-2'>
-                            <div className='flex items-center justify-between text-sm'>
-                                <p className='font-medium'>{item.label}</p>
-                                <p className='text-muted-foreground'>{formatPercent(item.value)}</p>
-                            </div>
-                            <div className='h-2 rounded-full bg-muted/60'>
-                                <div
-                                    className='h-full rounded-full'
-                                    style={{
-                                        width: `${item.value}%`,
-                                        backgroundColor: item.color,
-                                    }}
-                                />
-                            </div>
+            description='Engaged time, bounce rate, scroll completion, and a single score to judge how healthy article sessions feel overall.'>
+            <div className='grid gap-6 xl:grid-cols-[220px_minmax(0,1fr)] xl:items-center'>
+                <EngagementGauge score={data.engagementScore30d} label='30d reading quality' />
+                <div className='space-y-4'>
+                    <div className='grid gap-3 sm:grid-cols-3'>
+                        <div className='rounded-2xl border border-border/70 bg-background/60 p-4'>
+                            <Clock3 className='h-4 w-4 text-muted-foreground' />
+                            <p className='mt-3 text-3xl font-semibold'>
+                                {formatDuration(data.avgEngagementSeconds30d)}
+                            </p>
+                            <p className='mt-1 text-sm text-muted-foreground'>Avg engaged time</p>
                         </div>
-                    ))}
+                        <div className='rounded-2xl border border-border/70 bg-background/60 p-4'>
+                            <Gauge className='h-4 w-4 text-muted-foreground' />
+                            <p className='mt-3 text-3xl font-semibold'>{formatPercent(data.bounceRate30d)}</p>
+                            <p className='mt-1 text-sm text-muted-foreground'>Bounce rate</p>
+                        </div>
+                        <div className='rounded-2xl border border-border/70 bg-background/60 p-4'>
+                            <ChartNoAxesColumn className='h-4 w-4 text-muted-foreground' />
+                            <p className='mt-3 text-3xl font-semibold'>
+                                {formatPercent(data.avgScrollDepth30d)}
+                            </p>
+                            <p className='mt-1 text-sm text-muted-foreground'>Avg scroll depth</p>
+                        </div>
+                    </div>
+                    <div className='space-y-3 rounded-2xl border border-border/70 bg-background/60 p-4'>
+                        {[
+                            { label: 'Reached 50%', value: data.scrollReach30d.reached50, color: '#0f766e' },
+                            { label: 'Reached 75%', value: data.scrollReach30d.reached75, color: '#ea580c' },
+                            { label: 'Reached 100%', value: data.scrollReach30d.reached100, color: '#2563eb' },
+                        ].map((item) => (
+                            <div key={item.label} className='space-y-2'>
+                                <div className='flex items-center justify-between text-sm'>
+                                    <p className='font-medium'>{item.label}</p>
+                                    <p className='text-muted-foreground'>{formatPercent(item.value)}</p>
+                                </div>
+                                <div className='h-2 rounded-full bg-muted/60'>
+                                    <div
+                                        className='h-full rounded-full'
+                                        style={{
+                                            width: `${item.value}%`,
+                                            backgroundColor: item.color,
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </Card>
@@ -682,77 +785,94 @@ function TopPostsCard({ data }: AnalyticsDashboardProps) {
     return (
         <Card
             title='Top Posts'
-            description='Ranked by the last 30 days of article views, with all-time reach and quality signals alongside each post.'
+            description='Separate leaders for the last 30 days and all-time, followed by a detailed table that combines traffic and quality metrics.'
             className='lg:col-span-3'>
-            <div className='overflow-x-auto'>
-                <table className='min-w-full border-separate border-spacing-y-3'>
-                    <thead>
-                        <tr className='text-left text-xs uppercase tracking-[0.18em] text-muted-foreground'>
-                            <th className='pb-1 pr-4 font-medium'>Post</th>
-                            <th className='pb-1 pr-4 font-medium'>30d Views</th>
-                            <th className='pb-1 pr-4 font-medium'>All-time</th>
-                            <th className='pb-1 pr-4 font-medium'>Unique 30d</th>
-                            <th className='pb-1 pr-4 font-medium'>Engagement</th>
-                            <th className='pb-1 pr-4 font-medium'>Bounce</th>
-                            <th className='pb-1 pr-4 font-medium'>Reactions</th>
-                            <th className='pb-1 pr-4 font-medium'>Comments</th>
-                            <th className='pb-1 font-medium'>Shares 30d</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {data.topPosts.length > 0 ? (
-                            data.topPosts.map((post) => (
-                                <tr
-                                    key={post.slug}
-                                    className='rounded-2xl bg-background/60 text-sm shadow-[0_8px_30px_rgba(15,23,42,0.05)]'>
-                                    <td className='rounded-l-2xl border border-border/70 border-r-0 px-4 py-4 align-top'>
-                                        <div className='space-y-1'>
-                                            <Link
-                                                href={`/blog/${post.slug}`}
-                                                className='inline-flex items-center gap-2 font-medium text-foreground transition-colors hover:text-orange-600'>
-                                                {post.title}
-                                                <ArrowRight className='h-4 w-4' />
-                                            </Link>
-                                            <p className='line-clamp-2 max-w-sm text-muted-foreground'>
-                                                {post.description}
-                                            </p>
-                                        </div>
-                                    </td>
-                                    <td className='border border-border/70 border-l-0 border-r-0 px-4 py-4 font-medium'>
-                                        {formatNumber(post.views30d)}
-                                    </td>
-                                    <td className='border border-border/70 border-l-0 border-r-0 px-4 py-4 font-medium'>
-                                        {formatNumber(post.viewsAllTime)}
-                                    </td>
-                                    <td className='border border-border/70 border-l-0 border-r-0 px-4 py-4 text-muted-foreground'>
-                                        {formatNumber(post.uniqueVisitors30d)}
-                                    </td>
-                                    <td className='border border-border/70 border-l-0 border-r-0 px-4 py-4 text-muted-foreground'>
-                                        {formatDuration(post.avgEngagementSeconds)}
-                                    </td>
-                                    <td className='border border-border/70 border-l-0 border-r-0 px-4 py-4 text-muted-foreground'>
-                                        {formatPercent(post.bounceRate)}
-                                    </td>
-                                    <td className='border border-border/70 border-l-0 border-r-0 px-4 py-4'>
-                                        {formatNumber(post.reactions)}
-                                    </td>
-                                    <td className='border border-border/70 border-l-0 border-r-0 px-4 py-4'>
-                                        {formatNumber(post.comments)}
-                                    </td>
-                                    <td className='rounded-r-2xl border border-border/70 border-l-0 px-4 py-4'>
-                                        {formatNumber(post.shares30d)}
+            <div className='space-y-5'>
+                <div className='grid gap-4 xl:grid-cols-2'>
+                    <LeaderboardList
+                        title='Trending in the last 30d'
+                        posts={data.topPosts}
+                        metricLabel='30d views'
+                        metricValue={(post) => formatCompactNumber(post.views30d)}
+                    />
+                    <LeaderboardList
+                        title='All-time leaders'
+                        posts={data.topPostsAllTime}
+                        metricLabel='all-time views'
+                        metricValue={(post) => formatCompactNumber(post.viewsAllTime)}
+                    />
+                </div>
+
+                <div className='overflow-x-auto'>
+                    <table className='min-w-full border-separate border-spacing-y-3'>
+                        <thead>
+                            <tr className='text-left text-xs uppercase tracking-[0.18em] text-muted-foreground'>
+                                <th className='pb-1 pr-4 font-medium'>Post</th>
+                                <th className='pb-1 pr-4 font-medium'>30d Views</th>
+                                <th className='pb-1 pr-4 font-medium'>All-time</th>
+                                <th className='pb-1 pr-4 font-medium'>Unique 30d</th>
+                                <th className='pb-1 pr-4 font-medium'>Engagement</th>
+                                <th className='pb-1 pr-4 font-medium'>Bounce</th>
+                                <th className='pb-1 pr-4 font-medium'>Reactions</th>
+                                <th className='pb-1 pr-4 font-medium'>Comments</th>
+                                <th className='pb-1 font-medium'>Shares 30d</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {data.topPosts.length > 0 ? (
+                                data.topPosts.map((post) => (
+                                    <tr
+                                        key={post.slug}
+                                        className='rounded-2xl bg-background/60 text-sm shadow-[0_8px_30px_rgba(15,23,42,0.05)]'>
+                                        <td className='rounded-l-2xl border border-border/70 border-r-0 px-4 py-4 align-top'>
+                                            <div className='space-y-1'>
+                                                <Link
+                                                    href={`/blog/${post.slug}`}
+                                                    className='inline-flex items-center gap-2 font-medium text-foreground transition-colors hover:text-orange-600'>
+                                                    {post.title}
+                                                    <ArrowRight className='h-4 w-4' />
+                                                </Link>
+                                                <p className='line-clamp-2 max-w-sm text-muted-foreground'>
+                                                    {post.description}
+                                                </p>
+                                            </div>
+                                        </td>
+                                        <td className='border border-border/70 border-l-0 border-r-0 px-4 py-4 font-medium'>
+                                            {formatNumber(post.views30d)}
+                                        </td>
+                                        <td className='border border-border/70 border-l-0 border-r-0 px-4 py-4 font-medium'>
+                                            {formatNumber(post.viewsAllTime)}
+                                        </td>
+                                        <td className='border border-border/70 border-l-0 border-r-0 px-4 py-4 text-muted-foreground'>
+                                            {formatNumber(post.uniqueVisitors30d)}
+                                        </td>
+                                        <td className='border border-border/70 border-l-0 border-r-0 px-4 py-4 text-muted-foreground'>
+                                            {formatDuration(post.avgEngagementSeconds)}
+                                        </td>
+                                        <td className='border border-border/70 border-l-0 border-r-0 px-4 py-4 text-muted-foreground'>
+                                            {formatPercent(post.bounceRate)}
+                                        </td>
+                                        <td className='border border-border/70 border-l-0 border-r-0 px-4 py-4'>
+                                            {formatNumber(post.reactions)}
+                                        </td>
+                                        <td className='border border-border/70 border-l-0 border-r-0 px-4 py-4'>
+                                            {formatNumber(post.comments)}
+                                        </td>
+                                        <td className='rounded-r-2xl border border-border/70 border-l-0 px-4 py-4'>
+                                            {formatNumber(post.shares30d)}
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={9} className='rounded-2xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground'>
+                                        Post rankings will appear after article visits are recorded.
                                     </td>
                                 </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan={9} className='rounded-2xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground'>
-                                    Post rankings will appear after article visits are recorded.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </Card>
     );
