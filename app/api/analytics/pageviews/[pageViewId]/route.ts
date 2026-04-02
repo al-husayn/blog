@@ -3,14 +3,22 @@ import { ZodError } from 'zod';
 import { completePageView } from '@/lib/analytics';
 import { isAnalyticsConfigured } from '@/lib/env';
 
-export async function POST(request: Request, { params }: { params: { pageViewId: string } }) {
+interface RouteContext {
+    params: Promise<{
+        pageViewId: string;
+    }>;
+}
+
+export async function POST(request: Request, { params }: RouteContext) {
+    const { pageViewId } = await params;
+
     if (!isAnalyticsConfigured()) {
         return new Response(null, { status: 204 });
     }
 
     try {
         const payload = await request.json();
-        await completePageView({ ...payload, pageViewId: params.pageViewId });
+        await completePageView({ ...payload, pageViewId });
 
         return NextResponse.json({ ok: true });
     } catch (error) {
