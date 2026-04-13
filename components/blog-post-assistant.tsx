@@ -1,5 +1,6 @@
 'use client';
 
+import { gooeyToast } from 'goey-toast';
 import { useMutation } from '@tanstack/react-query';
 import { Bot, Loader2, Send, Sparkles, UserRound } from 'lucide-react';
 import { FormEvent, startTransition, useMemo, useState } from 'react';
@@ -32,7 +33,6 @@ export function BlogPostAssistant({ slug, title }: BlogPostAssistantProps) {
     const [name, setName] = useState('');
     const [question, setQuestion] = useState('');
     const [messages, setMessages] = useState<ChatMessage[]>([]);
-    const [error, setError] = useState<string | null>(null);
 
     const greeting = useMemo(
         () =>
@@ -73,7 +73,6 @@ export function BlogPostAssistant({ slug, title }: BlogPostAssistantProps) {
                 content: cleanQuestion,
             };
 
-            setError(null);
             setQuestion('');
             startTransition(() => {
                 setMessages((current) => [...current, userMessage]);
@@ -95,7 +94,11 @@ export function BlogPostAssistant({ slug, title }: BlogPostAssistantProps) {
             });
         },
         onError: (mutationError, _variables, context) => {
-            setError(getErrorMessage(mutationError));
+            const errorMessage = getErrorMessage(mutationError);
+            gooeyToast.error('Assistant unavailable', {
+                description: errorMessage,
+                showTimestamp: false,
+            });
 
             startTransition(() => {
                 setMessages((current) =>
@@ -220,8 +223,6 @@ export function BlogPostAssistant({ slug, title }: BlogPostAssistantProps) {
                             Ask assistant
                         </Button>
                     </div>
-
-                    {error && <p className='text-xs text-destructive'>{error}</p>}
                 </form>
             </div>
 

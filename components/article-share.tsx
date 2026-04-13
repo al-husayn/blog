@@ -9,13 +9,16 @@ import {
     Share2,
     Twitter,
 } from 'lucide-react';
+import { gooeyToast } from 'goey-toast';
 import { useEffect, useRef, useState } from 'react';
 import { copyTextToClipboard } from '@/lib/clipboard';
-import { trackArticleShare } from '@/lib/analytics-client';
+import { reportAnalyticsError, trackArticleShare } from '@/lib/analytics-client';
 import { Button } from '@/components/ui/button';
+import type { ShareNetwork } from '@/types/analytics';
 import type { ArticleShareProps } from '@/types/components/article-share';
 
 const COPY_RESET_DELAY_MS = 2000;
+const SHORT_TOAST_TIMING = { displayDuration: 2600 } as const;
 
 const createShareLinks = ({
     title,
@@ -31,21 +34,25 @@ const createShareLinks = ({
             label: 'X',
             href: `https://x.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
             icon: Twitter,
+            network: 'x' as const,
         },
         {
             label: 'LinkedIn',
             href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
             icon: Linkedin,
+            network: 'linkedin' as const,
         },
         {
             label: 'Facebook',
             href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
             icon: Facebook,
+            network: 'facebook' as const,
         },
         {
             label: 'WhatsApp',
             href: `https://wa.me/?text=${encodedMessage}`,
             icon: MessageCircleMore,
+            network: 'whatsapp' as const,
         },
     ] as const;
 };
@@ -53,8 +60,13 @@ const createShareLinks = ({
 export function ArticleShare({ articleSlug, title, description, url }: ArticleShareProps) {
     const [hasCopied, setHasCopied] = useState(false);
     const [nativeShareAvailable, setNativeShareAvailable] = useState(false);
-    const [shareError, setShareError] = useState<string | null>(null);
     const copyTimeoutRef = useRef<number | null>(null);
+
+    const trackShare = (network: ShareNetwork) => {
+        void trackArticleShare({ articleSlug, network }).catch((error) => {
+            reportAnalyticsError(`Failed to record share event (${network}) for "${articleSlug}"`, error);
+        });
+    };
 
     useEffect(() => {
         setNativeShareAvailable(typeof navigator !== 'undefined' && typeof navigator.share === 'function');
@@ -69,9 +81,13 @@ export function ArticleShare({ articleSlug, title, description, url }: ArticleSh
     const handleCopy = async () => {
         try {
             await copyTextToClipboard(url);
-            await trackArticleShare({ articleSlug, network: 'copy_link' });
-            setShareError(null);
+            trackShare('copy_link');
             setHasCopied(true);
+            gooeyToast.success('Link copied', {
+                description: 'The article URL is ready to share.',
+                timing: SHORT_TOAST_TIMING,
+                showTimestamp: false,
+            });
 
             if (copyTimeoutRef.current) {
                 window.clearTimeout(copyTimeoutRef.current);
@@ -82,7 +98,10 @@ export function ArticleShare({ articleSlug, title, description, url }: ArticleSh
                 copyTimeoutRef.current = null;
             }, COPY_RESET_DELAY_MS);
         } catch {
-            setShareError('We could not copy the article link. Please try again.');
+            gooeyToast.error('Could not copy the article link', {
+                description: 'Please try again or use one of the share buttons below.',
+                showTimestamp: false,
+            });
         }
     };
 
@@ -97,14 +116,21 @@ export function ArticleShare({ articleSlug, title, description, url }: ArticleSh
                 text: description,
                 url,
             });
-            await trackArticleShare({ articleSlug, network: 'native' });
-            setShareError(null);
+            trackShare('native');
+            gooeyToast.success('Thanks for sharing', {
+                description: 'The article was shared from your device.',
+                timing: SHORT_TOAST_TIMING,
+                showTimestamp: false,
+            });
         } catch (error) {
             if (error instanceof DOMException && error.name === 'AbortError') {
                 return;
             }
 
-            setShareError('Native sharing is not available right now. You can still copy the link.');
+            gooeyToast.error('Native sharing is unavailable right now', {
+                description: 'You can still copy the link or share with the social buttons below.',
+                showTimestamp: false,
+            });
         }
     };
 
@@ -136,18 +162,7 @@ export function ArticleShare({ articleSlug, title, description, url }: ArticleSh
                                 href={link.href}
                                 target='_blank'
                                 rel='noopener noreferrer'
-                                onClick={() => {
-                                    const network =
-                                        link.label === 'X'
-                                            ? 'x'
-                                            : link.label === 'LinkedIn'
-                                              ? 'linkedin'
-                                              : link.label === 'Facebook'
-                                                ? 'facebook'
-                                                : 'whatsapp';
-
-                                    void trackArticleShare({ articleSlug, network });
-                                }}
+                                onClick={() => trackShare(link.network)}
                                 aria-label={`Share this article on ${link.label}`}>
                                 <link.icon className='h-4 w-4' />
                                 {link.label}
@@ -161,8 +176,6 @@ export function ArticleShare({ articleSlug, title, description, url }: ArticleSh
                     </Button>
                 </div>
             </div>
-
-            {shareError && <p className='mt-3 text-xs text-destructive'>{shareError}</p>}
         </section>
     );
 }

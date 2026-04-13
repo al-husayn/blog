@@ -1,7 +1,8 @@
 "use client";
 
+import { gooeyToast } from "goey-toast";
 import React, { useEffect, useState } from "react";
-import { copyTextToClipboard } from "@/lib/clipboard";
+import { copySectionLink, scrollToSection, updateSectionHash } from "@/lib/section-links";
 import { cn } from "@/lib/utils";
 import type { Heading, TableOfContentsProps } from "@/types/components/table-of-contents";
 
@@ -119,25 +120,20 @@ export function TableOfContents({ className }: TableOfContentsProps) {
   }, [headings, activeId]);
 
   const handleClick = async (id: string) => {
-    const url = `${window.location.origin}${window.location.pathname}#${id}`;
-
-    window.history.pushState({}, '', `#${id}`);
+    updateSectionHash(id);
+    scrollToSection(id);
 
     try {
-      await copyTextToClipboard(url);
-    } catch (err) {
-      console.error(err);
-    }
-
-    const element = document.getElementById(id);
-    if (element) {
-      const offset = 80;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
+      await copySectionLink(id);
+      gooeyToast.success("Section link copied", {
+        description: "You can paste this heading link anywhere.",
+        timing: { displayDuration: 2600 },
+        showTimestamp: false,
+      });
+    } catch {
+      gooeyToast.error("Could not copy this section link", {
+        description: "The page still jumped to the section, so you can copy the URL from the address bar.",
+        showTimestamp: false,
       });
     }
   };

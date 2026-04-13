@@ -4,12 +4,14 @@ import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import { QueryProvider } from '@/components/query-provider';
 import { ThemeProvider } from '@/components/theme-provider';
+import { GoeyToaster } from '@/components/ui/goey-toaster';
 import { siteConfig } from '@/lib/site';
 import { metadataKeywords } from '@/app/metadata';
 import { SiteNav } from '@/components/site-nav';
 import Footer from '@/components/footer';
 import { getAbsoluteUrl, toJsonLd } from '@/lib/seo';
 import { isClerkConfigured } from '@/lib/env';
+import 'goey-toast/styles.css';
 import './globals.css';
 
 export const viewport: Viewport = {
@@ -157,6 +159,7 @@ export default function RootLayout({
                     <SiteNav />
                     {children}
                     <Footer />
+                    <GoeyToaster />
                 </QueryProvider>
             </ThemeProvider>
         </>
