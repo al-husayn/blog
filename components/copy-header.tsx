@@ -10,9 +10,11 @@ import type { CopyHeaderProps } from '@/types/components/copy-header';
 function generateSlug(text: string): string {
     return text
         .toLowerCase()
+        .trim()
         .replace(/[^a-z0-9\s-]/g, '')
         .replace(/\s+/g, '-')
-        .trim();
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
 }
 
 // ✅ small utility to handle ReactNode properly
