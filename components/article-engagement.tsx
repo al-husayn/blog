@@ -1,6 +1,7 @@
 "use client";
 
 import { SignInButton, UserButton, useAuth, useClerk } from '@clerk/nextjs';
+import { gooeyToast } from 'goey-toast';
 import { ChevronUp, Loader2, MessageSquare, Reply } from 'lucide-react';
 import { FormEvent, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ import { cn } from '@/lib/utils';
 import type { ArticleEngagementProps, CommentItem } from '@/types/components/article-engagement';
 
 const MAX_COMMENT_LENGTH = 800;
+const COMMENT_TOAST_TIMING = { displayDuration: 3200 } as const;
 
 const formatCommentDate = (value: string): string => {
     const date = new Date(value);
@@ -329,7 +331,20 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
         setFormError(null);
 
         try {
-            await createComment({ message: cleanMessage });
+            const createCommentRequest = createComment({ message: cleanMessage });
+            gooeyToast.promise(createCommentRequest, {
+                loading: 'Posting comment...',
+                success: 'Comment posted',
+                error: 'Could not post comment',
+                description: {
+                    loading: 'Publishing your comment to this post.',
+                    success: 'Your comment is now part of the conversation.',
+                    error: (error) => getErrorMessage(error),
+                },
+                timing: COMMENT_TOAST_TIMING,
+                showTimestamp: false,
+            });
+            await createCommentRequest;
             setMessage('');
         } catch (error) {
             setFormError(getErrorMessage(error));
@@ -385,10 +400,23 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
         setReplyFormError(null);
 
         try {
-            await createComment({
+            const createReplyRequest = createComment({
                 message: cleanMessage,
                 parentCommentId,
             });
+            gooeyToast.promise(createReplyRequest, {
+                loading: 'Posting reply...',
+                success: 'Reply posted',
+                error: 'Could not post reply',
+                description: {
+                    loading: 'Sending your reply into the thread.',
+                    success: 'Your reply is now visible in the conversation.',
+                    error: (error) => getErrorMessage(error),
+                },
+                timing: COMMENT_TOAST_TIMING,
+                showTimestamp: false,
+            });
+            await createReplyRequest;
             setReplyDrafts((currentDrafts) => {
                 const nextDrafts = { ...currentDrafts };
                 delete nextDrafts[parentCommentId];

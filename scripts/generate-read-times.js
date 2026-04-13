@@ -34,7 +34,6 @@ const main = () => {
 
     fs.mkdirSync(OUTPUT_DIR, { recursive: true });
     fs.writeFileSync(OUTPUT_PATH, JSON.stringify(result, null, 2));
-    console.log(`Generated read times for ${files.length} posts -> ${OUTPUT_PATH}`);
 };
 
 main();

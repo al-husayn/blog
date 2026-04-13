@@ -1,5 +1,6 @@
 'use client';
 
+import { gooeyToast } from 'goey-toast';
 import { useMutation } from '@tanstack/react-query';
 import { Bot, Loader2, Send, Sparkles, UserRound } from 'lucide-react';
 import { FormEvent, startTransition, useMemo, useState } from 'react';
@@ -95,7 +96,12 @@ export function BlogPostAssistant({ slug, title }: BlogPostAssistantProps) {
             });
         },
         onError: (mutationError, _variables, context) => {
-            setError(getErrorMessage(mutationError));
+            const errorMessage = getErrorMessage(mutationError);
+            setError(errorMessage);
+            gooeyToast.error('Assistant unavailable', {
+                description: errorMessage,
+                showTimestamp: false,
+            });
 
             startTransition(() => {
                 setMessages((current) =>

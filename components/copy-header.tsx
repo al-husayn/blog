@@ -2,7 +2,8 @@
 
 import React from "react";
 import { Link } from "lucide-react";
-import { copyTextToClipboard } from "@/lib/clipboard";
+import { gooeyToast } from "goey-toast";
+import { copySectionLink, scrollToSection, updateSectionHash } from "@/lib/section-links";
 import { cn } from "@/lib/utils";
 import type { CopyHeaderProps } from "@/types/components/copy-header";
 
@@ -21,26 +22,25 @@ export function CopyHeader({ level, children, className, ...props }: CopyHeaderP
     const HeadingTag = `h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
     const copyToClipboard = async () => {
-        const url = `${window.location.origin}${window.location.pathname}#${id}`;
-
-        window.history.pushState({}, '', `#${id}`);
-
-        const element = document.getElementById(id);
-        if (element) {
-            const offset = 80;
-            const elementPosition = element.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - offset;
-
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
-            });
+        if (!id) {
+            return;
         }
 
+        updateSectionHash(id);
+        scrollToSection(id);
+
         try {
-            await copyTextToClipboard(url);
-        } catch (err) {
-            console.error(err);
+            await copySectionLink(id);
+            gooeyToast.success("Section link copied", {
+                description: "You can paste this heading link anywhere.",
+                timing: { displayDuration: 2600 },
+                showTimestamp: false,
+            });
+        } catch {
+            gooeyToast.error("Could not copy this section link", {
+                description: "The page still jumped to the section, so you can copy the URL from the address bar.",
+                showTimestamp: false,
+            });
         }
     };
 
