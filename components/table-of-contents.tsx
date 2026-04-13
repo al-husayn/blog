@@ -1,5 +1,6 @@
 "use client";
 
+import { gooeyToast } from "goey-toast";
 import React, { useEffect, useState } from "react";
 import { copySectionLink, scrollToSection, updateSectionHash } from "@/lib/section-links";
 import { cn } from "@/lib/utils";
@@ -124,7 +125,17 @@ export function TableOfContents({ className }: TableOfContentsProps) {
 
     try {
       await copySectionLink(id);
-    } catch {}
+      gooeyToast.success("Section link copied", {
+        description: "You can paste this heading link anywhere.",
+        timing: { displayDuration: 2600 },
+        showTimestamp: false,
+      });
+    } catch {
+      gooeyToast.error("Could not copy this section link", {
+        description: "The page still jumped to the section, so you can copy the URL from the address bar.",
+        showTimestamp: false,
+      });
+    }
   };
 
   if (headings.length === 0) return null;

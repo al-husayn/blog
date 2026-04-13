@@ -17,20 +17,21 @@ function generateSlug(text: string): string {
 
 export function CopyHeader({ level, children, className, ...props }: CopyHeaderProps) {
     const text = typeof children === "string" ? children : "";
-    const id = generateSlug(text);
+    const slug = generateSlug(text);
+    const headingId = slug || undefined;
 
     const HeadingTag = `h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
     const copyToClipboard = async () => {
-        if (!id) {
+        if (!slug) {
             return;
         }
 
-        updateSectionHash(id);
-        scrollToSection(id);
+        updateSectionHash(slug);
+        scrollToSection(slug);
 
         try {
-            await copySectionLink(id);
+            await copySectionLink(slug);
             gooeyToast.success("Section link copied", {
                 description: "You can paste this heading link anywhere.",
                 timing: { displayDuration: 2600 },
@@ -44,12 +45,12 @@ export function CopyHeader({ level, children, className, ...props }: CopyHeaderP
         }
     };
 
-    const showCopyFunctionality = level === 1 || level === 2;
+    const showCopyFunctionality = (level === 1 || level === 2) && Boolean(slug);
 
     if (showCopyFunctionality) {
         return (
             <HeadingTag
-                id={id}
+                id={headingId}
                 className={cn(
                     "group relative scroll-mt-20 cursor-pointer hover:text-muted-foreground transition-colors duration-200 flex items-center gap-2",
                     className
@@ -66,7 +67,7 @@ export function CopyHeader({ level, children, className, ...props }: CopyHeaderP
 
     return (
         <HeadingTag
-            id={id}
+            id={headingId}
             className={cn("scroll-mt-20", className)}
             {...props}
         >

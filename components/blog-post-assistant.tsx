@@ -33,7 +33,6 @@ export function BlogPostAssistant({ slug, title }: BlogPostAssistantProps) {
     const [name, setName] = useState('');
     const [question, setQuestion] = useState('');
     const [messages, setMessages] = useState<ChatMessage[]>([]);
-    const [error, setError] = useState<string | null>(null);
 
     const greeting = useMemo(
         () =>
@@ -74,7 +73,6 @@ export function BlogPostAssistant({ slug, title }: BlogPostAssistantProps) {
                 content: cleanQuestion,
             };
 
-            setError(null);
             setQuestion('');
             startTransition(() => {
                 setMessages((current) => [...current, userMessage]);
@@ -97,7 +95,6 @@ export function BlogPostAssistant({ slug, title }: BlogPostAssistantProps) {
         },
         onError: (mutationError, _variables, context) => {
             const errorMessage = getErrorMessage(mutationError);
-            setError(errorMessage);
             gooeyToast.error('Assistant unavailable', {
                 description: errorMessage,
                 showTimestamp: false,
@@ -226,8 +223,6 @@ export function BlogPostAssistant({ slug, title }: BlogPostAssistantProps) {
                             Ask assistant
                         </Button>
                     </div>
-
-                    {error && <p className='text-xs text-destructive'>{error}</p>}
                 </form>
             </div>
 
