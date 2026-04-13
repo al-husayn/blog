@@ -197,7 +197,9 @@ const sendBeaconJson = (url: string, payload: unknown): void => {
         }
     }
 
-    void postJson(url, payload, true);
+    void postJson(url, payload, true).catch((error) => {
+        reportAnalyticsError(`sendBeaconJson fallback failed for "${url}"`, error);
+    });
 };
 
 const getAnalyticsIdentity = (): Pick<
