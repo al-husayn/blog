@@ -12,7 +12,7 @@ import {
 import { gooeyToast } from 'goey-toast';
 import { useEffect, useRef, useState } from 'react';
 import { copyTextToClipboard } from '@/lib/clipboard';
-import { trackArticleShare } from '@/lib/analytics-client';
+import { reportAnalyticsError, trackArticleShare } from '@/lib/analytics-client';
 import { Button } from '@/components/ui/button';
 import type { ShareNetwork } from '@/types/analytics';
 import type { ArticleShareProps } from '@/types/components/article-share';
@@ -63,7 +63,9 @@ export function ArticleShare({ articleSlug, title, description, url }: ArticleSh
     const copyTimeoutRef = useRef<number | null>(null);
 
     const trackShare = (network: ShareNetwork) => {
-        void trackArticleShare({ articleSlug, network }).catch(() => undefined);
+        void trackArticleShare({ articleSlug, network }).catch((error) => {
+            reportAnalyticsError(`Failed to record share event (${network}) for "${articleSlug}"`, error);
+        });
     };
 
     useEffect(() => {

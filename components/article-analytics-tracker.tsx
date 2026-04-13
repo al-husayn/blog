@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import {
+    reportAnalyticsError,
     trackArticlePageViewComplete,
     trackArticlePageViewStart,
 } from '@/lib/analytics-client';
@@ -112,7 +113,12 @@ export function ArticleAnalyticsTracker({
             pageViewId: nextState.pageViewId,
             articleSlug,
             path,
-        }).catch(() => undefined);
+        }).catch((error) => {
+            reportAnalyticsError(
+                `Failed to record page view start for "${articleSlug}"`,
+                error,
+            );
+        });
 
         const markActivity = () => {
             const state = stateRef.current;

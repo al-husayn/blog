@@ -24,6 +24,16 @@ interface AcquisitionState {
     utmCampaign: string | null;
 }
 
+class AnalyticsRequestError extends Error {
+    status: number;
+
+    constructor(message: string, status: number) {
+        super(message);
+        this.name = 'AnalyticsRequestError';
+        this.status = status;
+    }
+}
+
 const safeParseJson = <T>(value: string | null): T | null => {
     if (!value) {
         return null;
@@ -141,8 +151,24 @@ const getOrCreateAcquisitionState = (): AcquisitionState => {
     return nextState;
 };
 
+const getAnalyticsErrorMessage = async (response: Response): Promise<string> => {
+    const payload = await response.json().catch(() => null);
+
+    if (payload && typeof payload === 'object') {
+        if ('message' in payload && typeof payload.message === 'string') {
+            return payload.message;
+        }
+
+        if ('error' in payload && typeof payload.error === 'string') {
+            return payload.error;
+        }
+    }
+
+    return `Analytics request failed with status ${response.status}.`;
+};
+
 const postJson = async (url: string, payload: unknown, keepalive = false): Promise<void> => {
-    await fetch(url, {
+    const response = await fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -150,6 +176,13 @@ const postJson = async (url: string, payload: unknown, keepalive = false): Promi
         body: JSON.stringify(payload),
         keepalive,
     });
+
+    if (!response.ok) {
+        throw new AnalyticsRequestError(
+            await getAnalyticsErrorMessage(response),
+            response.status,
+        );
+    }
 };
 
 const sendBeaconJson = (url: string, payload: unknown): void => {
@@ -181,6 +214,22 @@ const getAnalyticsIdentity = (): Pick<
         utmMedium: acquisitionState.utmMedium,
         utmCampaign: acquisitionState.utmCampaign,
     };
+};
+
+export const reportAnalyticsError = (context: string, error: unknown): void => {
+    const cause =
+        error instanceof Error ? error : new Error('An unknown analytics error occurred.');
+    const analyticsError = new Error(`[analytics] ${context}: ${cause.message}`, {
+        cause,
+    });
+    analyticsError.name = 'AnalyticsError';
+
+    if (typeof window !== 'undefined' && typeof window.reportError === 'function') {
+        window.reportError(analyticsError);
+        return;
+    }
+
+    console.error(analyticsError);
 };
 
 export const trackArticlePageViewStart = async (
