@@ -76,15 +76,22 @@ export function CopyHeader({
             <HeadingTag
                 id={headingId}
                 className={cn(
-                    'group relative scroll-mt-20 cursor-pointer hover:text-muted-foreground transition-colors duration-200 flex items-center gap-2',
+                    'group relative scroll-mt-20 hover:text-muted-foreground transition-colors duration-200 flex items-center gap-2',
                     className,
                 )}
-                onClick={copyToClipboard}
-                title='Click to copy link to this section'
                 {...props}
             >
                 {children}
-                <Link className='w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0' />
+
+                <button
+                    type='button'
+                    onClick={copyToClipboard}
+                    aria-label='Copy link to section'
+                    title='Copy link to this section'
+                    className='w-4 h-4 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity duration-200 flex-shrink-0'
+                >
+                    <Link className='w-4 h-4' />
+                </button>
             </HeadingTag>
         );
     }
