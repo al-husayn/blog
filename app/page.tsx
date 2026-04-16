@@ -475,7 +475,7 @@ export default async function HomePage({
                 </Suspense>
 
                 {totalPages > 1 && (
-                    <nav aria-label='Pagination' className='mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4 md:flex-nowrap'>
+                    <nav aria-label='Pagination' className='mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border p-4 md:flex-nowrap'>
                         <Link
                             href={buildPageHref({ page: Math.max(1, currentPage - 1), searchQuery, selectedTag })}
                             aria-disabled={currentPage === 1}
