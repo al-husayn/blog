@@ -13,7 +13,12 @@ What happens when you run JavaScript code? How does a browser turn `const x = 1 
 
 ```javascript
 function greet(name) {
-  return "Hello, " + name + "!"
+**Inline caching (IC)** is an optimization where V8 remembers where it found a property and reuses that information on subsequent calls. Instead of looking up property locations every time, V8 caches: "For this hidden class, property X is at memory offset Y."
+
+This is fast because:
+- Most young objects are dead (no need to copy them)
+- The young generation is small
+- Only copying live objects means no fragmentation
 }
 
 greet("World")  // "Hello, World!"
@@ -33,7 +38,7 @@ Behind every line of JavaScript is a **JavaScript engine**. It's the program tha
 </Info>
 
 <Warning>
-**Prerequisite:** This guide assumes you're comfortable with basic JavaScript syntax. Some concepts connect to the [Call Stack](/concepts/call-stack) and [Event Loop](/concepts/event-loop), so reading those first helps!
+**Prerequisite:** This guide assumes you're comfortable with basic JavaScript syntax. Some concepts connect to the [Call Stack](/blog/call-stack) and [Event Loop](/blog/event-loop), so reading those first helps!
 </Warning>
 
 ---
