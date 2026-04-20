@@ -1,18 +1,12 @@
-"use client";
+'use client';
 
 import { SignInButton, UserButton, useAuth, useClerk } from '@clerk/nextjs';
 import { gooeyToast } from 'goey-toast';
 import { ChevronUp, Loader2, MessageSquare, Reply } from 'lucide-react';
 import { FormEvent, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-    countComments,
-    findCommentInTree,
-} from '@/lib/engagement-client';
-import {
-    useEngagementMutations,
-    useEngagementQuery,
-} from '@/lib/hooks/use-engagement';
+import { countComments, findCommentInTree } from '@/lib/engagement-client';
+import { useEngagementMutations, useEngagementQuery } from '@/lib/hooks/use-engagement';
 import { getErrorMessage } from '@/lib/api/client';
 import { cn } from '@/lib/utils';
 import type { ArticleEngagementProps, CommentItem } from '@/types/components/article-engagement';
@@ -85,7 +79,8 @@ function CommentThread({
                         className={cn(
                             'min-w-0 space-y-3 overflow-hidden rounded-lg border border-border bg-card p-4',
                             hasUpvoted && 'border-primary/40',
-                        )}>
+                        )}
+                    >
                         <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
                             <div className='flex min-w-0 items-start gap-3'>
                                 {comment.authorImageUrl ? (
@@ -102,7 +97,9 @@ function CommentThread({
                                     </div>
                                 )}
                                 <div className='min-w-0'>
-                                    <p className='truncate text-sm font-medium'>{comment.authorName}</p>
+                                    <p className='truncate text-sm font-medium'>
+                                        {comment.authorName}
+                                    </p>
                                     <time className='text-xs text-muted-foreground'>
                                         {formatCommentDate(comment.createdAt)}
                                     </time>
@@ -115,7 +112,8 @@ function CommentThread({
                                 aria-pressed={hasUpvoted}
                                 onClick={() => onCommentUpvote(comment.id)}
                                 disabled={isPending}
-                                className='w-full justify-between sm:w-auto sm:self-start'>
+                                className='w-full justify-between sm:w-auto sm:self-start'
+                            >
                                 {isPending ? (
                                     <Loader2 className='h-4 w-4 animate-spin' />
                                 ) : (
@@ -136,7 +134,8 @@ function CommentThread({
                                 variant='ghost'
                                 size='sm'
                                 onClick={() => onReplyToggle(comment.id)}
-                                className='px-2'>
+                                className='px-2'
+                            >
                                 <Reply className='h-4 w-4' />
                                 {isReplyComposerOpen ? 'Cancel' : 'Reply'}
                             </Button>
@@ -151,11 +150,13 @@ function CommentThread({
                         {isReplyComposerOpen && (
                             <form
                                 onSubmit={(event) => onReplySubmit(event, comment.id)}
-                                className='min-w-0 space-y-3 rounded-md border border-dashed border-border bg-background/70 p-3'>
+                                className='min-w-0 space-y-3 rounded-md border border-dashed border-border bg-background/70 p-3'
+                            >
                                 <div className='space-y-2'>
                                     <label
                                         htmlFor={`reply-message-${comment.id}`}
-                                        className='text-sm font-medium'>
+                                        className='text-sm font-medium'
+                                    >
                                         Reply
                                     </label>
                                     <textarea
@@ -184,7 +185,8 @@ function CommentThread({
                                 <Button
                                     type='submit'
                                     size='sm'
-                                    disabled={submittingReplyToId === comment.id}>
+                                    disabled={submittingReplyToId === comment.id}
+                                >
                                     {submittingReplyToId === comment.id ? (
                                         <>
                                             <Loader2 className='h-4 w-4 animate-spin' />
@@ -252,13 +254,14 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
     const [replyFormError, setReplyFormError] = useState<string | null>(null);
     const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
     const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
-    const { queryKey, state, loadError, isInitialLoading, isSyncing, refetch } =
-        useEngagementQuery({
+    const { queryKey, state, loadError, isInitialLoading, isSyncing, refetch } = useEngagementQuery(
+        {
             slug,
             isLoaded,
             userId,
             requestError,
-        });
+        },
+    );
     const {
         toggleArticleUpvote,
         createComment,
@@ -461,7 +464,9 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                     sessions.
                 </p>
                 {isSyncing && (
-                    <p className='text-xs text-muted-foreground'>Syncing the latest comments and votes...</p>
+                    <p className='text-xs text-muted-foreground'>
+                        Syncing the latest comments and votes...
+                    </p>
                 )}
             </div>
 
@@ -485,7 +490,8 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                             aria-pressed={state.userUpvotedArticle}
                             onClick={handleArticleUpvote}
                             disabled={isTogglingArticleUpvote || isInitialLoading || !isLoaded}
-                            className='min-w-[130px] justify-between'>
+                            className='min-w-[130px] justify-between'
+                        >
                             <span className='inline-flex items-center gap-2'>
                                 {isTogglingArticleUpvote ? (
                                     <Loader2 className='h-4 w-4 animate-spin' />
@@ -518,7 +524,8 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                                 size='sm'
                                 onClick={handleArticleUpvote}
                                 disabled={isInitialLoading || !isLoaded}
-                                className='min-w-[130px] justify-between'>
+                                className='min-w-[130px] justify-between'
+                            >
                                 <span className='inline-flex items-center gap-2'>
                                     <ChevronUp className='h-4 w-4' />
                                     Upvote
@@ -540,7 +547,8 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                         onClick={() => {
                             setRequestError(null);
                             void refetch();
-                        }}>
+                        }}
+                    >
                         Retry
                     </Button>
                 </div>
@@ -549,7 +557,8 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
             <div className='grid items-start gap-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]'>
                 <form
                     onSubmit={handleSubmitComment}
-                    className='min-w-0 self-start space-y-4 rounded-lg border border-border bg-muted/30 p-4'>
+                    className='min-w-0 self-start space-y-4 rounded-lg border border-border bg-muted/30 p-4'
+                >
                     <h3 className='text-lg font-medium'>Leave a comment</h3>
                     <p className='text-sm text-muted-foreground'>
                         Comments are published under your account and saved so you can continue the
@@ -584,7 +593,8 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                     <Button
                         type='submit'
                         className='w-full sm:w-auto'
-                        disabled={isSubmittingComment || isInitialLoading || !isLoaded}>
+                        disabled={isSubmittingComment || isInitialLoading || !isLoaded}
+                    >
                         {isSubmittingComment ? (
                             <>
                                 <Loader2 className='h-4 w-4 animate-spin' />

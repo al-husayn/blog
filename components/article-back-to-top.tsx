@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { ArrowUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -53,14 +53,16 @@ export function ArticleBackToTop() {
                 isVisible
                     ? 'translate-y-0 opacity-100'
                     : 'pointer-events-none translate-y-4 opacity-0',
-            )}>
+            )}
+        >
             <Button
                 type='button'
                 size='sm'
                 onClick={handleScrollToTop}
                 tabIndex={isVisible ? 0 : -1}
                 aria-label='Back to top of article'
-                className='h-10 rounded-full px-3 shadow-lg sm:px-4'>
+                className='h-10 rounded-full px-3 shadow-lg sm:px-4'
+            >
                 <ArrowUp className='h-4 w-4' />
                 <span className='hidden sm:inline'>Back to top</span>
             </Button>
