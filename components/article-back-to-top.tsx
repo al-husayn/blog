@@ -12,6 +12,7 @@ export function ArticleBackToTop() {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
+        let rafId: number | null = null;
         const updateVisibility = () => {
             const viewportHeight = window.innerHeight;
             const pageHeight = document.documentElement.scrollHeight;
@@ -24,14 +25,22 @@ export function ArticleBackToTop() {
                 currentValue === nextVisible ? currentValue : nextVisible,
             );
         };
+        const scheduleUpdate = () => {
+           if (rafId !== null) return;
+           rafId = window.requestAnimationFrame(() => {
+               rafId = null;
+               updateVisibility();
+           });
+       };
 
         updateVisibility();
-        window.addEventListener('scroll', updateVisibility, { passive: true });
-        window.addEventListener('resize', updateVisibility);
+        window.addEventListener('scroll', scheduleUpdate, { passive: true });
+        window.addEventListener('resize', scheduleUpdate);
 
         return () => {
-            window.removeEventListener('scroll', updateVisibility);
-            window.removeEventListener('resize', updateVisibility);
+            window.removeEventListener('scroll', scheduleUpdate);
+            window.removeEventListener('resize', scheduleUpdate);
+            if (rafId !== null) window.cancelAnimationFrame(rafId);
         };
     }, []);
 
