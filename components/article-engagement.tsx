@@ -613,7 +613,7 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                         <div className='max-h-[65vh] overflow-y-auto overscroll-contain p-4 sm:max-h-[42rem]'>
                             {isInitialLoading ? (
                                 <div className='rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground'>
-                                    Loading comments and synced upvotes...
+                                    Loading comments and votes...
                                 </div>
                             ) : totalCommentCount === 0 ? (
                                 <div className='rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground'>

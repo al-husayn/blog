@@ -46,6 +46,8 @@ export function ArticleBackToTop() {
 
     return (
         <div
+            aria-hidden={!isVisible}
+            inert={!isVisible}
             className={cn(
                 'fixed bottom-24 left-1/2 z-40 -translate-x-1/2 transition-all duration-200 lg:bottom-6',
                 isVisible
@@ -56,6 +58,7 @@ export function ArticleBackToTop() {
                 type='button'
                 size='sm'
                 onClick={handleScrollToTop}
+                tabIndex={isVisible ? 0 : -1}
                 aria-label='Back to top of article'
                 className='h-10 rounded-full px-3 shadow-lg sm:px-4'>
                 <ArrowUp className='h-4 w-4' />
