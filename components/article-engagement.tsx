@@ -72,7 +72,7 @@ function CommentThread({
     onReplyToggle,
 }: CommentThreadProps) {
     return (
-        <div className='min-w-0 space-y-3'>
+        <div className='min-w-0 space-y-3 pr-1'>
             {comments.map((comment) => {
                 const hasUpvoted = upvotedCommentIds.includes(comment.id);
                 const isPending = pendingCommentIds.includes(comment.id);
@@ -546,10 +546,10 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                 </div>
             )}
 
-            <div className='grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]'>
+            <div className='grid items-start gap-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]'>
                 <form
                     onSubmit={handleSubmitComment}
-                    className='min-w-0 space-y-4 rounded-lg border border-border bg-muted/30 p-4'>
+                    className='min-w-0 self-start space-y-4 rounded-lg border border-border bg-muted/30 p-4'>
                     <h3 className='text-lg font-medium'>Leave a comment</h3>
                     <p className='text-sm text-muted-foreground'>
                         Comments are published under your account and saved so you can continue the
@@ -596,35 +596,46 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                     </Button>
                 </form>
 
-                <div className='min-w-0 space-y-4'>
-                    <h3 className='inline-flex items-center gap-2 text-lg font-medium'>
-                        <MessageSquare className='h-4 w-4' />
-                        Comments ({totalCommentCount})
-                    </h3>
+                <div className='min-w-0 self-start'>
+                    <div className='overflow-hidden rounded-lg border border-border bg-muted/20'>
+                        <div className='flex flex-col gap-2 border-b border-border bg-background/80 px-4 py-3 sm:flex-row sm:items-center sm:justify-between'>
+                            <h3 className='inline-flex items-center gap-2 text-lg font-medium'>
+                                <MessageSquare className='h-4 w-4' />
+                                Comments ({totalCommentCount})
+                            </h3>
+                            <p className='text-xs text-muted-foreground'>
+                                {totalCommentCount > 0
+                                    ? 'Scroll inside this panel to browse the full thread.'
+                                    : 'New comments will appear here.'}
+                            </p>
+                        </div>
 
-                    {isInitialLoading ? (
-                        <div className='rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground'>
-                            Loading comments and synced upvotes...
+                        <div className='max-h-[65vh] overflow-y-auto overscroll-contain p-4 sm:max-h-[42rem]'>
+                            {isInitialLoading ? (
+                                <div className='rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground'>
+                                    Loading comments and synced upvotes...
+                                </div>
+                            ) : totalCommentCount === 0 ? (
+                                <div className='rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground'>
+                                    No comments yet. Be the first to share feedback.
+                                </div>
+                            ) : (
+                                <CommentThread
+                                    comments={state.comments}
+                                    activeReplyId={activeReplyId}
+                                    pendingCommentIds={pendingCommentIds}
+                                    replyDrafts={replyDrafts}
+                                    replyFormError={replyFormError}
+                                    submittingReplyToId={submittingReplyToId}
+                                    upvotedCommentIds={state.upvotedCommentIds}
+                                    onCommentUpvote={handleCommentUpvote}
+                                    onReplyDraftChange={handleReplyDraftChange}
+                                    onReplySubmit={handleReplySubmit}
+                                    onReplyToggle={handleReplyToggle}
+                                />
+                            )}
                         </div>
-                    ) : totalCommentCount === 0 ? (
-                        <div className='rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground'>
-                            No comments yet. Be the first to share feedback.
-                        </div>
-                    ) : (
-                        <CommentThread
-                            comments={state.comments}
-                            activeReplyId={activeReplyId}
-                            pendingCommentIds={pendingCommentIds}
-                            replyDrafts={replyDrafts}
-                            replyFormError={replyFormError}
-                            submittingReplyToId={submittingReplyToId}
-                            upvotedCommentIds={state.upvotedCommentIds}
-                            onCommentUpvote={handleCommentUpvote}
-                            onReplyDraftChange={handleReplyDraftChange}
-                            onReplySubmit={handleReplySubmit}
-                            onReplyToggle={handleReplyToggle}
-                        />
-                    )}
+                    </div>
                 </div>
             </div>
         </section>
