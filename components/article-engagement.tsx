@@ -609,7 +609,10 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                 <div className='min-w-0 self-start'>
                     <div className='overflow-hidden rounded-lg border border-border bg-muted/20'>
                         <div className='flex flex-col gap-2 border-b border-border bg-background/80 px-4 py-3 sm:flex-row sm:items-center sm:justify-between'>
-                            <h3 className='inline-flex items-center gap-2 text-lg font-medium'>
+                            <h3
+                                id={`comments-panel-title-${slug}`}
+                                className='inline-flex items-center gap-2 text-lg font-medium'
+                            >
                                 <MessageSquare className='h-4 w-4' />
                                 Comments ({totalCommentCount})
                             </h3>
@@ -620,7 +623,12 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                             </p>
                         </div>
 
-                        <div className='max-h-[65vh] overflow-y-auto overscroll-contain p-4 sm:max-h-[42rem]'>
+                        <div
+                            role='region'
+                            aria-labelledby={`comments-panel-title-${slug}`}
+                            tabIndex={0}
+                            className='max-h-[65vh] overflow-y-auto overscroll-contain p-4 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 sm:max-h-[42rem]'
+                        >
                             {isInitialLoading ? (
                                 <div className='rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground'>
                                     Loading comments and votes...
