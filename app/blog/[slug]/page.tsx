@@ -18,6 +18,7 @@ import { HashScrollHandler } from '@/components/hash-scroll-handler';
 import { DeferredArticleEngagement } from '@/components/deferred-article-engagement';
 import { DeferredBlogPostAssistant } from '@/components/deferred-blog-post-assistant';
 import { ArticleAnalyticsTracker } from '@/components/article-analytics-tracker';
+import { ArticleBackToTop } from '@/components/article-back-to-top';
 import { getAbsoluteUrl, getIsoDate, toJsonLd } from '@/lib/seo';
 import { siteConfig } from '@/lib/site';
 import type { BlogPostData, BlogPostPage, BlogPostPageProps } from '@/types/pages/blog-post';
@@ -221,6 +222,7 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
             </div>
 
             <MobileTableOfContents />
+            <ArticleBackToTop />
         </main>
     );
 }
