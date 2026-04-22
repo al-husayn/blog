@@ -8,6 +8,7 @@ const footerLinks = {
   navigate: [
     { label: 'Home', href: '/' },
     { label: 'About', href: '/about' },
+    { label: 'Privacy', href: '/privacy' },
     { label: 'RSS Feed', href: '/rss.xml' },
   ],
   social: [

@@ -170,7 +170,7 @@ export default function RootLayout({
             lang='en'
             className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}
             suppressHydrationWarning>
-            <body>
+            <body suppressHydrationWarning>
                 {shouldEnableClerk ? <ClerkProvider>{appShell}</ClerkProvider> : appShell}
             </body>
         </html>
