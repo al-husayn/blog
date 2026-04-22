@@ -44,6 +44,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 0.6,
         },
         {
+            url: getAbsoluteUrl('/privacy'),
+            lastModified: new Date('2026-04-22T00:00:00.000Z'),
+            changeFrequency: 'monthly',
+            priority: 0.4,
+        },
+        {
             url: getAbsoluteUrl('/rss.xml'),
             lastModified: latestPostDate,
             changeFrequency: 'weekly',
