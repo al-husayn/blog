@@ -113,7 +113,7 @@ export default function PrivacyPage() {
                             used, and protected when you visit and interact with this website.
                         </p>
                         <p className='inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs md:text-sm text-muted-foreground'>
-                            <ShieldCheck className='h-4 w-4 text-primary' />
+                            <ShieldCheck className='h-4 w-4 text-primary' aria-hidden='true' />
                             Last updated {lastUpdatedLabel}
                         </p>
                     </div>
@@ -169,13 +169,14 @@ export default function PrivacyPage() {
                                 rel='noopener noreferrer'
                                 className='inline-flex items-center justify-between rounded-xl border border-border px-4 py-3 text-sm font-medium transition-colors hover:bg-muted/40'>
                                 Contact via portfolio
-                                <ArrowUpRight className='h-4 w-4 text-primary' />
+                                <span className='sr-only'>(opens in a new tab)</span>
+                                <ArrowUpRight className='h-4 w-4 text-primary' aria-hidden='true' />
                             </a>
                             <Link
                                 href='/'
                                 className='inline-flex items-center justify-between rounded-xl border border-border px-4 py-3 text-sm font-medium transition-colors hover:bg-muted/40'>
                                 Return to the blog
-                                <ArrowUpRight className='h-4 w-4 text-primary' />
+                                <ArrowUpRight className='h-4 w-4 text-primary' aria-hidden='true' />
                             </Link>
                         </div>
                     </div>
