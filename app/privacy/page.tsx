@@ -33,48 +33,60 @@ const privacySections = [
     {
         title: 'Information We Collect',
         paragraphs: [
-            'We may collect personal information you choose to provide, such as details submitted through contact forms, comments, or other direct interactions with the site.',
-            'We may also collect limited technical information automatically, such as browser type, device information, pages visited, and general usage data to help operate and improve the website.',
+            'We may collect personal information you voluntarily provide, such as your name, email address, or other details you submit through forms or direct communications.',
+            'We may also collect certain non-personal information automatically, such as browser type, device information, IP address, and pages visited, to help us understand and improve how the website is used.',
         ],
     },
     {
         title: 'How We Use Information',
         paragraphs: [
-            'Information may be used to provide and maintain the website, improve content and performance, respond to inquiries, and support site security and administration.',
-            'We may also use aggregated or non-personal information to better understand how visitors use the site.',
+            'Information may be used to operate, maintain, and improve the website and its content.',
+            'We may also use information to respond to inquiries, provide support, communicate important updates, and protect the security and integrity of the website.',
+            'Aggregated or non-identifiable information may be used for analysis, research, and general business purposes.',
         ],
     },
     {
         title: 'Cookies and Analytics',
         paragraphs: [
-            'This website may use cookies or similar technologies to remember preferences, improve functionality, and understand general site usage.',
-            'You can usually control cookies through your browser settings. Disabling some cookies may affect how parts of the site function.',
+            'This website may use cookies and similar technologies to improve functionality, remember preferences, and understand general website traffic and usage patterns.',
+            'You can usually control cookies through your browser settings. Disabling cookies may affect how some parts of the website function.',
         ],
     },
     {
-        title: 'Third-Party Services',
+        title: 'Sharing of Information',
         paragraphs: [
-            'Some features or links on this website may direct you to third-party services. Those services operate under their own privacy policies and practices.',
-            'We encourage you to review the privacy policies of any third-party websites or tools you choose to use.',
+            'We do not sell your personal information.',
+            'We may share information with service providers or trusted third parties who help us operate the website, provided they handle that information appropriately.',
+            'We may also disclose information if required by law or when necessary to protect our rights, safety, or property.',
         ],
     },
     {
         title: 'Data Security',
         paragraphs: [
-            'Reasonable steps are taken to help protect information handled through the website. However, no method of transmission or storage is completely secure, and absolute security cannot be guaranteed.',
+            'Reasonable administrative, technical, and organizational measures are used to help protect information handled through the website.',
+            'However, no method of transmission or storage is completely secure, and absolute security cannot be guaranteed.',
         ],
     },
     {
         title: 'Your Choices',
         paragraphs: [
-            'You may choose not to provide personal information, and you may adjust browser settings to manage cookies or similar technologies.',
-            'If you would like to request an update or removal of information you have submitted, you can get in touch using the contact link below.',
+            'You may choose not to provide personal information, and you may adjust your browser settings to manage cookies or similar technologies.',
+            'Depending on your location and applicable law, you may have the right to request access to, correction of, or deletion of personal information you have provided.',
+            'If you would like to make a privacy-related request, you can use the contact link below.',
+        ],
+    },
+    {
+        title: 'Third-Party Links',
+        paragraphs: [
+            'This website may contain links to third-party websites or services.',
+            'We are not responsible for the privacy practices of those third parties, and we encourage you to review their privacy policies before providing them with personal information.',
         ],
     },
     {
         title: 'Changes to This Policy',
         paragraphs: [
-            'This privacy policy may be updated from time to time. Any changes will be reflected on this page with a revised effective date.',
+            'This privacy policy may be updated from time to time to reflect changes in data collection practices or regulatory requirements.',
+            'Any changes will be reflected on this page with a revised effective date.',
         ],
     },
 ] as const;
@@ -143,15 +155,16 @@ export default function PrivacyPage() {
                         <h2 className='text-xl font-semibold tracking-tight'>Quick Summary</h2>
                         <div className='space-y-3 text-sm text-muted-foreground'>
                             <p className='rounded-xl border border-border bg-background px-4 py-3'>
-                                Information may be collected to operate, improve, and secure the
+                                Information may be collected to operate, maintain, and improve the
                                 website.
                             </p>
                             <p className='rounded-xl border border-border bg-background px-4 py-3'>
-                                Cookies or similar tools may be used for functionality and basic
-                                analytics.
+                                Cookies or similar technologies may be used for functionality and
+                                general usage insights.
                             </p>
                             <p className='rounded-xl border border-border bg-background px-4 py-3'>
-                                Third-party services may have their own privacy practices.
+                                You may contact us to ask questions or make privacy-related
+                                requests.
                             </p>
                         </div>
                     </div>
@@ -159,8 +172,8 @@ export default function PrivacyPage() {
                     <div className='rounded-2xl border border-border bg-card p-5 space-y-4'>
                         <h2 className='text-xl font-semibold tracking-tight'>Contact</h2>
                         <p className='text-sm text-muted-foreground'>
-                            If you have questions about this privacy policy or want to request an
-                            update or removal of submitted information, please get in touch.
+                            If you have questions about this privacy policy or would like to make a
+                            request relating to your information, please get in touch.
                         </p>
                         <div className='flex flex-col gap-2'>
                             <a
