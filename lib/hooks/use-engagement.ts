@@ -1,11 +1,6 @@
 'use client';
 
-import {
-    useMutation,
-    useMutationState,
-    useQuery,
-    useQueryClient,
-} from '@tanstack/react-query';
+import { useMutation, useMutationState, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
     createCommentRequest,
     engagementQueryKey,
@@ -82,7 +77,9 @@ export const useEngagementMutations = ({
     const createCommentMutationKey = ['engagement', slug, 'create-comment'] as const;
     const commentUpvoteMutationKey = ['engagement', slug, 'comment-upvote'] as const;
 
-    const updateCachedEngagement = (updater: (current: EngagementResponse) => EngagementResponse) => {
+    const updateCachedEngagement = (
+        updater: (current: EngagementResponse) => EngagementResponse,
+    ) => {
         queryClient.setQueryData<EngagementResponse>(queryKey, (current) =>
             current ? updater(current) : current,
         );
@@ -158,7 +155,9 @@ export const useEngagementMutations = ({
                     ...previousState,
                     comments: updateCommentInTree(previousState.comments, commentId, (comment) => ({
                         ...comment,
-                        upvotes: hasUpvoted ? Math.max(0, comment.upvotes - 1) : comment.upvotes + 1,
+                        upvotes: hasUpvoted
+                            ? Math.max(0, comment.upvotes - 1)
+                            : comment.upvotes + 1,
                     })),
                     upvotedCommentIds: hasUpvoted
                         ? previousState.upvotedCommentIds.filter((id) => id !== commentId)

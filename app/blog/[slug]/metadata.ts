@@ -57,7 +57,9 @@ export async function generateMetadata({
 
         const canonicalUrl = getAbsoluteUrl(`/blog/${slug}`);
         const defaultOgImage = getAbsoluteUrl(`/blog/${slug}/opengraph-image`);
-        const ogImageUrl = page.data.thumbnail ? getAbsoluteUrl(page.data.thumbnail) : defaultOgImage;
+        const ogImageUrl = page.data.thumbnail
+            ? getAbsoluteUrl(page.data.thumbnail)
+            : defaultOgImage;
         const authorName = getAuthorName(page.data.author);
         const publishedTime = getIsoDate(page.data.date);
         const section = page.data['article:section'] || page.data.tags?.[0];

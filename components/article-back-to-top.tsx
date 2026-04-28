@@ -26,12 +26,12 @@ export function ArticleBackToTop() {
             );
         };
         const scheduleUpdate = () => {
-           if (rafId !== null) return;
-           rafId = window.requestAnimationFrame(() => {
-               rafId = null;
-               updateVisibility();
-           });
-       };
+            if (rafId !== null) return;
+            rafId = window.requestAnimationFrame(() => {
+                rafId = null;
+                updateVisibility();
+            });
+        };
 
         updateVisibility();
         window.addEventListener('scroll', scheduleUpdate, { passive: true });

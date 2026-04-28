@@ -154,7 +154,8 @@ export default function RootLayout({
                 attribute='class'
                 defaultTheme='system'
                 enableSystem
-                disableTransitionOnChange>
+                disableTransitionOnChange
+            >
                 <QueryProvider>
                     <SiteNav />
                     {children}
@@ -169,7 +170,8 @@ export default function RootLayout({
         <html
             lang='en'
             className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}
-            suppressHydrationWarning>
+            suppressHydrationWarning
+        >
             <body suppressHydrationWarning>
                 {shouldEnableClerk ? <ClerkProvider>{appShell}</ClerkProvider> : appShell}
             </body>

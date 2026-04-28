@@ -1,91 +1,86 @@
-import Image from "next/image";
-import Link from "next/link";
-import { getBlogPages } from "@/lib/blog";
-import { formatDate, parseDate } from "@/lib/utils";
-import type { ReadMoreSectionProps } from "@/types/components/read-more-section";
+import Image from 'next/image';
+import Link from 'next/link';
+import { getBlogPages } from '@/lib/blog';
+import { formatDate, parseDate } from '@/lib/utils';
+import type { ReadMoreSectionProps } from '@/types/components/read-more-section';
 
-export function ReadMoreSection({
-  currentSlug,
-  currentTags = [],
-}: ReadMoreSectionProps) {
-  const allPages = getBlogPages();
+export function ReadMoreSection({ currentSlug, currentTags = [] }: ReadMoreSectionProps) {
+    const allPages = getBlogPages();
 
-  const currentUrl = `/blog/${currentSlug.join("/")}`;
+    const currentUrl = `/blog/${currentSlug.join('/')}`;
 
-  const otherPosts = allPages
-    .filter((page) => page.url !== currentUrl)
-    .map((page) => {
-      const tagOverlap = currentTags.filter((tag) =>
-        page.data.tags?.includes(tag)
-      ).length;
+    const otherPosts = allPages
+        .filter((page) => page.url !== currentUrl)
+        .map((page) => {
+            const tagOverlap = currentTags.filter((tag) => page.data.tags?.includes(tag)).length;
 
-      return {
-        ...page,
-        relevanceScore: tagOverlap,
-        timestamp: parseDate(page.data.date)?.getTime() ?? 0,
-      };
-    })
-    .sort((a, b) => {
-      if (a.relevanceScore !== b.relevanceScore) {
-        return b.relevanceScore - a.relevanceScore;
-      }
-      return b.timestamp - a.timestamp;
-    })
-    .slice(0, 3);
+            return {
+                ...page,
+                relevanceScore: tagOverlap,
+                timestamp: parseDate(page.data.date)?.getTime() ?? 0,
+            };
+        })
+        .sort((a, b) => {
+            if (a.relevanceScore !== b.relevanceScore) {
+                return b.relevanceScore - a.relevanceScore;
+            }
+            return b.timestamp - a.timestamp;
+        })
+        .slice(0, 3);
 
-  if (otherPosts.length === 0) {
-    return null;
-  }
+    if (otherPosts.length === 0) {
+        return null;
+    }
 
-  return (
-    <section className="border-t border-border p-0">
-      <div className="p-6 lg:p-10">
-        <h2 className="text-2xl font-medium mb-8">Read more</h2>
+    return (
+        <section className='border-t border-border p-0'>
+            <div className='p-6 lg:p-10'>
+                <h2 className='text-2xl font-medium mb-8'>Read more</h2>
 
-        <div className="flex flex-col gap-8">
-          {otherPosts.map((post) => {
-            const formattedDate = formatDate(post.data.date);
+                <div className='flex flex-col gap-8'>
+                    {otherPosts.map((post) => {
+                        const formattedDate = formatDate(post.data.date);
 
-            return (
-              <Link
-                key={post.url}
-                href={post.url}
-                className="group grid grid-cols-1 lg:grid-cols-12 items-center gap-4 cursor-pointer"
-              >
-                {post.data.thumbnail && (
-                  <div className="flex-shrink-0 col-span-1 lg:col-span-4">
-                    <div className="relative w-full aspect-[16/10] overflow-hidden rounded-lg">
-                      <Image
-                        src={post.data.thumbnail}
-                        alt={post.data.title}
-                        fill
-                        style={{ objectFit: "cover" }}
-                        sizes="(max-width: 1024px) 100vw, 33vw"
-                        className="object-cover transition-opacity dark:brightness-[0.86] dark:contrast-110 dark:saturate-90 group-hover:opacity-80"
-                      />
-                      <div
-                        aria-hidden="true"
-                        className="pointer-events-none absolute inset-0 bg-black/0 dark:bg-black/20 transition-colors duration-300 group-hover:dark:bg-black/10"
-                      />
-                    </div>
-                  </div>
-                )}
-                <div className="space-y-2 flex-1 col-span-1 lg:col-span-8">
-                  <h3 className="text-lg group-hover:underline underline-offset-4 font-semibold text-card-foreground group-hover:text-primary transition-colors line-clamp-2">
-                    {post.data.title}
-                  </h3>
-                  <p className="text-muted-foreground text-sm line-clamp-3 group-hover:underline underline-offset-4">
-                    {post.data.description}
-                  </p>
-                  <time className="block text-xs font-medium text-muted-foreground">
-                    {formattedDate}
-                  </time>
+                        return (
+                            <Link
+                                key={post.url}
+                                href={post.url}
+                                className='group grid grid-cols-1 lg:grid-cols-12 items-center gap-4 cursor-pointer'
+                            >
+                                {post.data.thumbnail && (
+                                    <div className='flex-shrink-0 col-span-1 lg:col-span-4'>
+                                        <div className='relative w-full aspect-[16/10] overflow-hidden rounded-lg'>
+                                            <Image
+                                                src={post.data.thumbnail}
+                                                alt={post.data.title}
+                                                fill
+                                                style={{ objectFit: 'cover' }}
+                                                sizes='(max-width: 1024px) 100vw, 33vw'
+                                                className='object-cover transition-opacity dark:brightness-[0.86] dark:contrast-110 dark:saturate-90 group-hover:opacity-80'
+                                            />
+                                            <div
+                                                aria-hidden='true'
+                                                className='pointer-events-none absolute inset-0 bg-black/0 dark:bg-black/20 transition-colors duration-300 group-hover:dark:bg-black/10'
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                                <div className='space-y-2 flex-1 col-span-1 lg:col-span-8'>
+                                    <h3 className='text-lg group-hover:underline underline-offset-4 font-semibold text-card-foreground group-hover:text-primary transition-colors line-clamp-2'>
+                                        {post.data.title}
+                                    </h3>
+                                    <p className='text-muted-foreground text-sm line-clamp-3 group-hover:underline underline-offset-4'>
+                                        {post.data.description}
+                                    </p>
+                                    <time className='block text-xs font-medium text-muted-foreground'>
+                                        {formattedDate}
+                                    </time>
+                                </div>
+                            </Link>
+                        );
+                    })}
                 </div>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
+            </div>
+        </section>
+    );
 }

@@ -58,7 +58,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ];
 
     const postRoutes: MetadataRoute.Sitemap = posts
-        .sort((a, b) => parseLastModified(b.data.date).getTime() - parseLastModified(a.data.date).getTime())
+        .sort(
+            (a, b) =>
+                parseLastModified(b.data.date).getTime() - parseLastModified(a.data.date).getTime(),
+        )
         .map((post) => ({
             url: getAbsoluteUrl(post.url),
             lastModified: parseLastModified(post.data.date),

@@ -31,7 +31,9 @@ export const askBlogAssistant = async ({
     });
 
     if (!payload.answer) {
-        throw new Error(payload.error || "I couldn't generate a response right now. Please try again.");
+        throw new Error(
+            payload.error || "I couldn't generate a response right now. Please try again.",
+        );
     }
 
     return payload.answer;

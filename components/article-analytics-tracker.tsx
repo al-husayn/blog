@@ -44,10 +44,7 @@ const getScrollDepth = (): number => {
     return Math.max(0, Math.min(100, Math.round((viewedHeight / totalHeight) * 100)));
 };
 
-export function ArticleAnalyticsTracker({
-    articleSlug,
-    path,
-}: ArticleAnalyticsTrackerProps) {
+export function ArticleAnalyticsTracker({ articleSlug, path }: ArticleAnalyticsTrackerProps) {
     const stateRef = useRef<TrackerState | null>(null);
 
     useEffect(() => {
@@ -114,10 +111,7 @@ export function ArticleAnalyticsTracker({
             articleSlug,
             path,
         }).catch((error) => {
-            reportAnalyticsError(
-                `Failed to record page view start for "${articleSlug}"`,
-                error,
-            );
+            reportAnalyticsError(`Failed to record page view start for "${articleSlug}"`, error);
         });
 
         const markActivity = () => {

@@ -1,14 +1,6 @@
 'use client';
 
-import {
-    Check,
-    Copy,
-    Facebook,
-    Linkedin,
-    MessageCircleMore,
-    Share2,
-    Twitter,
-} from 'lucide-react';
+import { Check, Copy, Facebook, Linkedin, MessageCircleMore, Share2, Twitter } from 'lucide-react';
 import { gooeyToast } from 'goey-toast';
 import { useEffect, useRef, useState } from 'react';
 import { copyTextToClipboard } from '@/lib/clipboard';
@@ -64,12 +56,17 @@ export function ArticleShare({ articleSlug, title, description, url }: ArticleSh
 
     const trackShare = (network: ShareNetwork) => {
         void trackArticleShare({ articleSlug, network }).catch((error) => {
-            reportAnalyticsError(`Failed to record share event (${network}) for "${articleSlug}"`, error);
+            reportAnalyticsError(
+                `Failed to record share event (${network}) for "${articleSlug}"`,
+                error,
+            );
         });
     };
 
     useEffect(() => {
-        setNativeShareAvailable(typeof navigator !== 'undefined' && typeof navigator.share === 'function');
+        setNativeShareAvailable(
+            typeof navigator !== 'undefined' && typeof navigator.share === 'function',
+        );
 
         return () => {
             if (copyTimeoutRef.current) {
@@ -150,7 +147,12 @@ export function ArticleShare({ articleSlug, title, description, url }: ArticleSh
 
                 <div className='flex flex-wrap gap-2'>
                     {nativeShareAvailable && (
-                        <Button type='button' variant='secondary' size='sm' onClick={handleNativeShare}>
+                        <Button
+                            type='button'
+                            variant='secondary'
+                            size='sm'
+                            onClick={handleNativeShare}
+                        >
                             <Share2 className='h-4 w-4' />
                             Share
                         </Button>
@@ -163,7 +165,8 @@ export function ArticleShare({ articleSlug, title, description, url }: ArticleSh
                                 target='_blank'
                                 rel='noopener noreferrer'
                                 onClick={() => trackShare(link.network)}
-                                aria-label={`Share this article on ${link.label}`}>
+                                aria-label={`Share this article on ${link.label}`}
+                            >
                                 <link.icon className='h-4 w-4' />
                                 {link.label}
                             </a>

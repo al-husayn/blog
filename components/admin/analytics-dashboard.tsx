@@ -69,7 +69,8 @@ export function AnalyticsDashboard() {
                         variant='outline'
                         onClick={() => {
                             void analyticsQuery.refetch();
-                        }}>
+                        }}
+                    >
                         <RefreshCw className='h-4 w-4' />
                         Retry
                     </Button>

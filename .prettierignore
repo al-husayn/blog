@@ -1,0 +1,6 @@
+# Ignore all markdown files
+*.md
+*.mdx
+
+# If your blog files are in a specific folder, you can be specific:
+blog/content/*.mdx

@@ -1,4 +1,4 @@
 export interface ReadMoreSectionProps {
-  currentSlug: string[];
-  currentTags?: string[];
+    currentSlug: string[];
+    currentTags?: string[];
 }

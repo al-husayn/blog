@@ -96,10 +96,12 @@ export default function PrivacyPage() {
         <main className='min-h-screen bg-background relative'>
             <section
                 aria-labelledby='privacy-hero-heading'
-                className='border-b border-border relative overflow-hidden'>
+                className='border-b border-border relative overflow-hidden'
+            >
                 <div
                     aria-hidden='true'
-                    className='absolute top-0 left-0 z-0 w-full h-[200px] [mask-image:linear-gradient(to_top,transparent_25%,black_95%)] pointer-events-none'>
+                    className='absolute top-0 left-0 z-0 w-full h-[200px] [mask-image:linear-gradient(to_top,transparent_25%,black_95%)] pointer-events-none'
+                >
                     <FlickeringGrid
                         className='absolute top-0 left-0 size-full'
                         squareSize={4}
@@ -117,7 +119,8 @@ export default function PrivacyPage() {
                         </p>
                         <h1
                             id='privacy-hero-heading'
-                            className='font-medium text-4xl md:text-5xl tracking-tighter'>
+                            className='font-medium text-4xl md:text-5xl tracking-tighter'
+                        >
                             Your privacy matters.
                         </h1>
                         <p className='text-sm md:text-base lg:text-lg text-muted-foreground'>
@@ -137,7 +140,8 @@ export default function PrivacyPage() {
                     {privacySections.map((section) => (
                         <section
                             key={section.title}
-                            className='rounded-2xl border border-border bg-card p-6 space-y-3'>
+                            className='rounded-2xl border border-border bg-card p-6 space-y-3'
+                        >
                             <h2 className='text-2xl font-semibold tracking-tight'>
                                 {section.title}
                             </h2>
@@ -180,14 +184,16 @@ export default function PrivacyPage() {
                                 href={siteConfig.creatorUrl}
                                 target='_blank'
                                 rel='noopener noreferrer'
-                                className='inline-flex items-center justify-between rounded-xl border border-border px-4 py-3 text-sm font-medium transition-colors hover:bg-muted/40'>
+                                className='inline-flex items-center justify-between rounded-xl border border-border px-4 py-3 text-sm font-medium transition-colors hover:bg-muted/40'
+                            >
                                 Contact via portfolio
                                 <span className='sr-only'>(opens in a new tab)</span>
                                 <ArrowUpRight className='h-4 w-4 text-primary' aria-hidden='true' />
                             </a>
                             <Link
                                 href='/'
-                                className='inline-flex items-center justify-between rounded-xl border border-border px-4 py-3 text-sm font-medium transition-colors hover:bg-muted/40'>
+                                className='inline-flex items-center justify-between rounded-xl border border-border px-4 py-3 text-sm font-medium transition-colors hover:bg-muted/40'
+                            >
                                 Return to the blog
                                 <ArrowUpRight className='h-4 w-4 text-primary' aria-hidden='true' />
                             </Link>

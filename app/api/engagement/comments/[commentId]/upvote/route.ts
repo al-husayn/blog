@@ -40,11 +40,14 @@ export async function POST(_request: Request, { params }: RouteContext) {
 
         return NextResponse.json(result);
     } catch (error) {
-        console.error('[api/engagement/comments/[commentId]/upvote] Failed to update comment upvote.', {
-            commentId,
-            actor: 'authenticated-user',
-            error,
-        });
+        console.error(
+            '[api/engagement/comments/[commentId]/upvote] Failed to update comment upvote.',
+            {
+                commentId,
+                actor: 'authenticated-user',
+                error,
+            },
+        );
 
         return NextResponse.json(
             { error: 'Unable to update the comment upvote.' },

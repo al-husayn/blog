@@ -178,10 +178,7 @@ const postJson = async (url: string, payload: unknown, keepalive = false): Promi
     });
 
     if (!response.ok) {
-        throw new AnalyticsRequestError(
-            await getAnalyticsErrorMessage(response),
-            response.status,
-        );
+        throw new AnalyticsRequestError(await getAnalyticsErrorMessage(response), response.status);
     }
 };
 

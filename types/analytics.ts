@@ -1,12 +1,6 @@
 export type TrafficSourceGroup = 'direct' | 'organic' | 'social' | 'referral';
 
-export type ShareNetwork =
-    | 'x'
-    | 'linkedin'
-    | 'facebook'
-    | 'whatsapp'
-    | 'native'
-    | 'copy_link';
+export type ShareNetwork = 'x' | 'linkedin' | 'facebook' | 'whatsapp' | 'native' | 'copy_link';
 
 export interface AnalyticsPageViewInput {
     pageViewId: string;

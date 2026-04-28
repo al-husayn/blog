@@ -203,7 +203,10 @@ export async function POST(request: Request): Promise<Response> {
         const path = issue?.path?.length ? ` (${issue.path.join('.')})` : '';
         const message = issue?.message || 'Malformed request body.';
 
-        return NextResponse.json({ error: `Invalid request payload${path}. ${message}` }, { status: 400 });
+        return NextResponse.json(
+            { error: `Invalid request payload${path}. ${message}` },
+            { status: 400 },
+        );
     }
 
     const { slug, message, userName } = parsedInput.data;
@@ -282,7 +285,10 @@ ${popularPostsList || '- No popular posts available yet'}`;
     const userPrompt = `User name: ${userName ?? 'Not provided'}
 User question: ${message}`;
 
-    const aiApiBaseUrl = (process.env.AI_API_BASE_URL || DEFAULT_AI_API_BASE_URL).replace(/\/$/, '');
+    const aiApiBaseUrl = (process.env.AI_API_BASE_URL || DEFAULT_AI_API_BASE_URL).replace(
+        /\/$/,
+        '',
+    );
     const model = process.env.AI_MODEL || DEFAULT_AI_MODEL;
 
     const messages = [
@@ -313,7 +319,11 @@ User question: ${message}`;
             title,
         });
 
-        if (!completion.ok && shouldRetryWithFallback(completion.providerError) && model !== FALLBACK_AI_MODEL) {
+        if (
+            !completion.ok &&
+            shouldRetryWithFallback(completion.providerError) &&
+            model !== FALLBACK_AI_MODEL
+        ) {
             completion = await requestCloudCompletion({
                 apiBaseUrl: aiApiBaseUrl,
                 apiKey,
@@ -341,7 +351,10 @@ User question: ${message}`;
 
         const answer = extractCloudAnswer(completion.payload);
         if (!answer) {
-            return NextResponse.json({ error: 'Assistant returned an empty response. Please retry.' }, { status: 502 });
+            return NextResponse.json(
+                { error: 'Assistant returned an empty response. Please retry.' },
+                { status: 502 },
+            );
         }
 
         return NextResponse.json({ answer });

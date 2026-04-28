@@ -4,30 +4,30 @@ import type { Tab as FumaTab, Tabs as FumaTabs } from 'fumadocs-ui/components/ta
 import type { AuthorKey } from '@/types/authors';
 
 export interface AuthorProps {
-  id: AuthorKey;
+    id: AuthorKey;
 }
 
 export interface TabsProps extends ComponentProps<typeof FumaTabs> {
-  children?: ReactNode;
+    children?: ReactNode;
 }
 
 export interface TabProps extends ComponentProps<typeof FumaTab> {
-  title?: string;
+    title?: string;
 }
 
 export interface CardGroupProps extends ComponentProps<typeof FumaCards> {
-  cols?: number;
+    cols?: number;
 }
 
 export interface StepProps {
-  title?: ReactNode;
-  children?: ReactNode;
+    title?: ReactNode;
+    children?: ReactNode;
 }
 
 export interface MdxCardProps extends ComponentProps<typeof FumaCard> {
-  icon?: ReactNode | string;
+    icon?: ReactNode | string;
 }
 
 export interface MdxPreProps extends ComponentProps<'pre'> {
-  icon?: ReactNode | string;
+    icon?: ReactNode | string;
 }

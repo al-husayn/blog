@@ -77,10 +77,7 @@ export function CopyHeader({
         return (
             <HeadingTag
                 id={headingId}
-                className={cn(
-                    'group relative scroll-mt-20 flex items-center gap-2',
-                    className,
-                )}
+                className={cn('group relative scroll-mt-20 flex items-center gap-2', className)}
                 {...props}
             >
                 {children}
