@@ -41,8 +41,8 @@ export function AnalyticsDashboardView({
                                 Blog analytics that actually help you make decisions
                             </h1>
                             <p className='mt-3 max-w-3xl text-sm text-muted-foreground sm:text-base'>
-                                Traffic, engagement, source attribution, SEO lift, and social velocity,
-                                all scoped to the articles that matter most.
+                                Traffic, engagement, source attribution, SEO lift, and social
+                                velocity, all scoped to the articles that matter most.
                             </p>
                         </div>
                     </div>
@@ -67,7 +67,8 @@ export function AnalyticsDashboardView({
                             variant='outline'
                             onClick={onRefresh}
                             disabled={isRefreshing}
-                            className='shrink-0'>
+                            className='shrink-0'
+                        >
                             <RefreshCw className={cn('h-4 w-4', isRefreshing && 'animate-spin')} />
                             {isRefreshing ? 'Refreshing...' : 'Refresh'}
                         </Button>

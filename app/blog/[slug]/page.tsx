@@ -60,7 +60,9 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
     const MDX = page.data.body;
     const formattedDate = formatDate(page.data.date);
     const author =
-        page.data.author && isValidAuthor(page.data.author) ? getAuthor(page.data.author) : undefined;
+        page.data.author && isValidAuthor(page.data.author)
+            ? getAuthor(page.data.author)
+            : undefined;
     const authorName = author?.name ?? siteConfig.creator;
     const articleUrl = getAbsoluteUrl(`/blog/${slug}`);
     const articleImage = page.data.thumbnail
@@ -154,7 +156,8 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
                                 {page.data.tags.map((tag: string) => (
                                     <span
                                         key={tag}
-                                        className='h-6 w-fit px-3 text-sm font-medium bg-muted text-muted-foreground rounded-md border flex items-center justify-center'>
+                                        className='h-6 w-fit px-3 text-sm font-medium bg-muted text-muted-foreground rounded-md border flex items-center justify-center'
+                                    >
                                         {tag}
                                     </span>
                                 ))}

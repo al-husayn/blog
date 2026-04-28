@@ -4,10 +4,7 @@ import type React from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type {
-    AnalyticsTimeseriesPoint,
-    DashboardTopPostMetric,
-} from '@/types/analytics';
+import type { AnalyticsTimeseriesPoint, DashboardTopPostMetric } from '@/types/analytics';
 import {
     buildChartPoints,
     buildPath,
@@ -33,10 +30,13 @@ export function Card({ title, description, className, children }: CardProps) {
             className={cn(
                 'min-w-0 rounded-[24px] border border-border/70 bg-card/95 p-4 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur sm:rounded-[28px] sm:p-6',
                 className,
-            )}>
+            )}
+        >
             <div className='mb-4 flex items-start justify-between gap-4 sm:mb-5'>
                 <div className='space-y-1'>
-                    <h2 className='text-lg font-semibold tracking-tight text-foreground'>{title}</h2>
+                    <h2 className='text-lg font-semibold tracking-tight text-foreground'>
+                        {title}
+                    </h2>
                     <p className='max-w-2xl text-sm text-muted-foreground'>{description}</p>
                 </div>
             </div>
@@ -106,7 +106,8 @@ export function LineChart({
     const labelStep = Math.max(1, Math.ceil(points.length / 6));
     const sampledPoints = points.filter((_, index) => index % labelStep === 0);
     const finalSampledPoints =
-        points.length > 0 && sampledPoints[sampledPoints.length - 1]?.date !== points[points.length - 1]?.date
+        points.length > 0 &&
+        sampledPoints[sampledPoints.length - 1]?.date !== points[points.length - 1]?.date
             ? [...sampledPoints, points[points.length - 1]!]
             : sampledPoints;
 
@@ -203,7 +204,8 @@ export function DonutChart({
             className='relative flex h-36 w-36 items-center justify-center rounded-full sm:h-44 sm:w-44'
             style={{
                 backgroundImage: `conic-gradient(${gradient})`,
-            }}>
+            }}
+        >
             <div className='flex h-24 w-24 flex-col items-center justify-center rounded-full bg-card text-center shadow-inner sm:h-28 sm:w-28'>
                 <p className='text-xl font-semibold sm:text-2xl'>{centerLabel}</p>
                 <p className='text-xs text-muted-foreground'>{centerSubLabel}</p>
@@ -212,13 +214,7 @@ export function DonutChart({
     );
 }
 
-export function EngagementGauge({
-    score,
-    label,
-}: {
-    score: number;
-    label: string;
-}) {
+export function EngagementGauge({ score, label }: { score: number; label: string }) {
     const clampedScore = Math.min(100, Math.max(0, score));
 
     return (
@@ -227,10 +223,15 @@ export function EngagementGauge({
                 className='relative flex h-36 w-36 items-center justify-center rounded-full sm:h-44 sm:w-44'
                 style={{
                     backgroundImage: `conic-gradient(#ea580c 0% ${clampedScore}%, rgba(148,163,184,0.15) ${clampedScore}% 100%)`,
-                }}>
+                }}
+            >
                 <div className='flex h-24 w-24 flex-col items-center justify-center rounded-full bg-card text-center shadow-inner sm:h-[7.5rem] sm:w-[7.5rem]'>
-                    <p className='text-3xl font-semibold tracking-tight sm:text-4xl'>{clampedScore}</p>
-                    <p className='text-xs uppercase tracking-[0.22em] text-muted-foreground'>Score</p>
+                    <p className='text-3xl font-semibold tracking-tight sm:text-4xl'>
+                        {clampedScore}
+                    </p>
+                    <p className='text-xs uppercase tracking-[0.22em] text-muted-foreground'>
+                        Score
+                    </p>
                 </div>
             </div>
             <p className='text-sm text-muted-foreground'>{label}</p>
@@ -262,7 +263,8 @@ export function LeaderboardList({
                     posts.map((post, index) => (
                         <div
                             key={`${title}-${post.slug}`}
-                            className='rounded-2xl border border-border/60 bg-background/70 p-3'>
+                            className='rounded-2xl border border-border/60 bg-background/70 p-3'
+                        >
                             <div className='flex flex-col gap-3 sm:flex-row sm:items-start'>
                                 <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground'>
                                     {index + 1}
@@ -270,7 +272,8 @@ export function LeaderboardList({
                                 <div className='min-w-0 flex-1'>
                                     <Link
                                         href={`/blog/${post.slug}`}
-                                        className='inline-flex max-w-full items-center gap-2 font-medium text-foreground transition-colors hover:text-orange-600'>
+                                        className='inline-flex max-w-full items-center gap-2 font-medium text-foreground transition-colors hover:text-orange-600'
+                                    >
                                         <span className='truncate'>{post.title}</span>
                                         <ArrowRight className='h-4 w-4 shrink-0' />
                                     </Link>
@@ -288,7 +291,9 @@ export function LeaderboardList({
                         </div>
                     ))
                 ) : (
-                    <p className='text-sm text-muted-foreground'>Post rankings will appear after analytics data arrives.</p>
+                    <p className='text-sm text-muted-foreground'>
+                        Post rankings will appear after analytics data arrives.
+                    </p>
                 )}
             </div>
         </div>

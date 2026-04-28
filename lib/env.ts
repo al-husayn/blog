@@ -18,8 +18,7 @@ export const isClerkConfigured = (): boolean =>
     hasValue(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) &&
     hasValue(process.env.CLERK_SECRET_KEY);
 
-export const isEngagementConfigured = (): boolean =>
-    isDatabaseConfigured() && isClerkConfigured();
+export const isEngagementConfigured = (): boolean => isDatabaseConfigured() && isClerkConfigured();
 
 export const isAnalyticsConfigured = (): boolean => isDatabaseConfigured();
 

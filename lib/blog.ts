@@ -4,7 +4,8 @@ import { parseDate } from '@/lib/utils';
 import readTimeMap from '@/lib/generated/read-times.json';
 
 export const BLOG_PATH_PREFIX = '/blog/';
-const getComputedReadTime = (slug: string): string | undefined => (readTimeMap as Record<string, string>)[slug];
+const getComputedReadTime = (slug: string): string | undefined =>
+    (readTimeMap as Record<string, string>)[slug];
 
 const attachReadTime = <TData extends BlogData>(page: BlogPage<TData>): BlogPage<TData> => {
     const slug = getSlugFromPageUrl(page.url);
@@ -47,7 +48,9 @@ export const getSlugFromPageUrl = (url: string): string | null => {
     return slug;
 };
 
-export const getBlogPage = <TData extends BlogData = BlogData>(slug: string): BlogPage<TData> | undefined => {
+export const getBlogPage = <TData extends BlogData = BlogData>(
+    slug: string,
+): BlogPage<TData> | undefined => {
     const page = blogSource.getPage([slug]) as BlogPage<TData> | undefined;
     return page ? attachReadTime(page) : undefined;
 };

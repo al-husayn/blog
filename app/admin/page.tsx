@@ -33,7 +33,8 @@ function AccessState({
         <main className='relative min-h-screen overflow-hidden bg-background'>
             <div
                 aria-hidden='true'
-                className='absolute inset-x-0 top-0 h-[220px] [mask-image:linear-gradient(to_top,transparent_18%,black_95%)]'>
+                className='absolute inset-x-0 top-0 h-[220px] [mask-image:linear-gradient(to_top,transparent_18%,black_95%)]'
+            >
                 <FlickeringGrid
                     className='absolute inset-0 h-full w-full'
                     squareSize={4}
@@ -120,7 +121,8 @@ export default async function AdminDashboardPage() {
             <main className='relative min-h-screen overflow-hidden bg-background'>
                 <div
                     aria-hidden='true'
-                    className='absolute inset-x-0 top-0 h-[220px] [mask-image:linear-gradient(to_top,transparent_18%,black_95%)]'>
+                    className='absolute inset-x-0 top-0 h-[220px] [mask-image:linear-gradient(to_top,transparent_18%,black_95%)]'
+                >
                     <FlickeringGrid
                         className='absolute inset-0 h-full w-full'
                         squareSize={4}

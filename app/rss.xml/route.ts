@@ -40,8 +40,7 @@ export async function GET(): Promise<Response> {
         return getTimestamp(b.data.date) - getTimestamp(a.data.date);
     });
 
-    const latestTimestamp =
-        sortedPages.length > 0 ? getTimestamp(sortedPages[0].data.date) : 0;
+    const latestTimestamp = sortedPages.length > 0 ? getTimestamp(sortedPages[0].data.date) : 0;
     const lastBuildDate = new Date(latestTimestamp || Date.now()).toUTCString();
 
     const itemsXml = sortedPages

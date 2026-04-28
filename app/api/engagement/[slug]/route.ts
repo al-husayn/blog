@@ -26,7 +26,7 @@ export async function GET(_request: Request, { params }: RouteContext) {
     }
 
     try {
-        const clerkUserId = isClerkConfigured() ? (await auth()).userId ?? undefined : undefined;
+        const clerkUserId = isClerkConfigured() ? ((await auth()).userId ?? undefined) : undefined;
         const engagement = await getEngagement(slug, clerkUserId);
 
         return NextResponse.json(engagement);

@@ -1,9 +1,9 @@
 export interface HomeSearchParams {
-  tag?: string;
-  q?: string;
-  page?: string;
+    tag?: string;
+    q?: string;
+    page?: string;
 }
 
 export interface HomePageRouteProps {
-  searchParams: Promise<HomeSearchParams>;
+    searchParams: Promise<HomeSearchParams>;
 }

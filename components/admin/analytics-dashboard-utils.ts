@@ -24,8 +24,7 @@ export const sourceColors: Record<string, string> = {
 
 export const formatNumber = (value: number): string => numberFormatter.format(value);
 
-export const formatCompactNumber = (value: number): string =>
-    compactNumberFormatter.format(value);
+export const formatCompactNumber = (value: number): string => compactNumberFormatter.format(value);
 
 export const formatPercent = (value: number): string =>
     `${value.toFixed(value % 1 === 0 ? 0 : 1)}%`;
@@ -54,7 +53,10 @@ export const formatSourceShare = (value: number, total: number): string =>
 
 export const buildPath = (points: Array<{ x: number; y: number }>): string =>
     points
-        .map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`)
+        .map(
+            (point, index) =>
+                `${index === 0 ? 'M' : 'L'} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`,
+        )
         .join(' ');
 
 export const buildChartPoints = (

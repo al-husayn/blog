@@ -28,7 +28,7 @@ const getPayloadErrorMessage = (payload: unknown): string | null => {
 export const getErrorMessage = (error: unknown): string =>
     error instanceof Error ? error.message : FALLBACK_ERROR_MESSAGE;
 
-export const parseJsonResponse = async <T,>(response: Response): Promise<T> => {
+export const parseJsonResponse = async <T>(response: Response): Promise<T> => {
     const payload = await response.json().catch(() => null);
 
     if (!response.ok) {
@@ -41,10 +41,7 @@ export const parseJsonResponse = async <T,>(response: Response): Promise<T> => {
     return payload as T;
 };
 
-export const requestJson = async <T,>(
-    input: RequestInfo | URL,
-    init?: RequestInit,
-): Promise<T> => {
+export const requestJson = async <T>(input: RequestInfo | URL, init?: RequestInit): Promise<T> => {
     const response = await fetch(input, init);
     return parseJsonResponse<T>(response);
 };

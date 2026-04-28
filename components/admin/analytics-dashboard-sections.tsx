@@ -39,7 +39,8 @@ export function ViewsCard({ data }: AnalyticsDashboardSectionProps) {
         <Card
             title='Traffic & Reach'
             description='Pageviews across the core reporting windows, with the current month front and center and mini trends for each period.'
-            className='md:col-span-2 xl:col-span-7'>
+            className='md:col-span-2 xl:col-span-7'
+        >
             <div className='grid gap-4 2xl:grid-cols-[minmax(0,1.45fr)_minmax(17rem,0.95fr)]'>
                 <div className='space-y-5 rounded-[24px] border border-orange-500/20 bg-[linear-gradient(135deg,rgba(234,88,12,0.12),rgba(234,88,12,0.02)_55%,rgba(255,255,255,0))] p-4 sm:p-5'>
                     <div className='flex flex-col items-start justify-between gap-4 sm:flex-row'>
@@ -75,9 +76,12 @@ export function ViewsCard({ data }: AnalyticsDashboardSectionProps) {
                     {data.periods.map((period, index) => (
                         <div
                             key={period.label}
-                            className='rounded-[22px] border border-border/70 bg-background/60 p-4'>
+                            className='rounded-[22px] border border-border/70 bg-background/60 p-4'
+                        >
                             <div className='flex items-center justify-between gap-3'>
-                                <p className='text-sm font-medium text-muted-foreground'>{period.label}</p>
+                                <p className='text-sm font-medium text-muted-foreground'>
+                                    {period.label}
+                                </p>
                                 <Eye className='h-4 w-4 text-muted-foreground' />
                             </div>
                             <p className='mt-4 text-2xl font-semibold tracking-tight'>
@@ -120,7 +124,8 @@ export function AudienceCard({ data }: AnalyticsDashboardSectionProps) {
         <Card
             title='Audience Mix'
             description='Unique reader counts and how much of the current month is driven by fresh discovery versus repeat attention.'
-            className='xl:col-span-5'>
+            className='xl:col-span-5'
+        >
             <div className='grid gap-6 lg:grid-cols-[minmax(0,180px)_minmax(0,1fr)] lg:items-center'>
                 <div className='flex justify-center lg:justify-start'>
                     <DonutChart
@@ -187,7 +192,8 @@ export function SourcesCard({ data }: AnalyticsDashboardSectionProps) {
         <Card
             title='Traffic Sources'
             description='Where readers are coming from in the last 30 days, with both share-of-traffic context and the strongest referrer details.'
-            className='md:col-span-2 xl:col-span-7'>
+            className='md:col-span-2 xl:col-span-7'
+        >
             <div className='grid gap-6 xl:grid-cols-[minmax(0,220px)_minmax(0,1fr)] xl:items-start'>
                 <div className='flex justify-center xl:justify-start'>
                     <DonutChart
@@ -214,13 +220,15 @@ export function SourcesCard({ data }: AnalyticsDashboardSectionProps) {
                         {data.sources30d.map((source) => (
                             <div
                                 key={source.key}
-                                className='rounded-2xl border border-border/70 bg-background/60 p-4'>
+                                className='rounded-2xl border border-border/70 bg-background/60 p-4'
+                            >
                                 <div className='flex items-center justify-between gap-3'>
                                     <div className='flex items-center gap-3'>
                                         <span
                                             className='h-3 w-3 rounded-full'
                                             style={{
-                                                backgroundColor: sourceColors[source.key] ?? '#64748b',
+                                                backgroundColor:
+                                                    sourceColors[source.key] ?? '#64748b',
                                             }}
                                         />
                                         <p className='font-medium'>{source.label}</p>
@@ -237,7 +245,8 @@ export function SourcesCard({ data }: AnalyticsDashboardSectionProps) {
                                         source.details.map((detail) => (
                                             <div
                                                 key={detail.label}
-                                                className='flex items-center justify-between gap-3'>
+                                                className='flex items-center justify-between gap-3'
+                                            >
                                                 <p>{detail.label}</p>
                                                 <p className='font-medium text-foreground'>
                                                     {formatNumber(detail.value)}
@@ -268,7 +277,8 @@ export function EngagementCard({ data }: AnalyticsDashboardSectionProps) {
         <Card
             title='Engagement Quality'
             description='Engaged time, bounce rate, scroll completion, and a single score to judge how healthy article sessions feel overall.'
-            className='xl:col-span-5'>
+            className='xl:col-span-5'
+        >
             <div className='grid gap-6 xl:grid-cols-[minmax(0,220px)_minmax(0,1fr)] xl:items-center'>
                 <div className='flex justify-center xl:justify-start'>
                     <EngagementGauge score={data.engagementScore30d} label='30d reading quality' />
@@ -302,7 +312,9 @@ export function EngagementCard({ data }: AnalyticsDashboardSectionProps) {
                             <div key={item.label} className='space-y-2'>
                                 <div className='flex items-center justify-between text-sm'>
                                     <p className='font-medium'>{item.label}</p>
-                                    <p className='text-muted-foreground'>{formatPercent(item.value)}</p>
+                                    <p className='text-muted-foreground'>
+                                        {formatPercent(item.value)}
+                                    </p>
                                 </div>
                                 <div className='h-2 rounded-full bg-muted/60'>
                                     <div
@@ -332,7 +344,8 @@ export function ViralityCard({ data }: AnalyticsDashboardSectionProps) {
         <Card
             title='Social & Virality'
             description='Share actions, interaction density, and early comment momentum within the first 48 hours after publishing.'
-            className='md:col-span-2 xl:col-span-7'>
+            className='md:col-span-2 xl:col-span-7'
+        >
             <div className='space-y-5'>
                 <div className='grid gap-3 sm:grid-cols-3'>
                     <div className='rounded-2xl border border-border/70 bg-background/60 p-4'>
@@ -358,7 +371,9 @@ export function ViralityCard({ data }: AnalyticsDashboardSectionProps) {
                                 data.avgInteractionsPerPost % 1 === 0 ? 0 : 1,
                             )}
                         </p>
-                        <p className='mt-1 text-sm text-muted-foreground'>Avg interactions per post</p>
+                        <p className='mt-1 text-sm text-muted-foreground'>
+                            Avg interactions per post
+                        </p>
                     </div>
                 </div>
 
@@ -386,7 +401,8 @@ export function ViralityCard({ data }: AnalyticsDashboardSectionProps) {
                             ))
                         ) : (
                             <p className='text-sm text-muted-foreground'>
-                                Share tracking will populate as readers use the article share controls.
+                                Share tracking will populate as readers use the article share
+                                controls.
                             </p>
                         )}
                     </div>
@@ -399,7 +415,8 @@ export function ViralityCard({ data }: AnalyticsDashboardSectionProps) {
                             topVelocityPosts.map((post) => (
                                 <div
                                     key={post.slug}
-                                    className='flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4'>
+                                    className='flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4'
+                                >
                                     <div className='min-w-0'>
                                         <p className='truncate font-medium'>{post.title}</p>
                                         <p className='text-sm text-muted-foreground'>
@@ -431,7 +448,8 @@ export function OrganicCard({ data }: AnalyticsDashboardSectionProps) {
         <Card
             title='SEO & Growth'
             description='Organic search trend over the last 90 days, plus the keyword fragments still available from search referrers.'
-            className='xl:col-span-5'>
+            className='xl:col-span-5'
+        >
             <div className='space-y-5'>
                 <div className='grid gap-3 sm:grid-cols-2'>
                     <div className='rounded-2xl border border-border/70 bg-background/60 p-4'>
@@ -445,8 +463,12 @@ export function OrganicCard({ data }: AnalyticsDashboardSectionProps) {
                     </div>
                     <div className='rounded-2xl border border-border/70 bg-background/60 p-4'>
                         <ChartNoAxesColumn className='h-4 w-4 text-muted-foreground' />
-                        <p className='mt-3 text-3xl font-semibold'>{formatNumber(latestOrganicVisits)}</p>
-                        <p className='mt-1 text-sm text-muted-foreground'>Most recent day on record</p>
+                        <p className='mt-3 text-3xl font-semibold'>
+                            {formatNumber(latestOrganicVisits)}
+                        </p>
+                        <p className='mt-1 text-sm text-muted-foreground'>
+                            Most recent day on record
+                        </p>
                     </div>
                 </div>
                 <LineChart points={data.organicTrend90d} gradientId='organic-trend-fill' />
@@ -457,7 +479,8 @@ export function OrganicCard({ data }: AnalyticsDashboardSectionProps) {
                             data.topKeywords90d.map((keyword) => (
                                 <div
                                     key={keyword.keyword}
-                                    className='flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4'>
+                                    className='flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4'
+                                >
                                     <p className='text-sm text-foreground'>{keyword.keyword}</p>
                                     <p className='text-sm font-medium text-muted-foreground'>
                                         {formatNumber(keyword.visits)} visits
@@ -466,7 +489,8 @@ export function OrganicCard({ data }: AnalyticsDashboardSectionProps) {
                             ))
                         ) : (
                             <p className='text-sm text-muted-foreground'>
-                                Search engines are exposing very little query data right now, so this list will stay sparse until referrers include keywords.
+                                Search engines are exposing very little query data right now, so
+                                this list will stay sparse until referrers include keywords.
                             </p>
                         )}
                     </div>
@@ -481,7 +505,8 @@ export function TopPostsCard({ data }: AnalyticsDashboardSectionProps) {
         <Card
             title='Top Posts'
             description='Separate leaders for the last 30 days and all-time, followed by a detailed table that combines traffic and quality metrics.'
-            className='md:col-span-2 xl:col-span-12'>
+            className='md:col-span-2 xl:col-span-12'
+        >
             <div className='space-y-5'>
                 <div className='grid gap-4 xl:grid-cols-2'>
                     <LeaderboardList
@@ -503,11 +528,13 @@ export function TopPostsCard({ data }: AnalyticsDashboardSectionProps) {
                         data.topPosts.map((post) => (
                             <article
                                 key={`mobile-${post.slug}`}
-                                className='rounded-[22px] border border-border/70 bg-background/60 p-4 shadow-[0_8px_30px_rgba(15,23,42,0.05)]'>
+                                className='rounded-[22px] border border-border/70 bg-background/60 p-4 shadow-[0_8px_30px_rgba(15,23,42,0.05)]'
+                            >
                                 <div className='space-y-2'>
                                     <Link
                                         href={`/blog/${post.slug}`}
-                                        className='inline-flex max-w-full items-center gap-2 font-medium text-foreground transition-colors hover:text-orange-600'>
+                                        className='inline-flex max-w-full items-center gap-2 font-medium text-foreground transition-colors hover:text-orange-600'
+                                    >
                                         <span className='truncate'>{post.title}</span>
                                         <ArrowRight className='h-4 w-4 shrink-0' />
                                     </Link>
@@ -612,12 +639,14 @@ export function TopPostsCard({ data }: AnalyticsDashboardSectionProps) {
                                 data.topPosts.map((post) => (
                                     <tr
                                         key={post.slug}
-                                        className='rounded-2xl bg-background/60 text-sm shadow-[0_8px_30px_rgba(15,23,42,0.05)]'>
+                                        className='rounded-2xl bg-background/60 text-sm shadow-[0_8px_30px_rgba(15,23,42,0.05)]'
+                                    >
                                         <td className='rounded-l-2xl border border-border/70 border-r-0 px-4 py-4 align-top'>
                                             <div className='space-y-1'>
                                                 <Link
                                                     href={`/blog/${post.slug}`}
-                                                    className='inline-flex items-center gap-2 font-medium text-foreground transition-colors hover:text-orange-600'>
+                                                    className='inline-flex items-center gap-2 font-medium text-foreground transition-colors hover:text-orange-600'
+                                                >
                                                     {post.title}
                                                     <ArrowRight className='h-4 w-4' />
                                                 </Link>
@@ -656,7 +685,8 @@ export function TopPostsCard({ data }: AnalyticsDashboardSectionProps) {
                                 <tr>
                                     <td
                                         colSpan={9}
-                                        className='rounded-2xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground'>
+                                        className='rounded-2xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground'
+                                    >
                                         Post rankings will appear after article visits are recorded.
                                     </td>
                                 </tr>

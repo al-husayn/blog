@@ -14,9 +14,7 @@ export const fetchEngagement = (slug: string): Promise<EngagementResponse> =>
         cache: 'no-store',
     });
 
-export const toggleArticleUpvoteRequest = (
-    slug: string,
-): Promise<ToggleArticleUpvoteResponse> =>
+export const toggleArticleUpvoteRequest = (slug: string): Promise<ToggleArticleUpvoteResponse> =>
     requestJson<ToggleArticleUpvoteResponse>(
         `/api/engagement/${encodeURIComponent(slug)}/article-upvotes`,
         {

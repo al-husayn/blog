@@ -9,10 +9,7 @@ export const updateSectionHash = (id: string): void => {
     window.history.pushState({}, '', `#${id}`);
 };
 
-export const scrollToSection = (
-    id: string,
-    offset = DEFAULT_SECTION_SCROLL_OFFSET,
-): boolean => {
+export const scrollToSection = (id: string, offset = DEFAULT_SECTION_SCROLL_OFFSET): boolean => {
     const element = document.getElementById(id);
 
     if (!element) {

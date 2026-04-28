@@ -55,7 +55,10 @@ const getPageNumber = (page?: string): number => {
     return parsedPage;
 };
 
-const buildPaginationItems = (totalPages: number, currentPage: number): Array<number | 'ellipsis'> => {
+const buildPaginationItems = (
+    totalPages: number,
+    currentPage: number,
+): Array<number | 'ellipsis'> => {
     if (totalPages <= 7) {
         return Array.from({ length: totalPages }, (_, index) => index + 1);
     }
@@ -82,7 +85,9 @@ const buildPaginationItems = (totalPages: number, currentPage: number): Array<nu
     return items;
 };
 
-const collectTagMetadata = (blogs: BlogPage[]): { allTags: string[]; tagCounts: Record<string, number> } => {
+const collectTagMetadata = (
+    blogs: BlogPage[],
+): { allTags: string[]; tagCounts: Record<string, number> } => {
     const tagCounts: Record<string, number> = { [ALL_TAG]: blogs.length };
 
     blogs.forEach((blog) => {
@@ -151,7 +156,8 @@ const buildPageHref = ({
 };
 
 const SKELETON_CARD_COUNT = 6;
-const getResultsLabel = (count: number): string => `${count} ${count === 1 ? 'article' : 'articles'}`;
+const getResultsLabel = (count: number): string =>
+    `${count} ${count === 1 ? 'article' : 'articles'}`;
 
 function ArticlesGridSkeleton({ count = SKELETON_CARD_COUNT }: { count?: number }) {
     return (
@@ -184,9 +190,7 @@ function ArticlesGridSkeleton({ count = SKELETON_CARD_COUNT }: { count?: number 
     );
 }
 
-export async function generateMetadata({
-    searchParams,
-}: HomePageRouteProps): Promise<Metadata> {
+export async function generateMetadata({ searchParams }: HomePageRouteProps): Promise<Metadata> {
     const resolvedSearchParams = await searchParams;
     const selectedTag = getTagFilter(resolvedSearchParams.tag);
     const searchQuery = getSearchQuery(resolvedSearchParams.q);
@@ -251,9 +255,7 @@ export async function generateMetadata({
 
 export const revalidate = 3600;
 
-export default async function HomePage({
-    searchParams,
-}: HomePageRouteProps) {
+export default async function HomePage({ searchParams }: HomePageRouteProps) {
     const resolvedSearchParams = await searchParams;
     const sortedBlogs = sortBlogPagesByDateDesc(getBlogPages());
     const { allTags, tagCounts } = collectTagMetadata(sortedBlogs);
@@ -265,22 +267,35 @@ export default async function HomePage({
         selectedTag === ALL_TAG
             ? sortedBlogs
             : sortedBlogs.filter((blog) => blog.data.tags?.includes(selectedTag));
-    const filteredBlogs =
-        !normalizedSearchQuery
-            ? blogsByTag
-            : blogsByTag.filter((blog) => matchesSearchQuery(blog, normalizedSearchQuery));
+    const filteredBlogs = !normalizedSearchQuery
+        ? blogsByTag
+        : blogsByTag.filter((blog) => matchesSearchQuery(blog, normalizedSearchQuery));
     const requestedPage = getPageNumber(resolvedSearchParams.page);
     const featuredBlog = filteredBlogs.find((blog) => blog.data.featured) ?? filteredBlogs[0];
     const showFeaturedPost = Boolean(featuredBlog) && requestedPage === 1;
     const listBlogs =
-        showFeaturedPost && featuredBlog ? filteredBlogs.filter((blog) => blog.url !== featuredBlog.url) : filteredBlogs;
+        showFeaturedPost && featuredBlog
+            ? filteredBlogs.filter((blog) => blog.url !== featuredBlog.url)
+            : filteredBlogs;
     const totalPages = Math.max(1, Math.ceil(listBlogs.length / POSTS_PER_PAGE));
     const currentPage = Math.min(requestedPage, totalPages);
-    const paginatedBlogs = listBlogs.slice((currentPage - 1) * POSTS_PER_PAGE, currentPage * POSTS_PER_PAGE);
+    const paginatedBlogs = listBlogs.slice(
+        (currentPage - 1) * POSTS_PER_PAGE,
+        currentPage * POSTS_PER_PAGE,
+    );
     const paginationItems = buildPaginationItems(totalPages, currentPage);
-    const emptyStateLabel = searchQuery ? `"${searchQuery}"` : selectedTag !== ALL_TAG ? selectedTag : 'the selected filters';
-    const visibleBlogs = [...(showFeaturedPost && featuredBlog ? [featuredBlog] : []), ...paginatedBlogs];
-    const featuredAuthorName = featuredBlog ? resolveAuthorMetadata(featuredBlog).authorName : undefined;
+    const emptyStateLabel = searchQuery
+        ? `"${searchQuery}"`
+        : selectedTag !== ALL_TAG
+          ? selectedTag
+          : 'the selected filters';
+    const visibleBlogs = [
+        ...(showFeaturedPost && featuredBlog ? [featuredBlog] : []),
+        ...paginatedBlogs,
+    ];
+    const featuredAuthorName = featuredBlog
+        ? resolveAuthorMetadata(featuredBlog).authorName
+        : undefined;
     const resultsSummaryLabel = `${getResultsLabel(filteredBlogs.length)} found`;
     const resultsContextLabel =
         searchQuery || selectedTag !== ALL_TAG
@@ -321,7 +336,8 @@ export default async function HomePage({
             />
             <div
                 aria-hidden='true'
-                className='absolute top-0 left-0 z-0 w-full h-[200px] [mask-image:linear-gradient(to_top,transparent_25%,black_95%)]'>
+                className='absolute top-0 left-0 z-0 w-full h-[200px] [mask-image:linear-gradient(to_top,transparent_25%,black_95%)]'
+            >
                 <FlickeringGrid
                     className='absolute top-0 left-0 size-full'
                     squareSize={4}
@@ -333,15 +349,19 @@ export default async function HomePage({
             </div>
             <section
                 aria-labelledby='home-hero-heading'
-                className='p-6 border-b border-border flex flex-col gap-6 min-h-[250px] justify-center relative z-10'>
+                className='p-6 border-b border-border flex flex-col gap-6 min-h-[250px] justify-center relative z-10'
+            >
                 <div className='max-w-7xl mx-auto w-full'>
                     <div className='flex flex-col gap-2'>
-                        <h1 id='home-hero-heading' className='font-medium text-4xl md:text-5xl tracking-tighter'>
+                        <h1
+                            id='home-hero-heading'
+                            className='font-medium text-4xl md:text-5xl tracking-tighter'
+                        >
                             Learn. Build. Share.
                         </h1>
                         <p className='text-muted-foreground text-sm md:text-base lg:text-lg'>
-                            A space for developers to grow their skills, build real projects, and share stories that
-                            inspire others.
+                            A space for developers to grow their skills, build real projects, and
+                            share stories that inspire others.
                         </p>
                     </div>
                 </div>
@@ -359,16 +379,24 @@ export default async function HomePage({
                                 placeholder='Search articles...'
                                 className='h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
                             />
-                            {selectedTag !== ALL_TAG && <input type='hidden' name='tag' value={selectedTag} />}
+                            {selectedTag !== ALL_TAG && (
+                                <input type='hidden' name='tag' value={selectedTag} />
+                            )}
                             <button
                                 type='submit'
-                                className='h-10 rounded-lg border border-border px-4 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'>
+                                className='h-10 rounded-lg border border-border px-4 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
+                            >
                                 Search
                             </button>
                             {searchQuery && (
                                 <Link
-                                    href={selectedTag === ALL_TAG ? '/' : `/?tag=${encodeURIComponent(selectedTag)}`}
-                                    className='rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'>
+                                    href={
+                                        selectedTag === ALL_TAG
+                                            ? '/'
+                                            : `/?tag=${encodeURIComponent(selectedTag)}`
+                                    }
+                                    className='rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
+                                >
                                     Clear
                                 </Link>
                             )}
@@ -384,17 +412,26 @@ export default async function HomePage({
             </section>
 
             {showFeaturedPost && featuredBlog && (
-                <section aria-labelledby='featured-post-heading' className='max-w-7xl mx-auto w-full px-6 lg:px-0 py-8'>
+                <section
+                    aria-labelledby='featured-post-heading'
+                    className='max-w-7xl mx-auto w-full px-6 lg:px-0 py-8'
+                >
                     <div className='space-y-4'>
                         <div>
-                            <p className='text-xs uppercase tracking-wide text-primary font-semibold'>Featured</p>
-                            <h2 id='featured-post-heading' className='text-2xl font-medium tracking-tight'>
+                            <p className='text-xs uppercase tracking-wide text-primary font-semibold'>
+                                Featured
+                            </p>
+                            <h2
+                                id='featured-post-heading'
+                                className='text-2xl font-medium tracking-tight'
+                            >
                                 Featured Post
                             </h2>
                         </div>
                         <Link
                             href={featuredBlog.url}
-                            className='group block rounded-xl border border-border bg-card overflow-hidden transition-[background-color,box-shadow] duration-200 hover:bg-muted/20 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'>
+                            className='group block rounded-xl border border-border bg-card overflow-hidden transition-[background-color,box-shadow] duration-200 hover:bg-muted/20 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
+                        >
                             <div className='grid gap-0 md:grid-cols-2'>
                                 {featuredBlog.data.thumbnail && (
                                     <div className='relative min-h-[220px] md:min-h-[300px]'>
@@ -419,10 +456,18 @@ export default async function HomePage({
                                     <h3 className='text-2xl font-semibold tracking-tight group-hover:underline underline-offset-4'>
                                         {featuredBlog.data.title}
                                     </h3>
-                                    <p className='text-muted-foreground text-sm md:text-base'>{featuredBlog.data.description}</p>
+                                    <p className='text-muted-foreground text-sm md:text-base'>
+                                        {featuredBlog.data.description}
+                                    </p>
                                     <div className='text-xs text-muted-foreground flex flex-wrap items-center gap-2'>
-                                        {featuredAuthorName ? <span className='font-medium'>{featuredAuthorName}</span> : null}
-                                        {featuredBlog.data.readTime && <span>• {featuredBlog.data.readTime}</span>}
+                                        {featuredAuthorName ? (
+                                            <span className='font-medium'>
+                                                {featuredAuthorName}
+                                            </span>
+                                        ) : null}
+                                        {featuredBlog.data.readTime && (
+                                            <span>• {featuredBlog.data.readTime}</span>
+                                        )}
                                         <span>• {formatDate(featuredBlog.data.date)}</span>
                                     </div>
                                 </div>
@@ -432,9 +477,15 @@ export default async function HomePage({
                 </section>
             )}
 
-            <section aria-labelledby='latest-articles-heading' className='max-w-7xl mx-auto w-full px-6 lg:px-0'>
+            <section
+                aria-labelledby='latest-articles-heading'
+                className='max-w-7xl mx-auto w-full px-6 lg:px-0'
+            >
                 <div className='mb-5 flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3'>
-                    <h2 id='latest-articles-heading' className='text-sm font-semibold tracking-wide text-foreground/90 md:text-base'>
+                    <h2
+                        id='latest-articles-heading'
+                        className='text-sm font-semibold tracking-wide text-foreground/90 md:text-base'
+                    >
                         {resultsSummaryLabel}
                     </h2>
                     <p className='text-xs text-muted-foreground md:text-sm'>
@@ -445,7 +496,8 @@ export default async function HomePage({
                 <Suspense fallback={<ArticlesGridSkeleton />}>
                     <div
                         id='filtered-articles-panel'
-                        className='grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6'>
+                        className='grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6'
+                    >
                         {paginatedBlogs.length > 0 ? (
                             paginatedBlogs.map((blog) => {
                                 const formattedDate = formatDate(blog.data.date);
@@ -468,41 +520,61 @@ export default async function HomePage({
                             })
                         ) : (
                             <div className='col-span-full rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground'>
-                                No articles found for <span className='font-medium text-foreground'>{emptyStateLabel}</span>.
+                                No articles found for{' '}
+                                <span className='font-medium text-foreground'>
+                                    {emptyStateLabel}
+                                </span>
+                                .
                             </div>
                         )}
                     </div>
                 </Suspense>
 
                 {totalPages > 1 && (
-                    <nav aria-label='Pagination' className='mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border p-4 md:flex-nowrap'>
+                    <nav
+                        aria-label='Pagination'
+                        className='mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border p-4 md:flex-nowrap'
+                    >
                         <Link
-                            href={buildPageHref({ page: Math.max(1, currentPage - 1), searchQuery, selectedTag })}
+                            href={buildPageHref({
+                                page: Math.max(1, currentPage - 1),
+                                searchQuery,
+                                selectedTag,
+                            })}
                             aria-disabled={currentPage === 1}
                             className={`inline-flex h-9 min-w-[84px] items-center justify-center rounded-md border px-3 text-center text-sm font-medium leading-none transition-colors md:min-w-[96px] ${
                                 currentPage === 1
                                     ? 'pointer-events-none opacity-50 border-border'
                                     : 'border-border hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
-                            }`}>
+                            }`}
+                        >
                             Previous
                         </Link>
 
                         <div className='order-3 w-full justify-center flex items-center gap-2 md:order-none md:w-auto'>
                             {paginationItems.map((item, index) =>
                                 item === 'ellipsis' ? (
-                                    <span key={`ellipsis-${index}`} className='text-sm text-muted-foreground px-1'>
+                                    <span
+                                        key={`ellipsis-${index}`}
+                                        className='text-sm text-muted-foreground px-1'
+                                    >
                                         ...
                                     </span>
                                 ) : (
                                     <Link
                                         key={item}
-                                        href={buildPageHref({ page: item, searchQuery, selectedTag })}
+                                        href={buildPageHref({
+                                            page: item,
+                                            searchQuery,
+                                            selectedTag,
+                                        })}
                                         aria-current={item === currentPage ? 'page' : undefined}
                                         className={`h-9 min-w-9 px-2 rounded-md border text-sm font-medium inline-flex items-center justify-center transition-colors ${
                                             item === currentPage
                                                 ? 'border-primary bg-primary text-primary-foreground'
                                                 : 'border-border hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
-                                        }`}>
+                                        }`}
+                                    >
                                         {item}
                                     </Link>
                                 ),
@@ -510,19 +582,23 @@ export default async function HomePage({
                         </div>
 
                         <Link
-                            href={buildPageHref({ page: Math.min(totalPages, currentPage + 1), searchQuery, selectedTag })}
+                            href={buildPageHref({
+                                page: Math.min(totalPages, currentPage + 1),
+                                searchQuery,
+                                selectedTag,
+                            })}
                             aria-disabled={currentPage === totalPages}
                             className={`inline-flex h-9 min-w-[84px] items-center justify-center rounded-md border px-3 text-center text-sm font-medium leading-none transition-colors md:min-w-[96px] ${
                                 currentPage === totalPages
                                     ? 'pointer-events-none opacity-50 border-border'
                                     : 'border-border hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
-                            }`}>
+                            }`}
+                        >
                             Next
                         </Link>
                     </nav>
                 )}
             </section>
-
         </main>
     );
 }

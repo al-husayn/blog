@@ -25,8 +25,7 @@ export async function GET() {
         if (isMissingAnalyticsTablesError(error)) {
             return NextResponse.json(
                 {
-                    error:
-                        'Analytics tables have not been applied yet. Run pnpm db:push or your preferred Drizzle migration flow, then refresh /admin.',
+                    error: 'Analytics tables have not been applied yet. Run pnpm db:push or your preferred Drizzle migration flow, then refresh /admin.',
                 },
                 { status: 503 },
             );

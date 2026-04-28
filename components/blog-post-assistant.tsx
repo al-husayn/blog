@@ -8,10 +8,7 @@ import { Button } from '@/components/ui/button';
 import { askBlogAssistant } from '@/lib/api/blog-assistant';
 import { getErrorMessage } from '@/lib/api/client';
 import { cn } from '@/lib/utils';
-import type {
-    BlogPostAssistantProps,
-    ChatMessage,
-} from '@/types/components/blog-post-assistant';
+import type { BlogPostAssistantProps, ChatMessage } from '@/types/components/blog-post-assistant';
 
 const STARTER_PROMPTS = [
     'Can you summarize the key takeaways from this post?',
@@ -158,7 +155,8 @@ export function BlogPostAssistant({ slug, title }: BlogPostAssistantProps) {
                             variant='outline'
                             size='sm'
                             onClick={() => setQuestion(prompt)}
-                            className='text-xs sm:text-sm'>
+                            className='text-xs sm:text-sm'
+                        >
                             {prompt}
                         </Button>
                     ))}
@@ -169,8 +167,8 @@ export function BlogPostAssistant({ slug, title }: BlogPostAssistantProps) {
                 <div className='max-h-[360px] space-y-3 overflow-y-auto p-4'>
                     {messages.length === 0 ? (
                         <div className='rounded-md border border-dashed border-border bg-background p-4 text-sm text-muted-foreground'>
-                            Ask a question about this post and I&apos;ll keep it concise,
-                            practical, and grounded in the article.
+                            Ask a question about this post and I&apos;ll keep it concise, practical,
+                            and grounded in the article.
                         </div>
                     ) : (
                         messages.map((message) => (
@@ -181,7 +179,8 @@ export function BlogPostAssistant({ slug, title }: BlogPostAssistantProps) {
                                     message.role === 'assistant'
                                         ? 'border border-border bg-card'
                                         : 'ml-auto bg-primary text-primary-foreground',
-                                )}>
+                                )}
+                            >
                                 <p className='mb-1 text-xs uppercase tracking-wide opacity-75'>
                                     {message.role === 'assistant' ? 'Assistant' : 'You'}
                                 </p>
@@ -218,7 +217,8 @@ export function BlogPostAssistant({ slug, title }: BlogPostAssistantProps) {
                         <Button
                             type='submit'
                             disabled={assistantMutation.isPending || question.trim().length === 0}
-                            className='inline-flex items-center gap-2'>
+                            className='inline-flex items-center gap-2'
+                        >
                             <Send className='h-4 w-4' />
                             Ask assistant
                         </Button>
@@ -228,8 +228,7 @@ export function BlogPostAssistant({ slug, title }: BlogPostAssistantProps) {
 
             <p className='inline-flex items-center gap-2 text-xs text-muted-foreground'>
                 <Bot className='h-3.5 w-3.5' />
-                Responses are generated from this article&apos;s content and your specific
-                question.
+                Responses are generated from this article&apos;s content and your specific question.
             </p>
         </section>
     );

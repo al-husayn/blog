@@ -1,14 +1,22 @@
-import { AnyPgColumn, boolean, index, integer, pgTable, primaryKey, text, timestamp } from 'drizzle-orm/pg-core';
+import {
+    AnyPgColumn,
+    boolean,
+    index,
+    integer,
+    pgTable,
+    primaryKey,
+    text,
+    timestamp,
+} from 'drizzle-orm/pg-core';
 
 export const comments = pgTable(
     'article_comments',
     {
         id: text('id').primaryKey(),
         articleSlug: text('slug').notNull(),
-        parentCommentId: text('parent_comment_id').references(
-            (): AnyPgColumn => comments.id,
-            { onDelete: 'cascade' },
-        ),
+        parentCommentId: text('parent_comment_id').references((): AnyPgColumn => comments.id, {
+            onDelete: 'cascade',
+        }),
         clerkUserId: text('user_id').notNull(),
         authorName: text('author').notNull(),
         authorImageUrl: text('author_image_url'),

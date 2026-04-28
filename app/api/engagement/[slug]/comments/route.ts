@@ -1,10 +1,6 @@
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-import {
-    createComment,
-    createCommentSchema,
-    isInvalidParentCommentError,
-} from '@/lib/engagement';
+import { createComment, createCommentSchema, isInvalidParentCommentError } from '@/lib/engagement';
 import { isEngagementConfigured } from '@/lib/env';
 
 interface RouteContext {
@@ -20,11 +16,7 @@ const getAuthorName = (user: Awaited<ReturnType<typeof currentUser>>): string =>
 
     const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ').trim();
 
-    return (
-        fullName ||
-        user.username ||
-        'Community member'
-    );
+    return fullName || user.username || 'Community member';
 };
 
 export async function POST(request: Request, { params }: RouteContext) {
