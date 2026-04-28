@@ -11,4 +11,4 @@ export interface ConnectLink extends BaseSocialLink {
     external?: boolean;
 }
 
-export interface FooterSocialLink extends BaseSocialLink {}
+export type FooterSocialLink = BaseSocialLink;

@@ -23,5 +23,5 @@ export function getAuthor(key: AuthorKey): Author {
 }
 
 export function isValidAuthor(key: string): key is AuthorKey {
-    return key in authors;
+    return Object.hasOwn(authors, key);
 }

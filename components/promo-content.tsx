@@ -25,7 +25,10 @@ export function PromoContent({ variant = 'desktop', className }: PromoContentPro
                     <a
                         href='#'
                         className='text-xs text-primary hover:text-primary/80 font-medium'
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        }}
                     >
                         Learn more
                     </a>

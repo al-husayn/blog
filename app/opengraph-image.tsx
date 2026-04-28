@@ -10,6 +10,18 @@ export const size = {
 };
 export const contentType = 'image/png';
 
+const arrayBufferToBase64 = (arrayBuffer: ArrayBuffer): string => {
+    const bytes = new Uint8Array(arrayBuffer);
+    let binary = '';
+
+    for (let i = 0; i < bytes.length; i += 0x8000) {
+        const chunk = bytes.subarray(i, i + 0x8000);
+        binary += String.fromCharCode(...chunk);
+    }
+
+    return btoa(binary);
+};
+
 const getAssetData = async () => {
     try {
         const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || siteConfig.url;
@@ -36,7 +48,7 @@ const getAssetData = async () => {
             logoRes.arrayBuffer(),
         ]);
 
-        const logoBase64 = `data:image/png;base64,${Buffer.from(logoImage).toString('base64')}`;
+        const logoBase64 = `data:image/png;base64,${arrayBufferToBase64(logoImage)}`;
 
         return {
             clashDisplay,
@@ -96,28 +108,26 @@ export default async function Image() {
         const assetData = await getAssetData();
 
         return new ImageResponse(
-            (
-                <div
-                    style={{
-                        ...styles.wrapper,
-                        fontFamily: assetData ? 'Clash Display' : 'system-ui',
-                    }}
-                >
-                    <div style={styles.container}>
-                        <img
-                            src={assetData?.logoBase64 || `${siteConfig.url}/logo.png`}
-                            alt='Logo'
-                            width={100}
-                            height={100}
-                        />
-                        <h1 style={styles.title}>Learn. Build. Share.</h1>
-                        <p style={styles.description}>
-                            → A space for developers to grow their skills, build real projects, and
-                            share stories that inspire others.
-                        </p>
-                    </div>
+            <div
+                style={{
+                    ...styles.wrapper,
+                    fontFamily: assetData ? 'Clash Display' : 'system-ui',
+                }}
+            >
+                <div style={styles.container}>
+                    <img
+                        src={assetData?.logoBase64 || `${siteConfig.url}/logo.png`}
+                        alt='Logo'
+                        width={100}
+                        height={100}
+                    />
+                    <h1 style={styles.title}>Learn. Build. Share.</h1>
+                    <p style={styles.description}>
+                        → A space for developers to grow their skills, build real projects, and
+                        share stories that inspire others.
+                    </p>
                 </div>
-            ),
+            </div>,
             {
                 ...size,
                 fonts: assetData

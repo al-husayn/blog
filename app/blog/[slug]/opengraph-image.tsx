@@ -13,6 +13,24 @@ export const size = {
     height: 630,
 };
 export const contentType = 'image/png';
+const ASSET_FETCH_TIMEOUT_MS = 3000;
+
+const fetchWithTimeout = async (
+    url: string,
+    timeoutMs = ASSET_FETCH_TIMEOUT_MS,
+): Promise<Response | null> => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+        return await fetch(url, { signal: controller.signal });
+    } catch (error) {
+        console.warn(`Failed to fetch OG asset from ${url}`, error);
+        return null;
+    } finally {
+        clearTimeout(timeoutId);
+    }
+};
 
 const getAssetData = async (authorAvatar?: string) => {
     try {
@@ -25,20 +43,20 @@ const getAssetData = async (authorAvatar?: string) => {
             ...(authorAvatar && { authorAvatar: `${baseUrl}${authorAvatar}` }),
         };
 
-        const fetchPromises = [
-            fetch(assetUrls.clashDisplay),
-            fetch(assetUrls.cabinetGrotesk),
-            fetch(assetUrls.logo),
+        const fetchPromises: Array<Promise<Response | null>> = [
+            fetchWithTimeout(assetUrls.clashDisplay),
+            fetchWithTimeout(assetUrls.cabinetGrotesk),
+            fetchWithTimeout(assetUrls.logo),
         ];
 
         if (assetUrls.authorAvatar) {
-            fetchPromises.push(fetch(assetUrls.authorAvatar));
+            fetchPromises.push(fetchWithTimeout(assetUrls.authorAvatar));
         }
 
         const responses = await Promise.all(fetchPromises);
         const [clashDisplayRes, cabinetGroteskRes, logoRes, authorAvatarRes] = responses;
 
-        if (!clashDisplayRes.ok || !cabinetGroteskRes.ok || !logoRes.ok) {
+        if (!clashDisplayRes?.ok || !cabinetGroteskRes?.ok || !logoRes?.ok) {
             return null;
         }
 
@@ -157,9 +175,10 @@ const styles = {
     },
 } as const;
 
-export default async function Image({ params }: { params: { slug: string } }) {
+export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
     try {
-        const page = getBlogPage(params.slug) as BlogPage | undefined;
+        const { slug } = await params;
+        const page = getBlogPage(slug) as BlogPage | undefined;
 
         if (!page) {
             return new Response('Blog post not found', { status: 404 });
@@ -171,57 +190,55 @@ export default async function Image({ params }: { params: { slug: string } }) {
         const assetData = await getAssetData(authorDetails?.avatar);
 
         return new ImageResponse(
-            (
-                <div
-                    style={{
-                        ...styles.wrapper,
-                        fontFamily: assetData ? 'Clash Display' : 'system-ui',
-                    }}
-                >
-                    <div style={styles.container}>
-                        <div style={styles.titleContainer}>
-                            <img
-                                src={assetData?.logoBase64 || `${siteConfig.url}/logo.png`}
-                                alt='Logo'
-                                width={80}
-                                height={80}
-                                style={styles.logo}
-                            />
-                            <h1 style={styles.title}>{page.data.title}</h1>
-                            {page.data.description && (
-                                <p style={styles.summary}>{page.data.description}</p>
-                            )}
-                        </div>
-                        <div style={styles.metaContainer}>
-                            {authorDetails && (
-                                <div style={{ ...styles.metaBase, ...styles.authorMeta }}>
-                                    {(assetData?.authorAvatarBase64 || authorDetails.avatar) && (
-                                        <img
-                                            src={
-                                                assetData?.authorAvatarBase64 ||
-                                                `${siteConfig.url}${authorDetails.avatar}`
-                                            }
-                                            alt={authorDetails.name}
-                                            width={32}
-                                            height={32}
-                                            style={styles.authorAvatar}
-                                        />
-                                    )}
-                                    <span>{authorDetails.name}</span>
-                                </div>
-                            )}
-                            {authorDetails && page.data.date && (
-                                <span style={styles.dotSeparator}>•</span>
-                            )}
-                            {page.data.date && (
-                                <p style={{ ...styles.metaBase, ...styles.dateMeta }}>
-                                    {formatDate(page.data.date)}
-                                </p>
-                            )}
-                        </div>
+            <div
+                style={{
+                    ...styles.wrapper,
+                    fontFamily: assetData ? 'Clash Display' : 'system-ui',
+                }}
+            >
+                <div style={styles.container}>
+                    <div style={styles.titleContainer}>
+                        <img
+                            src={assetData?.logoBase64 || `${siteConfig.url}/logo.png`}
+                            alt='Logo'
+                            width={80}
+                            height={80}
+                            style={styles.logo}
+                        />
+                        <h1 style={styles.title}>{page.data.title}</h1>
+                        {page.data.description && (
+                            <p style={styles.summary}>{page.data.description}</p>
+                        )}
+                    </div>
+                    <div style={styles.metaContainer}>
+                        {authorDetails && (
+                            <div style={{ ...styles.metaBase, ...styles.authorMeta }}>
+                                {(assetData?.authorAvatarBase64 || authorDetails.avatar) && (
+                                    <img
+                                        src={
+                                            assetData?.authorAvatarBase64 ||
+                                            `${siteConfig.url}${authorDetails.avatar}`
+                                        }
+                                        alt={authorDetails.name}
+                                        width={32}
+                                        height={32}
+                                        style={styles.authorAvatar}
+                                    />
+                                )}
+                                <span>{authorDetails.name}</span>
+                            </div>
+                        )}
+                        {authorDetails && page.data.date && (
+                            <span style={styles.dotSeparator}>•</span>
+                        )}
+                        {page.data.date && (
+                            <p style={{ ...styles.metaBase, ...styles.dateMeta }}>
+                                {formatDate(page.data.date)}
+                            </p>
+                        )}
                     </div>
                 </div>
-            ),
+            </div>,
             {
                 width: size.width,
                 height: size.height,

@@ -16,7 +16,7 @@ export function ThemeToggle() {
 
     const isDark = mounted ? resolvedTheme === 'dark' : false;
     const nextTheme = isDark ? 'light' : 'dark';
-    const nextThemeLabel = isDark ? 'light' : 'dark';
+    const switchLabel = `Switch to ${nextTheme} theme`;
 
     return (
         <Button
@@ -25,13 +25,13 @@ export function ThemeToggle() {
             size='icon'
             onClick={() => setTheme(nextTheme)}
             aria-pressed={isDark}
-            aria-label={`Switch to ${nextThemeLabel} theme`}
-            title={`Switch to ${nextThemeLabel} theme`}
+            aria-label={switchLabel}
+            title={switchLabel}
             className='relative cursor-pointer'
         >
             <Sun className='h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0' />
             <Moon className='absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100' />
-            <span className='sr-only'>{`Switch to ${nextThemeLabel} theme`}</span>
+            <span className='sr-only'>{switchLabel}</span>
         </Button>
     );
 }
