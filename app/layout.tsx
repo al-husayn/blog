@@ -9,6 +9,7 @@ import { siteConfig } from '@/lib/site';
 import { metadataKeywords } from '@/app/metadata';
 import { SiteNav } from '@/components/site-nav';
 import Footer from '@/components/footer';
+import { CookieBanner } from '@/components/cookie-banner';
 import { getAbsoluteUrl, toJsonLd } from '@/lib/seo';
 import { isClerkConfigured } from '@/lib/env';
 import 'goey-toast/styles.css';
@@ -161,6 +162,7 @@ export default function RootLayout({
                     {children}
                     <Footer />
                     <GoeyToaster />
+                    <CookieBanner />
                 </QueryProvider>
             </ThemeProvider>
         </>
