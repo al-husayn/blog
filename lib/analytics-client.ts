@@ -6,6 +6,7 @@ import type {
     AnalyticsShareEventInput,
     ShareNetwork,
 } from '@/types/analytics';
+import { isAnalyticsConsentGranted } from '@/lib/cookie-consent';
 
 const VISITOR_STORAGE_KEY = 'blog.analytics.visitor';
 const SESSION_STORAGE_KEY = 'blog.analytics.session';
@@ -234,6 +235,10 @@ export const reportAnalyticsError = (context: string, error: unknown): void => {
 export const trackArticlePageViewStart = async (
     input: Pick<AnalyticsPageViewInput, 'pageViewId' | 'articleSlug' | 'path'>,
 ): Promise<void> => {
+    if (!isAnalyticsConsentGranted()) {
+        return;
+    }
+
     await postJson('/api/analytics/pageviews', {
         ...input,
         ...getAnalyticsIdentity(),
@@ -241,6 +246,10 @@ export const trackArticlePageViewStart = async (
 };
 
 export const trackArticlePageViewComplete = (input: AnalyticsPageViewCompletionInput): void => {
+    if (!isAnalyticsConsentGranted()) {
+        return;
+    }
+
     sendBeaconJson(`/api/analytics/pageviews/${encodeURIComponent(input.pageViewId)}`, input);
 };
 
@@ -251,6 +260,10 @@ export const trackArticleShare = async ({
     articleSlug: string;
     network: ShareNetwork;
 }): Promise<void> => {
+    if (!isAnalyticsConsentGranted()) {
+        return;
+    }
+
     const identity = getAnalyticsIdentity();
     const payload: AnalyticsShareEventInput = {
         articleSlug,

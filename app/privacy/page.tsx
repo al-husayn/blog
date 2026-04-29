@@ -46,6 +46,7 @@ const privacySections = [
         ],
     },
     {
+        id: 'cookies-and-analytics',
         title: 'Cookies and Analytics',
         paragraphs: [
             'This website may use cookies and similar technologies to improve functionality, remember preferences, and understand general website traffic and usage patterns.',
@@ -140,6 +141,7 @@ export default function PrivacyPage() {
                     {privacySections.map((section) => (
                         <section
                             key={section.title}
+                            id={'id' in section ? section.id : undefined}
                             className='rounded-2xl border border-border bg-card p-6 space-y-3'
                         >
                             <h2 className='text-2xl font-semibold tracking-tight'>
