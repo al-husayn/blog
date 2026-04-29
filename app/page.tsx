@@ -1,250 +1,38 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { BlogCard } from '@/components/blog-card';
-import { TagFilter } from '@/components/tag-filter';
-import { FlickeringGrid } from '@/components/magicui/flickering-grid';
-import { getAuthor, isValidAuthor } from '@/lib/authors';
-import { getBlogPages, sortBlogPagesByDateDesc } from '@/lib/blog';
-import { getAbsoluteUrl, getIsoDate, toJsonLd } from '@/lib/seo';
+import { ArticlesSection } from '@/components/home/articles-section';
+import { BackgroundGrid } from '@/components/home/background-grid';
+import { FeaturedPost } from '@/components/home/featured-post';
+import { HeroSection } from '@/components/home/hero-section';
+import { buildBlogListJsonLd, getHomePageData, getMetadataContent } from '@/lib/home-page';
+import { getAbsoluteUrl, toJsonLd } from '@/lib/seo';
 import { siteConfig } from '@/lib/site';
-import type { BlogPage } from '@/types/blog';
 import type { HomePageRouteProps } from '@/types/pages/home';
-import { formatDate } from '@/lib/utils';
-
-const POSTS_PER_PAGE = 9;
-const ALL_TAG = 'All';
-
-const getTagFilter = (tag?: string): string | undefined => {
-    if (!tag) {
-        return undefined;
-    }
-
-    const normalizedTag = tag.trim();
-    if (!normalizedTag || normalizedTag.toLowerCase() === 'all') {
-        return undefined;
-    }
-
-    return normalizedTag;
-};
-
-const getSearchQuery = (query?: string): string | undefined => {
-    if (!query) {
-        return undefined;
-    }
-
-    const normalizedQuery = query.trim();
-    if (!normalizedQuery) {
-        return undefined;
-    }
-
-    return normalizedQuery;
-};
-
-const getPageNumber = (page?: string): number => {
-    if (!page) {
-        return 1;
-    }
-
-    const parsedPage = Number.parseInt(page, 10);
-    if (Number.isNaN(parsedPage) || parsedPage < 1) {
-        return 1;
-    }
-
-    return parsedPage;
-};
-
-const buildPaginationItems = (
-    totalPages: number,
-    currentPage: number,
-): Array<number | 'ellipsis'> => {
-    if (totalPages <= 7) {
-        return Array.from({ length: totalPages }, (_, index) => index + 1);
-    }
-
-    const items: Array<number | 'ellipsis'> = [1];
-
-    if (currentPage > 3) {
-        items.push('ellipsis');
-    }
-
-    const windowStart = Math.max(2, currentPage - 1);
-    const windowEnd = Math.min(totalPages - 1, currentPage + 1);
-
-    for (let page = windowStart; page <= windowEnd; page += 1) {
-        items.push(page);
-    }
-
-    if (currentPage < totalPages - 2) {
-        items.push('ellipsis');
-    }
-
-    items.push(totalPages);
-
-    return items;
-};
-
-const collectTagMetadata = (
-    blogs: BlogPage[],
-): { allTags: string[]; tagCounts: Record<string, number> } => {
-    const tagCounts: Record<string, number> = { [ALL_TAG]: blogs.length };
-
-    blogs.forEach((blog) => {
-        blog.data.tags?.forEach((tag) => {
-            tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
-        });
-    });
-
-    const allTags = [
-        ALL_TAG,
-        ...Object.keys(tagCounts)
-            .filter((tag) => tag !== ALL_TAG)
-            .sort((a, b) => a.localeCompare(b)),
-    ];
-
-    return { allTags, tagCounts };
-};
-
-const matchesSearchQuery = (blog: BlogPage, normalizedQuery: string): boolean => {
-    const searchableContent = [
-        blog.data.title,
-        blog.data.description,
-        ...(blog.data.tags ?? []),
-        blog.data.author,
-        blog.data.readTime,
-    ]
-        .filter((value): value is string => Boolean(value))
-        .join(' ')
-        .toLowerCase();
-
-    return searchableContent.includes(normalizedQuery);
-};
-
-const resolveAuthorMetadata = (blog: BlogPage): { authorName?: string; authorAvatar?: string } => {
-    const authorKey = blog.data.author;
-    const authorRecord = authorKey && isValidAuthor(authorKey) ? getAuthor(authorKey) : undefined;
-
-    return {
-        authorName: authorRecord?.name,
-        authorAvatar: blog.data.authorImage || authorRecord?.avatar,
-    };
-};
-
-const buildPageHref = ({
-    page,
-    searchQuery,
-    selectedTag,
-}: {
-    page: number;
-    searchQuery?: string;
-    selectedTag: string;
-}): string => {
-    const params = new URLSearchParams();
-    if (searchQuery) {
-        params.set('q', searchQuery);
-    }
-    if (selectedTag !== ALL_TAG) {
-        params.set('tag', selectedTag);
-    }
-    if (page > 1) {
-        params.set('page', String(page));
-    }
-
-    const queryString = params.toString();
-    return queryString ? `/?${queryString}` : '/';
-};
-
-const SKELETON_CARD_COUNT = 6;
-const getResultsLabel = (count: number): string =>
-    `${count} ${count === 1 ? 'article' : 'articles'}`;
-
-function ArticlesGridSkeleton({ count = SKELETON_CARD_COUNT }: { count?: number }) {
-    return (
-        <div role='status' aria-live='polite' aria-busy='true'>
-            <span className='sr-only'>Loading articles...</span>
-            <div className='grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6'>
-                {Array.from({ length: count }, (_, index) => (
-                    <article key={index} className='rounded-xl border border-border bg-background'>
-                        <div className='aspect-[16/10] w-full animate-pulse bg-muted/50' />
-                        <div className='p-6 space-y-3'>
-                            <div className='flex gap-2'>
-                                <div className='h-5 w-16 animate-pulse rounded-full bg-muted/60' />
-                                <div className='h-5 w-20 animate-pulse rounded-full bg-muted/60' />
-                            </div>
-                            <div className='h-6 w-11/12 animate-pulse rounded-md bg-muted/60' />
-                            <div className='h-6 w-7/12 animate-pulse rounded-md bg-muted/60' />
-                            <div className='space-y-2 pt-1'>
-                                <div className='h-4 w-full animate-pulse rounded-md bg-muted/50' />
-                                <div className='h-4 w-10/12 animate-pulse rounded-md bg-muted/50' />
-                            </div>
-                            <div className='flex items-center justify-between pt-2'>
-                                <div className='h-4 w-24 animate-pulse rounded-md bg-muted/50' />
-                                <div className='h-4 w-16 animate-pulse rounded-md bg-muted/50' />
-                            </div>
-                        </div>
-                    </article>
-                ))}
-            </div>
-        </div>
-    );
-}
 
 export async function generateMetadata({ searchParams }: HomePageRouteProps): Promise<Metadata> {
-    const resolvedSearchParams = await searchParams;
-    const selectedTag = getTagFilter(resolvedSearchParams.tag);
-    const searchQuery = getSearchQuery(resolvedSearchParams.q);
-    const pageNumber = getPageNumber(resolvedSearchParams.page);
-    const hasTagFilter = Boolean(selectedTag);
-    const hasSearchFilter = Boolean(searchQuery);
-    const hasPagination = pageNumber > 1;
-    const hasFilters = hasTagFilter || hasSearchFilter || hasPagination;
-
-    const baseTitle = hasSearchFilter
-        ? `Search Results for "${searchQuery}"`
-        : hasTagFilter
-          ? `${selectedTag} Articles`
-          : 'Modern JavaScript, TypeScript, React, and Next.js Tutorials';
-    const title = hasPagination ? `${baseTitle} - Page ${pageNumber}` : baseTitle;
-    const description = hasSearchFilter
-        ? `Browse search results for "${searchQuery}" on ${siteConfig.name}.`
-        : hasTagFilter
-          ? `Browse ${selectedTag} articles and practical coding tutorials on ${siteConfig.name}.`
-          : siteConfig.description;
-    const canonicalParams = new URLSearchParams();
-    if (selectedTag) {
-        canonicalParams.set('tag', selectedTag);
-    }
-    if (searchQuery) {
-        canonicalParams.set('q', searchQuery);
-    }
-    if (pageNumber > 1) {
-        canonicalParams.set('page', String(pageNumber));
-    }
-
-    const canonicalPath = canonicalParams.toString() ? `/?${canonicalParams.toString()}` : '/';
+    const metadata = getMetadataContent(await searchParams);
+    const absoluteImageUrl = getAbsoluteUrl(siteConfig.ogImage);
 
     return {
-        title,
-        description,
+        title: metadata.title,
+        description: metadata.description,
         alternates: {
-            canonical: canonicalPath,
+            canonical: metadata.canonicalPath,
         },
         openGraph: {
-            title,
-            description,
+            title: metadata.title,
+            description: metadata.description,
             type: 'website',
-            url: getAbsoluteUrl(canonicalPath),
-            images: [getAbsoluteUrl(siteConfig.ogImage)],
+            url: getAbsoluteUrl(metadata.canonicalPath),
+            images: [absoluteImageUrl],
         },
         twitter: {
             card: 'summary_large_image',
-            title,
-            description,
+            title: metadata.title,
+            description: metadata.description,
             creator: siteConfig.twitterHandle,
-            images: [getAbsoluteUrl(siteConfig.ogImage)],
+            images: [absoluteImageUrl],
         },
-        robots: hasFilters
+        robots: metadata.shouldHideFromIndex
             ? {
                   index: false,
                   follow: true,
@@ -256,349 +44,37 @@ export async function generateMetadata({ searchParams }: HomePageRouteProps): Pr
 export const revalidate = 3600;
 
 export default async function HomePage({ searchParams }: HomePageRouteProps) {
-    const resolvedSearchParams = await searchParams;
-    const sortedBlogs = sortBlogPagesByDateDesc(getBlogPages());
-    const { allTags, tagCounts } = collectTagMetadata(sortedBlogs);
-
-    const searchQuery = getSearchQuery(resolvedSearchParams.q);
-    const normalizedSearchQuery = searchQuery?.toLowerCase();
-    const selectedTag = getTagFilter(resolvedSearchParams.tag) ?? ALL_TAG;
-    const blogsByTag =
-        selectedTag === ALL_TAG
-            ? sortedBlogs
-            : sortedBlogs.filter((blog) => blog.data.tags?.includes(selectedTag));
-    const filteredBlogs = !normalizedSearchQuery
-        ? blogsByTag
-        : blogsByTag.filter((blog) => matchesSearchQuery(blog, normalizedSearchQuery));
-    const requestedPage = getPageNumber(resolvedSearchParams.page);
-    const featuredBlog = filteredBlogs.find((blog) => blog.data.featured) ?? filteredBlogs[0];
-    const showFeaturedPost = Boolean(featuredBlog) && requestedPage === 1;
-    const listBlogs =
-        showFeaturedPost && featuredBlog
-            ? filteredBlogs.filter((blog) => blog.url !== featuredBlog.url)
-            : filteredBlogs;
-    const totalPages = Math.max(1, Math.ceil(listBlogs.length / POSTS_PER_PAGE));
-    const currentPage = Math.min(requestedPage, totalPages);
-    const paginatedBlogs = listBlogs.slice(
-        (currentPage - 1) * POSTS_PER_PAGE,
-        currentPage * POSTS_PER_PAGE,
-    );
-    const paginationItems = buildPaginationItems(totalPages, currentPage);
-    const emptyStateLabel = searchQuery
-        ? `"${searchQuery}"`
-        : selectedTag !== ALL_TAG
-          ? selectedTag
-          : 'the selected filters';
-    const visibleBlogs = [
-        ...(showFeaturedPost && featuredBlog ? [featuredBlog] : []),
-        ...paginatedBlogs,
-    ];
-    const featuredAuthorName = featuredBlog
-        ? resolveAuthorMetadata(featuredBlog).authorName
-        : undefined;
-    const resultsSummaryLabel = `${getResultsLabel(filteredBlogs.length)} found`;
-    const resultsContextLabel =
-        searchQuery || selectedTag !== ALL_TAG
-            ? `Filtered by ${searchQuery ? `"${searchQuery}"` : selectedTag}`
-            : 'Latest posts';
-
-    const blogListJsonLd = {
-        '@context': 'https://schema.org',
-        '@type': 'Blog',
-        '@id': getAbsoluteUrl('/#blog'),
-        url: getAbsoluteUrl('/'),
-        name: siteConfig.name,
-        description: siteConfig.description,
-        inLanguage: siteConfig.language,
-        blogPost: visibleBlogs.map((blog) => {
-            const publishedTime = getIsoDate(blog.data.date);
-
-            return {
-                '@type': 'BlogPosting',
-                headline: blog.data.title,
-                description: blog.data.description,
-                url: getAbsoluteUrl(blog.url),
-                image: blog.data.thumbnail
-                    ? getAbsoluteUrl(blog.data.thumbnail)
-                    : getAbsoluteUrl(siteConfig.ogImage),
-                ...(publishedTime ? { datePublished: publishedTime } : {}),
-            };
-        }),
-    };
+    const pageData = getHomePageData(await searchParams);
 
     return (
         <main role='main' className='min-h-screen bg-background relative'>
             <script
                 type='application/ld+json'
                 dangerouslySetInnerHTML={{
-                    __html: toJsonLd(blogListJsonLd),
+                    __html: toJsonLd(buildBlogListJsonLd(pageData.visibleBlogs)),
                 }}
             />
-            <div
-                aria-hidden='true'
-                className='absolute top-0 left-0 z-0 w-full h-[200px] [mask-image:linear-gradient(to_top,transparent_25%,black_95%)]'
-            >
-                <FlickeringGrid
-                    className='absolute top-0 left-0 size-full'
-                    squareSize={4}
-                    gridGap={6}
-                    color='var(--muted-foreground)'
-                    maxOpacity={0.2}
-                    flickerChance={0.05}
-                />
-            </div>
-            <section
-                aria-labelledby='home-hero-heading'
-                className='p-6 border-b border-border flex flex-col gap-6 min-h-[250px] justify-center relative z-10'
-            >
-                <div className='max-w-7xl mx-auto w-full'>
-                    <div className='flex flex-col gap-2'>
-                        <h1
-                            id='home-hero-heading'
-                            className='font-medium text-4xl md:text-5xl tracking-tighter'
-                        >
-                            Learn. Build. Share.
-                        </h1>
-                        <p className='text-muted-foreground text-sm md:text-base lg:text-lg'>
-                            A space for developers to grow their skills, build real projects, and
-                            share stories that inspire others.
-                        </p>
-                    </div>
-                </div>
-                {allTags.length > 0 && (
-                    <div className='max-w-7xl mx-auto w-full flex flex-col gap-3'>
-                        <form action='/' method='get' className='flex w-full items-center gap-2'>
-                            <label htmlFor='blog-search' className='sr-only'>
-                                Search articles
-                            </label>
-                            <input
-                                id='blog-search'
-                                name='q'
-                                type='search'
-                                defaultValue={searchQuery || ''}
-                                placeholder='Search articles...'
-                                className='h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
-                            />
-                            {selectedTag !== ALL_TAG && (
-                                <input type='hidden' name='tag' value={selectedTag} />
-                            )}
-                            <button
-                                type='submit'
-                                className='h-10 rounded-lg border border-border px-4 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
-                            >
-                                Search
-                            </button>
-                            {searchQuery && (
-                                <Link
-                                    href={
-                                        selectedTag === ALL_TAG
-                                            ? '/'
-                                            : `/?tag=${encodeURIComponent(selectedTag)}`
-                                    }
-                                    className='rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
-                                >
-                                    Clear
-                                </Link>
-                            )}
-                        </form>
-                        <TagFilter
-                            tags={allTags}
-                            selectedTag={selectedTag}
-                            tagCounts={tagCounts}
-                            panelId='filtered-articles-panel'
-                        />
-                    </div>
-                )}
-            </section>
-
-            {showFeaturedPost && featuredBlog && (
-                <section
-                    aria-labelledby='featured-post-heading'
-                    className='max-w-7xl mx-auto w-full px-6 lg:px-0 py-8'
-                >
-                    <div className='space-y-4'>
-                        <div>
-                            <p className='text-xs uppercase tracking-wide text-primary font-semibold'>
-                                Featured
-                            </p>
-                            <h2
-                                id='featured-post-heading'
-                                className='text-2xl font-medium tracking-tight'
-                            >
-                                Featured Post
-                            </h2>
-                        </div>
-                        <Link
-                            href={featuredBlog.url}
-                            className='group block rounded-xl border border-border bg-card overflow-hidden transition-[background-color,box-shadow] duration-200 hover:bg-muted/20 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
-                        >
-                            <div className='grid gap-0 md:grid-cols-2'>
-                                {featuredBlog.data.thumbnail && (
-                                    <div className='relative min-h-[220px] md:min-h-[300px]'>
-                                        <Image
-                                            src={featuredBlog.data.thumbnail}
-                                            alt={featuredBlog.data.title}
-                                            fill
-                                            style={{ objectFit: 'cover' }}
-                                            className='object-cover transition-transform duration-300 group-hover:scale-[1.02] dark:brightness-[0.86] dark:contrast-110 dark:saturate-90'
-                                            sizes='(max-width: 768px) 100vw, 50vw'
-                                        />
-                                        <div
-                                            aria-hidden='true'
-                                            className='pointer-events-none absolute inset-0 bg-black/0 dark:bg-black/20 transition-colors duration-300 group-hover:dark:bg-black/10'
-                                        />
-                                    </div>
-                                )}
-                                <div className='p-6 flex flex-col gap-3 justify-center'>
-                                    <span className='inline-flex w-fit items-center rounded-full border border-primary/50 bg-primary/10 px-2.5 py-1 text-[11px] font-semibold tracking-wide text-primary'>
-                                        FEATURED
-                                    </span>
-                                    <h3 className='text-2xl font-semibold tracking-tight group-hover:underline underline-offset-4'>
-                                        {featuredBlog.data.title}
-                                    </h3>
-                                    <p className='text-muted-foreground text-sm md:text-base'>
-                                        {featuredBlog.data.description}
-                                    </p>
-                                    <div className='text-xs text-muted-foreground flex flex-wrap items-center gap-2'>
-                                        {featuredAuthorName ? (
-                                            <span className='font-medium'>
-                                                {featuredAuthorName}
-                                            </span>
-                                        ) : null}
-                                        {featuredBlog.data.readTime && (
-                                            <span>• {featuredBlog.data.readTime}</span>
-                                        )}
-                                        <span>• {formatDate(featuredBlog.data.date)}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </Link>
-                    </div>
-                </section>
+            <BackgroundGrid />
+            <HeroSection
+                allTags={pageData.allTags}
+                tagCounts={pageData.tagCounts}
+                searchQuery={pageData.searchQuery}
+                selectedTag={pageData.selectedTag}
+            />
+            {pageData.showFeaturedPost && pageData.featuredBlog && (
+                <FeaturedPost blog={pageData.featuredBlog} />
             )}
-
-            <section
-                aria-labelledby='latest-articles-heading'
-                className='max-w-7xl mx-auto w-full px-6 lg:px-0'
-            >
-                <div className='mb-5 flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3'>
-                    <h2
-                        id='latest-articles-heading'
-                        className='text-sm font-semibold tracking-wide text-foreground/90 md:text-base'
-                    >
-                        {resultsSummaryLabel}
-                    </h2>
-                    <p className='text-xs text-muted-foreground md:text-sm'>
-                        {resultsContextLabel}
-                        {totalPages > 1 ? ` • Page ${currentPage} of ${totalPages}` : ''}
-                    </p>
-                </div>
-                <Suspense fallback={<ArticlesGridSkeleton />}>
-                    <div
-                        id='filtered-articles-panel'
-                        className='grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6'
-                    >
-                        {paginatedBlogs.length > 0 ? (
-                            paginatedBlogs.map((blog) => {
-                                const formattedDate = formatDate(blog.data.date);
-                                const { authorName, authorAvatar } = resolveAuthorMetadata(blog);
-
-                                return (
-                                    <BlogCard
-                                        key={blog.url}
-                                        url={blog.url}
-                                        title={blog.data.title}
-                                        description={blog.data.description}
-                                        date={formattedDate}
-                                        tags={blog.data.tags}
-                                        authorName={authorName}
-                                        authorAvatar={authorAvatar}
-                                        readTime={blog.data.readTime}
-                                        thumbnail={blog.data.thumbnail}
-                                    />
-                                );
-                            })
-                        ) : (
-                            <div className='col-span-full rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground'>
-                                No articles found for{' '}
-                                <span className='font-medium text-foreground'>
-                                    {emptyStateLabel}
-                                </span>
-                                .
-                            </div>
-                        )}
-                    </div>
-                </Suspense>
-
-                {totalPages > 1 && (
-                    <nav
-                        aria-label='Pagination'
-                        className='mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border p-4 md:flex-nowrap'
-                    >
-                        <Link
-                            href={buildPageHref({
-                                page: Math.max(1, currentPage - 1),
-                                searchQuery,
-                                selectedTag,
-                            })}
-                            aria-disabled={currentPage === 1}
-                            className={`inline-flex h-9 min-w-[84px] items-center justify-center rounded-md border px-3 text-center text-sm font-medium leading-none transition-colors md:min-w-[96px] ${
-                                currentPage === 1
-                                    ? 'pointer-events-none opacity-50 border-border'
-                                    : 'border-border hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
-                            }`}
-                        >
-                            Previous
-                        </Link>
-
-                        <div className='order-3 w-full justify-center flex items-center gap-2 md:order-none md:w-auto'>
-                            {paginationItems.map((item, index) =>
-                                item === 'ellipsis' ? (
-                                    <span
-                                        key={`ellipsis-${index}`}
-                                        className='text-sm text-muted-foreground px-1'
-                                    >
-                                        ...
-                                    </span>
-                                ) : (
-                                    <Link
-                                        key={item}
-                                        href={buildPageHref({
-                                            page: item,
-                                            searchQuery,
-                                            selectedTag,
-                                        })}
-                                        aria-current={item === currentPage ? 'page' : undefined}
-                                        className={`h-9 min-w-9 px-2 rounded-md border text-sm font-medium inline-flex items-center justify-center transition-colors ${
-                                            item === currentPage
-                                                ? 'border-primary bg-primary text-primary-foreground'
-                                                : 'border-border hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
-                                        }`}
-                                    >
-                                        {item}
-                                    </Link>
-                                ),
-                            )}
-                        </div>
-
-                        <Link
-                            href={buildPageHref({
-                                page: Math.min(totalPages, currentPage + 1),
-                                searchQuery,
-                                selectedTag,
-                            })}
-                            aria-disabled={currentPage === totalPages}
-                            className={`inline-flex h-9 min-w-[84px] items-center justify-center rounded-md border px-3 text-center text-sm font-medium leading-none transition-colors md:min-w-[96px] ${
-                                currentPage === totalPages
-                                    ? 'pointer-events-none opacity-50 border-border'
-                                    : 'border-border hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
-                            }`}
-                        >
-                            Next
-                        </Link>
-                    </nav>
-                )}
-            </section>
+            <ArticlesSection
+                paginatedBlogs={pageData.paginatedBlogs}
+                emptyStateLabel={pageData.emptyStateLabel}
+                resultsSummaryLabel={pageData.resultsSummaryLabel}
+                resultsContextLabel={pageData.resultsContextLabel}
+                currentPage={pageData.currentPage}
+                totalPages={pageData.totalPages}
+                paginationItems={pageData.paginationItems}
+                searchQuery={pageData.searchQuery}
+                selectedTag={pageData.selectedTag}
+            />
         </main>
     );
 }
