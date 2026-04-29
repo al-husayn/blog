@@ -2,10 +2,7 @@
 
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import {
-    Card,
-    LeaderboardList,
-} from '@/components/admin/analytics-dashboard-primitives';
+import { Card, LeaderboardList } from '@/components/admin/analytics-dashboard-primitives';
 import {
     formatCompactNumber,
     formatDuration,

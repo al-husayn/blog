@@ -1,10 +1,7 @@
 'use client';
 
 import { Eye } from 'lucide-react';
-import {
-    Card,
-    Sparkline,
-} from '@/components/admin/analytics-dashboard-primitives';
+import { Card, Sparkline } from '@/components/admin/analytics-dashboard-primitives';
 import {
     formatCompactNumber,
     formatDelta,

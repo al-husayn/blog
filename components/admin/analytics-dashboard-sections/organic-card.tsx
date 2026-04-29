@@ -1,14 +1,8 @@
 'use client';
 
 import { ChartNoAxesColumn, Search } from 'lucide-react';
-import {
-    Card,
-    LineChart,
-} from '@/components/admin/analytics-dashboard-primitives';
-import {
-    formatCompactNumber,
-    formatNumber,
-} from '@/components/admin/analytics-dashboard-utils';
+import { Card, LineChart } from '@/components/admin/analytics-dashboard-primitives';
+import { formatCompactNumber, formatNumber } from '@/components/admin/analytics-dashboard-utils';
 import { SectionMetricCard } from '@/components/admin/analytics-dashboard-sections/section-metric-card';
 import type { AnalyticsDashboardSectionProps } from '@/components/admin/analytics-dashboard-sections/types';
 

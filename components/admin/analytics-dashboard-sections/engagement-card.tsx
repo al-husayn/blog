@@ -1,14 +1,8 @@
 'use client';
 
 import { ChartNoAxesColumn, Clock3, Gauge } from 'lucide-react';
-import {
-    Card,
-    EngagementGauge,
-} from '@/components/admin/analytics-dashboard-primitives';
-import {
-    formatDuration,
-    formatPercent,
-} from '@/components/admin/analytics-dashboard-utils';
+import { Card, EngagementGauge } from '@/components/admin/analytics-dashboard-primitives';
+import { formatDuration, formatPercent } from '@/components/admin/analytics-dashboard-utils';
 import { ProgressRow } from '@/components/admin/analytics-dashboard-sections/progress-row';
 import { SectionMetricCard } from '@/components/admin/analytics-dashboard-sections/section-metric-card';
 import type { AnalyticsDashboardSectionProps } from '@/components/admin/analytics-dashboard-sections/types';
@@ -43,9 +37,7 @@ export function EngagementCard({ data }: AnalyticsDashboardSectionProps) {
                             label='Bounce rate'
                         />
                         <SectionMetricCard
-                            icon={
-                                <ChartNoAxesColumn className='h-4 w-4 text-muted-foreground' />
-                            }
+                            icon={<ChartNoAxesColumn className='h-4 w-4 text-muted-foreground' />}
                             value={formatPercent(data.avgScrollDepth30d)}
                             label='Avg scroll depth'
                         />

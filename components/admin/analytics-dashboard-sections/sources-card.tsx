@@ -1,9 +1,6 @@
 'use client';
 
-import {
-    Card,
-    DonutChart,
-} from '@/components/admin/analytics-dashboard-primitives';
+import { Card, DonutChart } from '@/components/admin/analytics-dashboard-primitives';
 import {
     formatCompactNumber,
     formatNumber,
