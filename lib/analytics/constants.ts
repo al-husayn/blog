@@ -5,6 +5,9 @@ export const HOUR_IN_MS = 3_600_000;
 export const MAX_DAY_SECONDS = 86_400;
 export const MAX_SCROLL_DEPTH = 100;
 export const BOUNCE_SCROLL_DEPTH = 50;
+export const SCROLL_REACH_50 = 50;
+export const SCROLL_REACH_75 = 75;
+export const SCROLL_REACH_100 = 100;
 export const SESSION_ENGAGEMENT_THRESHOLD_SECONDS = 15;
 
 export const TOP_POST_LIMIT = 8;

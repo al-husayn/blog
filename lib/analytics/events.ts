@@ -3,6 +3,9 @@ import {
     BOUNCE_SCROLL_DEPTH,
     MAX_DAY_SECONDS,
     MAX_SCROLL_DEPTH,
+    SCROLL_REACH_100,
+    SCROLL_REACH_50,
+    SCROLL_REACH_75,
     SESSION_ENGAGEMENT_THRESHOLD_SECONDS,
 } from '@/lib/analytics/constants';
 import { getDb } from '@/lib/db/client';
@@ -66,19 +69,22 @@ export const completePageView = async (input: AnalyticsPageViewCompletionInput):
     const engagedTimeSeconds = Math.round(
         clampNumber(payload.engagedTimeSeconds, 0, MAX_DAY_SECONDS),
     );
+    const reached50 = maxScrollDepth >= SCROLL_REACH_50;
+    const reached75 = maxScrollDepth >= SCROLL_REACH_75;
+    const reached100 = maxScrollDepth >= SCROLL_REACH_100;
 
     const updatedRows = await db
         .update(articlePageViews)
         .set({
             engagedTimeSeconds,
             maxScrollDepth,
-            reached50: payload.reached50,
-            reached75: payload.reached75,
-            reached100: payload.reached100,
+            reached50,
+            reached75,
+            reached100,
             didBounce: calculateBounce({
                 engagedTimeSeconds,
                 maxScrollDepth,
-                reached50: payload.reached50,
+                reached50,
             }),
             updatedAt: new Date(),
         })
