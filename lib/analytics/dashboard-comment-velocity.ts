@@ -1,4 +1,4 @@
-import { inArray } from 'drizzle-orm';
+import { and, gte, inArray } from 'drizzle-orm';
 import { COMMENTS_VELOCITY_WINDOW_HOURS, HOUR_IN_MS } from '@/lib/analytics/constants';
 import { getDb } from '@/lib/db/client';
 import { comments } from '@/lib/db/schema';
@@ -28,6 +28,22 @@ const getPublishWindowEnds = (
     return publishWindowEnds;
 };
 
+const getEarliestPublishDate = (metadataBySlug: Map<string, ArticleMetadata>): Date | null => {
+    let earliestDate: Date | null = null;
+
+    for (const metadata of metadataBySlug.values()) {
+        if (!metadata.publishedDate) {
+            continue;
+        }
+
+        if (!earliestDate || metadata.publishedDate < earliestDate) {
+            earliestDate = metadata.publishedDate;
+        }
+    }
+
+    return earliestDate;
+};
+
 const toVelocityMap = (commentsBySlug: Map<string, number>): CommentVelocityMap =>
     new Map(
         Array.from(commentsBySlug, ([slug, comments48h]) => [
@@ -45,9 +61,11 @@ export const getCommentVelocityMap = async (
     metadataBySlug: Map<string, ArticleMetadata>,
 ): Promise<CommentVelocityMap> => {
     const db = getDb();
-    const articleSlugs = Array.from(metadataBySlug.keys());
+    const publishWindowEnds = getPublishWindowEnds(metadataBySlug);
+    const articleSlugs = Array.from(publishWindowEnds.keys());
+    const earliestPublishDate = getEarliestPublishDate(metadataBySlug);
 
-    if (articleSlugs.length === 0) {
+    if (articleSlugs.length === 0 || !earliestPublishDate) {
         return new Map();
     }
 
@@ -57,9 +75,13 @@ export const getCommentVelocityMap = async (
             createdAt: comments.createdAt,
         })
         .from(comments)
-        .where(inArray(comments.articleSlug, articleSlugs));
+        .where(
+            and(
+                inArray(comments.articleSlug, articleSlugs),
+                gte(comments.createdAt, earliestPublishDate),
+            ),
+        );
 
-    const publishWindowEnds = getPublishWindowEnds(metadataBySlug);
     const commentsBySlug = new Map<string, number>();
 
     for (const row of commentRows) {

@@ -16,7 +16,6 @@ export const getDashboardAnalytics = async (): Promise<DashboardAnalytics> => {
         trend30d,
         trend90d,
         trendAllTime,
-        pageviewSparkline,
         previousThirtyDayViews,
         sources30d,
         organicTrend90d,
@@ -30,7 +29,6 @@ export const getDashboardAnalytics = async (): Promise<DashboardAnalytics> => {
         getDailyViewsSeries({ days: MONTH_DAYS, now }),
         getDailyViewsSeries({ days: QUARTER_DAYS, now }),
         getMonthlyViewsSeries({ months: DASHBOARD_MONTHS, now }),
-        getDailyViewsSeries({ days: MONTH_DAYS, now }),
         getPreviousThirtyDayViews(now),
         getSourceBreakdown(now),
         getDailyViewsSeries({ days: QUARTER_DAYS, now, sourceGroup: 'organic' }),
@@ -40,6 +38,7 @@ export const getDashboardAnalytics = async (): Promise<DashboardAnalytics> => {
         getShareMetrics(now),
         getTopPosts(now),
     ]);
+    const pageviewSparkline = trend30d;
 
     const periods = await getPeriodTotals(
         now,

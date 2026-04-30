@@ -50,14 +50,21 @@ export const getSourceBreakdown = async (now: Date): Promise<DashboardSourceSlic
         const sourceKey = row.group as TrafficSourceGroup;
         const sourceSlice = sourceMap.get(sourceKey);
 
-        if (sourceSlice) {
-            const value = toNumber(row.value);
-            sourceSlice.value += value;
-            sourceSlice.details.push({
-                label: row.detail ?? TRAFFIC_SOURCE_LABELS[sourceKey],
-                value,
+        if (!sourceSlice) {
+            console.warn('[analytics] Unknown traffic source group in dashboard breakdown.', {
+                group: row.group,
+                detail: row.detail,
+                value: row.value,
             });
+            continue;
         }
+
+        const value = toNumber(row.value);
+        sourceSlice.value += value;
+        sourceSlice.details.push({
+            label: row.detail ?? TRAFFIC_SOURCE_LABELS[sourceKey],
+            value,
+        });
     }
 
     return Array.from(sourceMap.values())

@@ -1,3 +1,5 @@
+import { clampNumber } from '@/lib/analytics/number';
+
 const MAX_ENGAGEMENT_SCORE = 100;
 const TARGET_ENGAGEMENT_SECONDS = 240;
 const TIME_SCORE_WEIGHT = 45;
@@ -13,10 +15,12 @@ export const calculateEngagementScore = ({
     avgScrollDepth: number;
     bounceRate: number;
 }): number => {
-    const timeScore =
-        Math.min(avgEngagementSeconds / TARGET_ENGAGEMENT_SECONDS, 1) * TIME_SCORE_WEIGHT;
-    const scrollScore = Math.min(avgScrollDepth / MAX_ENGAGEMENT_SCORE, 1) * SCROLL_SCORE_WEIGHT;
-    const bounceScore = Math.max(0, 1 - bounceRate / MAX_ENGAGEMENT_SCORE) * BOUNCE_SCORE_WEIGHT;
+    const normalizedTime = clampNumber(avgEngagementSeconds / TARGET_ENGAGEMENT_SECONDS, 0, 1);
+    const normalizedScroll = clampNumber(avgScrollDepth / MAX_ENGAGEMENT_SCORE, 0, 1);
+    const normalizedBounce = clampNumber(1 - bounceRate / MAX_ENGAGEMENT_SCORE, 0, 1);
+    const timeScore = normalizedTime * TIME_SCORE_WEIGHT;
+    const scrollScore = normalizedScroll * SCROLL_SCORE_WEIGHT;
+    const bounceScore = normalizedBounce * BOUNCE_SCORE_WEIGHT;
 
-    return Math.round(timeScore + scrollScore + bounceScore);
+    return clampNumber(Math.round(timeScore + scrollScore + bounceScore), 0, MAX_ENGAGEMENT_SCORE);
 };

@@ -9,14 +9,17 @@ export const normalizeNullableString = (value: string | null | undefined): strin
 
 export const normalizeHost = (value: string): string => value.toLowerCase().replace(/^www\./, '');
 
-export const prettifyHost = (value: string): string =>
-    value
-        .replace(/^www\./, '')
-        .split('.')
-        .slice(0, -1)
+export const prettifyHost = (value: string): string => {
+    const hostWithoutWww = value.replace(/^www\./, '');
+    const labels = hostWithoutWww.split('.');
+    const displayLabels = labels.length === 1 ? labels : labels.slice(0, -1);
+    const formattedValue = displayLabels
         .join('.')
         .replace(/[-_]/g, ' ')
-        .replace(/\b\w/g, (character) => character.toUpperCase()) || value;
+        .replace(/\b\w/g, (character) => character.toUpperCase());
+
+    return formattedValue || value;
+};
 
 export const stripReferrerPath = (value: string | null | undefined): string | null => {
     const normalizedValue = normalizeNullableString(value);

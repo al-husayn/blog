@@ -33,7 +33,11 @@ export const buildRecentMetricsMap = (
     );
 
 const hasPostActivity = (metric: DashboardTopPostMetric): boolean =>
-    metric.viewsAllTime > 0 || metric.reactions > 0 || metric.comments > 0 || metric.shares30d > 0;
+    metric.viewsAllTime > 0 ||
+    metric.reactions > 0 ||
+    metric.comments > 0 ||
+    metric.shares30d > 0 ||
+    metric.sharesAllTime > 0;
 
 export const buildPostMetrics = ({
     candidateSlugs,
@@ -71,6 +75,7 @@ export const buildPostMetrics = ({
                 reactions: reactionMaps.reactionsBySlug.get(slug) ?? 0,
                 comments: reactionMaps.commentsBySlug.get(slug) ?? 0,
                 shares30d: shareMetrics.shares30dBySlug.get(slug) ?? 0,
+                sharesAllTime: shareMetrics.sharesAllTimeBySlug.get(slug) ?? 0,
                 comments48h: commentVelocity?.comments48h ?? 0,
                 commentsVelocityPerHour: commentVelocity?.commentsVelocityPerHour ?? 0,
             };

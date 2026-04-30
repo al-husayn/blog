@@ -74,6 +74,7 @@ export interface DashboardTopPostMetric {
     reactions: number;
     comments: number;
     shares30d: number;
+    sharesAllTime: number;
     comments48h: number;
     commentsVelocityPerHour: number;
 }

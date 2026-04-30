@@ -21,16 +21,6 @@ import type {
     AnalyticsShareEventInput,
 } from '@/types/analytics';
 
-const hasPageViewStart = async (pageViewId: string): Promise<boolean> => {
-    const db = getDb();
-    const [existingRecord] = await db
-        .select({ id: articlePageViews.id })
-        .from(articlePageViews)
-        .where(eq(articlePageViews.id, pageViewId));
-
-    return Boolean(existingRecord);
-};
-
 const calculateBounce = ({
     engagedTimeSeconds,
     maxScrollDepth,
@@ -77,14 +67,7 @@ export const completePageView = async (input: AnalyticsPageViewCompletionInput):
         clampNumber(payload.engagedTimeSeconds, 0, MAX_DAY_SECONDS),
     );
 
-    if (!(await hasPageViewStart(payload.pageViewId))) {
-        console.warn(
-            `[analytics] Page view completion received for non-existent start record: ${payload.pageViewId}`,
-        );
-        return;
-    }
-
-    await db
+    const updatedRows = await db
         .update(articlePageViews)
         .set({
             engagedTimeSeconds,
@@ -99,7 +82,14 @@ export const completePageView = async (input: AnalyticsPageViewCompletionInput):
             }),
             updatedAt: new Date(),
         })
-        .where(eq(articlePageViews.id, payload.pageViewId));
+        .where(eq(articlePageViews.id, payload.pageViewId))
+        .returning({ id: articlePageViews.id });
+
+    if (updatedRows.length === 0) {
+        console.warn(
+            `[analytics] Page view completion received for non-existent start record: ${payload.pageViewId}`,
+        );
+    }
 };
 
 export const createShareEvent = async (input: AnalyticsShareEventInput): Promise<void> => {

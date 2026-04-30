@@ -8,20 +8,20 @@ const SOCIAL_UTM_TOKENS = new Set(['x', 'twitter', 'linkedin', 'reddit', 'hn']);
 const SEARCH_KEYWORD_PARAMS = ['q', 'p', 'query', 'text', 'wd', 'keyword'];
 
 const SEARCH_REFERRERS = [
-    { hostIncludes: 'google.', detail: 'Google' },
-    { hostIncludes: 'bing.', detail: 'Bing' },
-    { hostIncludes: 'duckduckgo.com', detail: 'DuckDuckGo' },
-    { hostIncludes: 'search.yahoo.com', detail: 'Yahoo' },
-    { hostIncludes: 'ecosia.org', detail: 'Ecosia' },
-    { hostIncludes: 'search.brave.com', detail: 'Brave Search' },
+    { host: 'google.com', detail: 'Google' },
+    { host: 'bing.com', detail: 'Bing' },
+    { host: 'duckduckgo.com', detail: 'DuckDuckGo' },
+    { host: 'search.yahoo.com', detail: 'Yahoo' },
+    { host: 'ecosia.org', detail: 'Ecosia' },
+    { host: 'search.brave.com', detail: 'Brave Search' },
 ] as const;
 
 const SOCIAL_REFERRERS = [
-    { hostIncludes: 'x.com', detail: 'X/Twitter' },
-    { hostIncludes: 'twitter.com', detail: 'X/Twitter' },
-    { hostIncludes: 'linkedin.com', detail: 'LinkedIn' },
-    { hostIncludes: 'reddit.com', detail: 'Reddit' },
-    { hostIncludes: 'news.ycombinator.com', detail: 'HN' },
+    { host: 'x.com', detail: 'X/Twitter' },
+    { host: 'twitter.com', detail: 'X/Twitter' },
+    { host: 'linkedin.com', detail: 'LinkedIn' },
+    { host: 'reddit.com', detail: 'Reddit' },
+    { host: 'news.ycombinator.com', detail: 'HN' },
 ] as const;
 
 const directSource = (): DerivedTrafficSource => ({
@@ -83,10 +83,13 @@ const extractKeywordFromReferrer = (referrerUrl: URL): string | null => {
     return null;
 };
 
+const domainMatches = (referrerHost: string, sourceHost: string): boolean =>
+    referrerHost === sourceHost || referrerHost.endsWith(`.${sourceHost}`);
+
 const sourceFromReferrerUrl = (referrerUrl: URL): DerivedTrafficSource => {
     const referrerHost = normalizeHost(referrerUrl.hostname);
     const searchReferrer = SEARCH_REFERRERS.find((source) =>
-        referrerHost.includes(source.hostIncludes),
+        domainMatches(referrerHost, source.host),
     );
 
     if (searchReferrer) {
@@ -99,7 +102,7 @@ const sourceFromReferrerUrl = (referrerUrl: URL): DerivedTrafficSource => {
     }
 
     const socialReferrer = SOCIAL_REFERRERS.find((source) =>
-        referrerHost.includes(source.hostIncludes),
+        domainMatches(referrerHost, source.host),
     );
 
     if (socialReferrer) {
