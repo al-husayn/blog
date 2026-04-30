@@ -8,7 +8,11 @@ import {
 import { getDb } from '@/lib/db/client';
 import { articlePageViews, articleShareEvents } from '@/lib/db/schema';
 import { clampNumber } from '@/lib/analytics/number';
-import { pageViewCompletionSchema, pageViewSchema, shareEventSchema } from '@/lib/analytics/schemas';
+import {
+    pageViewCompletionSchema,
+    pageViewSchema,
+    shareEventSchema,
+} from '@/lib/analytics/schemas';
 import { normalizeNullableString, stripReferrerPath } from '@/lib/analytics/string';
 import { deriveTrafficSource } from '@/lib/analytics/traffic-source';
 import type {

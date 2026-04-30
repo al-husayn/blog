@@ -1,9 +1,4 @@
-import {
-    DASHBOARD_MONTHS,
-    MONTH_DAYS,
-    QUARTER_DAYS,
-    WEEK_DAYS,
-} from '@/lib/analytics/constants';
+import { DASHBOARD_MONTHS, MONTH_DAYS, QUARTER_DAYS, WEEK_DAYS } from '@/lib/analytics/constants';
 import { getNewVsReturningVisitors } from '@/lib/analytics/dashboard-audience';
 import { getEngagementSummary } from '@/lib/analytics/dashboard-engagement';
 import { getPeriodTotals, getPreviousThirtyDayViews } from '@/lib/analytics/dashboard-periods';

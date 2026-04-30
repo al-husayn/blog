@@ -31,7 +31,11 @@ export const getDailyViewsSeries = async ({
             value: count(),
         })
         .from(articlePageViews)
-        .where(sourceGroup ? and(dateFilter, eq(articlePageViews.sourceGroup, sourceGroup)) : dateFilter)
+        .where(
+            sourceGroup
+                ? and(dateFilter, eq(articlePageViews.sourceGroup, sourceGroup))
+                : dateFilter,
+        )
         .groupBy(bucketPosition)
         .orderBy(bucketPosition);
 

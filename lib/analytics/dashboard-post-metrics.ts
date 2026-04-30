@@ -33,10 +33,7 @@ export const buildRecentMetricsMap = (
     );
 
 const hasPostActivity = (metric: DashboardTopPostMetric): boolean =>
-    metric.viewsAllTime > 0 ||
-    metric.reactions > 0 ||
-    metric.comments > 0 ||
-    metric.shares30d > 0;
+    metric.viewsAllTime > 0 || metric.reactions > 0 || metric.comments > 0 || metric.shares30d > 0;
 
 export const buildPostMetrics = ({
     candidateSlugs,

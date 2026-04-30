@@ -1,8 +1,5 @@
 import { inArray } from 'drizzle-orm';
-import {
-    COMMENTS_VELOCITY_WINDOW_HOURS,
-    HOUR_IN_MS,
-} from '@/lib/analytics/constants';
+import { COMMENTS_VELOCITY_WINDOW_HOURS, HOUR_IN_MS } from '@/lib/analytics/constants';
 import { getDb } from '@/lib/db/client';
 import { comments } from '@/lib/db/schema';
 import { toDate } from '@/lib/analytics/date';
