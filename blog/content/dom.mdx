@@ -494,7 +494,7 @@ const card = li.closest('.card')    // Finds nearest ancestor with class "card"
 const self = li.closest('li')       // Returns li itself if it matches!
 ```
 
-The **[`closest()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/closest)** method is useful for event delegation (see [Event Loop](/concepts/event-loop) for how events are processed):
+The **[`closest()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/closest)** method is useful for event delegation (see [Event Loop](/blog/event-loop) for how events are processed):
 
 ```javascript
 // Handle clicks on any button inside a card
@@ -741,7 +741,9 @@ for (let i = 0; i < 1000; i++) {
   li.textContent = `Item ${i}`
   ul.appendChild(li)  // Modifies live DOM each iteration
 }
+```
 
+```javascript
 // Good: Single DOM update
 const ul = document.querySelector('ul')
 const fragment = document.createDocumentFragment()
@@ -1075,7 +1077,7 @@ element.classList.remove('btn-primary')   // Removes specifically
 
 ## How Browsers Render the DOM to Pixels
 
-Understanding how browsers render pages helps you write performant code. This is where [JavaScript Engines](/concepts/javascript-engines) and the browser's rendering engine work together.
+Understanding how browsers render pages helps you write performant code. This is where [JavaScript Engines](/blog/javascript-engines) and the browser's rendering engine work together.
 
 ### From HTML to Pixels
 
@@ -1216,7 +1218,9 @@ const result = document.querySelector('.result')
 for (let i = 0; i < 1000; i++) {
   result.textContent += i
 }
+```
 
+```javascript
 // Even better: Build string, set once
 const result = document.querySelector('.result')
 let text = ''
@@ -1572,7 +1576,7 @@ document.querySelector('.button-container').addEventListener('click', (e) => {
 Benefits:
 - Works for dynamically added elements
 - Less memory usage
-- Easier cleanup (uses [closures](/concepts/scope-and-closures) to maintain handler references)
+- Easier cleanup (uses [closures](/blog/scope-and-closures) to maintain handler references)
 
 ### Checking if Element Exists
 
