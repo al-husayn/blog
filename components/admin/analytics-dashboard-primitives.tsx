@@ -1,28 +1,21 @@
 'use client';
 
-import type React from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { AnalyticsTimeseriesPoint, DashboardTopPostMetric } from '@/types/analytics';
+import type {
+    CardProps,
+    DonutChartProps,
+    EngagementGaugeProps,
+    LeaderboardListProps,
+    LineChartProps,
+    SparklineProps,
+} from '@/types/components/admin-analytics';
 import {
     buildChartPoints,
     buildPath,
     formatNumber,
 } from '@/components/admin/analytics-dashboard-utils';
-
-interface CardProps {
-    title: string;
-    description: string;
-    className?: string;
-    children: React.ReactNode;
-}
-
-interface DonutSegment {
-    label: string;
-    value: number;
-    color: string;
-}
 
 export function Card({ title, description, className, children }: CardProps) {
     return (
@@ -50,12 +43,7 @@ export function Sparkline({
     height = 96,
     stroke = '#ea580c',
     gradientId = 'sparkline-fill',
-}: {
-    points: AnalyticsTimeseriesPoint[];
-    height?: number;
-    stroke?: string;
-    gradientId?: string;
-}) {
+}: SparklineProps) {
     const width = 320;
     const padding = 10;
     const chartPoints = buildChartPoints(points, width, height, padding);
@@ -93,10 +81,7 @@ export function Sparkline({
 export function LineChart({
     points,
     gradientId = 'line-fill',
-}: {
-    points: AnalyticsTimeseriesPoint[];
-    gradientId?: string;
-}) {
+}: LineChartProps) {
     const width = 540;
     const height = 220;
     const padding = 18;
@@ -171,11 +156,7 @@ export function DonutChart({
     segments,
     centerLabel,
     centerSubLabel,
-}: {
-    segments: DonutSegment[];
-    centerLabel: string;
-    centerSubLabel: string;
-}) {
+}: DonutChartProps) {
     const total = segments.reduce((sum, segment) => sum + segment.value, 0);
 
     if (total === 0) {
@@ -214,7 +195,7 @@ export function DonutChart({
     );
 }
 
-export function EngagementGauge({ score, label }: { score: number; label: string }) {
+export function EngagementGauge({ score, label }: EngagementGaugeProps) {
     const clampedScore = Math.min(100, Math.max(0, score));
 
     return (
@@ -244,12 +225,7 @@ export function LeaderboardList({
     posts,
     metricLabel,
     metricValue,
-}: {
-    title: string;
-    posts: DashboardTopPostMetric[];
-    metricLabel: string;
-    metricValue: (post: DashboardTopPostMetric) => string;
-}) {
+}: LeaderboardListProps) {
     return (
         <div className='rounded-[22px] border border-border/70 bg-background/60 p-4 sm:rounded-[24px] sm:p-5'>
             <div className='mb-4 flex items-center justify-between gap-3'>

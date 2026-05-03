@@ -119,3 +119,61 @@ export interface DashboardAnalytics {
     totalReactionsAllTime: number;
     avgInteractionsPerPost: number;
 }
+
+export interface DerivedTrafficSource {
+    group: TrafficSourceGroup;
+    detail: string;
+    referrerHost: string | null;
+    keyword: string | null;
+}
+
+export interface ArticleMetadata {
+    slug: string;
+    title: string;
+    description: string;
+    publishedAt: string;
+    publishedDate: Date | null;
+}
+
+export interface ShareMetrics {
+    shareBreakdown30d: DashboardShareMetric[];
+    totalShares30d: number;
+    shares30dBySlug: Map<string, number>;
+    sharesAllTimeBySlug: Map<string, number>;
+}
+
+export interface RecentPostMetrics {
+    views30d: number;
+    uniqueVisitors30d: number;
+    avgEngagementSeconds: number;
+    bounceRate: number;
+}
+
+export interface ReactionMaps {
+    commentsBySlug: Map<string, number>;
+    reactionsBySlug: Map<string, number>;
+}
+
+export type CommentVelocityMap = Map<
+    string,
+    { comments48h: number; commentsVelocityPerHour: number }
+>;
+
+export interface TopPostMetrics {
+    topPosts: DashboardTopPostMetric[];
+    topPostsAllTime: DashboardTopPostMetric[];
+    totalReactionsAllTime: number;
+    avgInteractionsPerPost: number;
+}
+
+export interface AnalyticsSessionState {
+    id: string;
+    lastTouchedAt: number;
+}
+
+export interface AnalyticsAcquisitionState {
+    referrer: string | null;
+    utmSource: string | null;
+    utmMedium: string | null;
+    utmCampaign: string | null;
+}

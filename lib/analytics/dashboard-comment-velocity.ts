@@ -4,12 +4,7 @@ import { getDb } from '@/lib/db/client';
 import { comments } from '@/lib/db/schema';
 import { toDate } from '@/lib/analytics/date';
 import { roundToOneDecimal } from '@/lib/analytics/number';
-import type { ArticleMetadata } from '@/lib/analytics/types';
-
-export type CommentVelocityMap = Map<
-    string,
-    { comments48h: number; commentsVelocityPerHour: number }
->;
+import type { ArticleMetadata, CommentVelocityMap } from '@/types/analytics';
 
 const getPublishWindowEnds = (
     metadataBySlug: Map<string, ArticleMetadata>,

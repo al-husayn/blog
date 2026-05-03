@@ -1,11 +1,4 @@
-import type { ReactNode } from 'react';
-
-interface SectionMetricCardProps {
-    icon?: ReactNode;
-    label: string;
-    value: ReactNode;
-    className?: string;
-}
+import type { SectionMetricCardProps } from '@/types/components/admin-analytics';
 
 export function SectionMetricCard({ icon, label, value, className }: SectionMetricCardProps) {
     return (

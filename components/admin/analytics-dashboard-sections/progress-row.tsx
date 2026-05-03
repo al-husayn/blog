@@ -1,9 +1,4 @@
-interface ProgressRowProps {
-    label: string;
-    valueLabel: string;
-    percent: number;
-    color?: string;
-}
+import type { ProgressRowProps } from '@/types/components/admin-analytics';
 
 export function ProgressRow({ label, valueLabel, percent, color }: ProgressRowProps) {
     return (

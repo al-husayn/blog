@@ -9,7 +9,11 @@ import { countComments, findCommentInTree } from '@/lib/engagement-client';
 import { useEngagementMutations, useEngagementQuery } from '@/lib/hooks/use-engagement';
 import { getErrorMessage } from '@/lib/api/client';
 import { cn } from '@/lib/utils';
-import type { ArticleEngagementProps, CommentItem } from '@/types/components/article-engagement';
+import type {
+    ArticleEngagementProps,
+    CommentThreadProps,
+    SignInPromptScope,
+} from '@/types/components/article-engagement';
 
 const MAX_COMMENT_LENGTH = 800;
 const COMMENT_TOAST_TIMING = { displayDuration: 3200 } as const;
@@ -35,22 +39,6 @@ const getAuthorInitials = (authorName: string): string =>
         .slice(0, 2)
         .map((part) => part[0]?.toUpperCase() ?? '')
         .join('') || 'CM';
-
-type SignInPromptScope = 'comment' | 'reply' | 'general';
-
-interface CommentThreadProps {
-    comments: CommentItem[];
-    activeReplyId: string | null;
-    pendingCommentIds: string[];
-    replyDrafts: Record<string, string>;
-    replyFormError: string | null;
-    submittingReplyToId: string | null;
-    upvotedCommentIds: string[];
-    onCommentUpvote: (commentId: string) => void;
-    onReplyDraftChange: (commentId: string, value: string) => void;
-    onReplySubmit: (event: FormEvent<HTMLFormElement>, parentCommentId: string) => void;
-    onReplyToggle: (commentId: string) => void;
-}
 
 function CommentThread({
     comments,

@@ -15,16 +15,11 @@ import {
     updateCommentInTree,
 } from '@/lib/engagement-client';
 import type { EngagementResponse } from '@/types/components/article-engagement';
-
-type EngagementQueryKey = ReturnType<typeof engagementQueryKey>;
-type CreateCommentInput = { message: string; parentCommentId?: string };
-
-interface UseEngagementQueryOptions {
-    slug: string;
-    isLoaded: boolean;
-    userId?: string | null;
-    requestError?: string | null;
-}
+import type {
+    CreateCommentInput,
+    UseEngagementMutationsOptions,
+    UseEngagementQueryOptions,
+} from '@/types/hooks/use-engagement';
 
 export const useEngagementQuery = ({
     slug,
@@ -61,12 +56,6 @@ export const useEngagementQuery = ({
         refetch: engagementQuery.refetch,
     };
 };
-
-interface UseEngagementMutationsOptions {
-    slug: string;
-    queryKey: EngagementQueryKey;
-    onRequestError: (message: string | null) => void;
-}
 
 export const useEngagementMutations = ({
     slug,

@@ -7,7 +7,7 @@ import {
     formatDelta,
     formatNumber,
 } from '@/components/admin/analytics-dashboard-utils';
-import type { AnalyticsDashboardSectionProps } from '@/components/admin/analytics-dashboard-sections/types';
+import type { AnalyticsDashboardSectionProps } from '@/types/components/admin-analytics';
 
 export function ViewsCard({ data }: AnalyticsDashboardSectionProps) {
     return (

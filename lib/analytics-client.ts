@@ -4,6 +4,8 @@ import type {
     AnalyticsPageViewCompletionInput,
     AnalyticsPageViewInput,
     AnalyticsShareEventInput,
+    AnalyticsAcquisitionState,
+    AnalyticsSessionState,
     ShareNetwork,
 } from '@/types/analytics';
 import { isAnalyticsConsentGranted } from '@/lib/cookie-consent';
@@ -12,18 +14,6 @@ const VISITOR_STORAGE_KEY = 'blog.analytics.visitor';
 const SESSION_STORAGE_KEY = 'blog.analytics.session';
 const ACQUISITION_STORAGE_KEY = 'blog.analytics.acquisition';
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
-
-interface SessionState {
-    id: string;
-    lastTouchedAt: number;
-}
-
-interface AcquisitionState {
-    referrer: string | null;
-    utmSource: string | null;
-    utmMedium: string | null;
-    utmCampaign: string | null;
-}
 
 class AnalyticsRequestError extends Error {
     status: number;
@@ -84,7 +74,9 @@ const getOrCreateVisitorId = (): string => {
 const getOrCreateSessionId = (): string => {
     const storage = getSessionStorage();
     const currentTimestamp = Date.now();
-    const sessionState = safeParseJson<SessionState>(storage?.getItem(SESSION_STORAGE_KEY) ?? null);
+    const sessionState = safeParseJson<AnalyticsSessionState>(
+        storage?.getItem(SESSION_STORAGE_KEY) ?? null,
+    );
 
     if (sessionState && currentTimestamp - sessionState.lastTouchedAt < SESSION_TIMEOUT_MS) {
         storage?.setItem(
@@ -106,7 +98,7 @@ const getOrCreateSessionId = (): string => {
     return nextSessionState.id;
 };
 
-const getCurrentAttribution = (): AcquisitionState => {
+const getCurrentAttribution = (): AnalyticsAcquisitionState => {
     const url = new URL(window.location.href);
     const referrer = document.referrer?.trim() ?? '';
     let externalReferrer: string | null = null;
@@ -130,10 +122,10 @@ const getCurrentAttribution = (): AcquisitionState => {
     };
 };
 
-const getOrCreateAcquisitionState = (): AcquisitionState => {
+const getOrCreateAcquisitionState = (): AnalyticsAcquisitionState => {
     const storage = getSessionStorage();
     const currentSessionId = getOrCreateSessionId();
-    const storedData = safeParseJson<AcquisitionState & { sessionId: string }>(
+    const storedData = safeParseJson<AnalyticsAcquisitionState & { sessionId: string }>(
         storage?.getItem(ACQUISITION_STORAGE_KEY) ?? null,
     );
 

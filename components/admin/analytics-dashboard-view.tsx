@@ -3,7 +3,7 @@
 import { RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import type { DashboardAnalytics } from '@/types/analytics';
+import type { AnalyticsDashboardViewProps } from '@/types/components/admin-analytics';
 import {
     AudienceCard,
     EngagementCard,
@@ -14,13 +14,6 @@ import {
     ViralityCard,
 } from '@/components/admin/analytics-dashboard-sections';
 import { dateTimeFormatter } from '@/components/admin/analytics-dashboard-utils';
-
-interface AnalyticsDashboardViewProps {
-    data: DashboardAnalytics;
-    isRefreshing: boolean;
-    onRefresh: () => void;
-    refreshError: string | null;
-}
 
 export function AnalyticsDashboardView({
     data,

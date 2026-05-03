@@ -1,4 +1,4 @@
-export type CookieConsentStatus = 'accepted' | 'rejected';
+import type { CookieConsentStatus } from '@/types/cookie-consent';
 
 export const COOKIE_CONSENT_STORAGE_KEY = 'blog.cookie-consent';
 export const COOKIE_CONSENT_CHANGE_EVENT = 'blog:cookie-consent-change';

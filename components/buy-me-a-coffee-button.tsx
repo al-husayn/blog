@@ -1,12 +1,10 @@
 import { ArrowUpRight, Coffee } from 'lucide-react';
 import { siteConfig } from '@/lib/site';
 import { cn } from '@/lib/utils';
-
-interface BuyMeACoffeeButtonProps {
-    className?: string;
-    size?: 'default' | 'sm' | 'lg' | 'icon';
-    label?: string;
-}
+import type {
+    BuyMeACoffeeBadgeProps,
+    BuyMeACoffeeButtonProps,
+} from '@/types/components/buy-me-a-coffee';
 
 const buyMeACoffeeLinkProps = {
     href: siteConfig.buyMeACoffeeUrl,
@@ -46,11 +44,6 @@ export function BuyMeACoffeeButton({
             <ExternalLinkHint />
         </a>
     );
-}
-
-interface BuyMeACoffeeBadgeProps {
-    className?: string;
-    label?: string;
 }
 
 export function BuyMeACoffeeBadge({

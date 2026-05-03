@@ -5,7 +5,7 @@ import { Card, EngagementGauge } from '@/components/admin/analytics-dashboard-pr
 import { formatDuration, formatPercent } from '@/components/admin/analytics-dashboard-utils';
 import { ProgressRow } from '@/components/admin/analytics-dashboard-sections/progress-row';
 import { SectionMetricCard } from '@/components/admin/analytics-dashboard-sections/section-metric-card';
-import type { AnalyticsDashboardSectionProps } from '@/components/admin/analytics-dashboard-sections/types';
+import type { AnalyticsDashboardSectionProps } from '@/types/components/admin-analytics';
 
 export function EngagementCard({ data }: AnalyticsDashboardSectionProps) {
     const scrollMilestones = [

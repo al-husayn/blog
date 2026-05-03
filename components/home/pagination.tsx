@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { buildPageHref, type HomePageData, type PaginationItem } from '@/lib/home-page';
+import { buildPageHref } from '@/lib/home-page';
+import type { HomePageData, PaginationItem } from '@/types/pages/home';
 
 function PaginationLink({
     href,

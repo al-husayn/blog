@@ -4,7 +4,7 @@ import { ChartNoAxesColumn, Search } from 'lucide-react';
 import { Card, LineChart } from '@/components/admin/analytics-dashboard-primitives';
 import { formatCompactNumber, formatNumber } from '@/components/admin/analytics-dashboard-utils';
 import { SectionMetricCard } from '@/components/admin/analytics-dashboard-sections/section-metric-card';
-import type { AnalyticsDashboardSectionProps } from '@/components/admin/analytics-dashboard-sections/types';
+import type { AnalyticsDashboardSectionProps } from '@/types/components/admin-analytics';
 
 export function OrganicCard({ data }: AnalyticsDashboardSectionProps) {
     const latestOrganicVisits = data.organicTrend90d[data.organicTrend90d.length - 1]?.value ?? 0;

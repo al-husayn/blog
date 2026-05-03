@@ -1,6 +1,6 @@
 import { getBlogPages, getSlugFromPageUrl } from '@/lib/blog';
 import { parseDate } from '@/lib/utils';
-import type { ArticleMetadata } from '@/lib/analytics/types';
+import type { ArticleMetadata } from '@/types/analytics';
 import type { BlogData } from '@/types/blog';
 
 export const getArticleMetadataMap = (): Map<string, ArticleMetadata> => {
