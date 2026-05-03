@@ -2,11 +2,7 @@ import { count } from 'drizzle-orm';
 import { getDb } from '@/lib/db/client';
 import { articleUpvotes, comments } from '@/lib/db/schema';
 import { toNumber } from '@/lib/analytics/number';
-
-export interface ReactionMaps {
-    commentsBySlug: Map<string, number>;
-    reactionsBySlug: Map<string, number>;
-}
+import type { ReactionMaps } from '@/types/analytics';
 
 export const toSlugCountMap = (
     rows: Array<{ articleSlug: string; value: number | string | bigint }>,

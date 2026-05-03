@@ -1,15 +1,6 @@
 import { requestJson } from '@/lib/api/client';
-import type { AssistantResponse, AssistantRole } from '@/types/components/blog-post-assistant';
-
-export interface AskBlogAssistantInput {
-    slug: string;
-    message: string;
-    userName?: string;
-    history: Array<{
-        role: AssistantRole;
-        content: string;
-    }>;
-}
+import type { AskBlogAssistantInput } from '@/types/api/blog-assistant';
+import type { AssistantResponse } from '@/types/components/blog-post-assistant';
 
 export const askBlogAssistant = async ({
     slug,

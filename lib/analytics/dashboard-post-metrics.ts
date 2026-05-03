@@ -1,15 +1,12 @@
 import { roundToOneDecimal, toNumber } from '@/lib/analytics/number';
-import type { CommentVelocityMap } from '@/lib/analytics/dashboard-comment-velocity';
-import type { ReactionMaps } from '@/lib/analytics/dashboard-reactions';
-import type { ArticleMetadata, ShareMetrics } from '@/lib/analytics/types';
-import type { DashboardTopPostMetric } from '@/types/analytics';
-
-export interface RecentPostMetrics {
-    views30d: number;
-    uniqueVisitors30d: number;
-    avgEngagementSeconds: number;
-    bounceRate: number;
-}
+import type {
+    ArticleMetadata,
+    CommentVelocityMap,
+    DashboardTopPostMetric,
+    ReactionMaps,
+    RecentPostMetrics,
+    ShareMetrics,
+} from '@/types/analytics';
 
 export const buildRecentMetricsMap = (
     rows: Array<{

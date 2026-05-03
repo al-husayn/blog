@@ -1,6 +1,6 @@
 import { FIELD_LIMITS } from '@/lib/analytics/constants';
 import { normalizeHost, normalizeNullableString, prettifyHost } from '@/lib/analytics/string';
-import type { DerivedTrafficSource } from '@/lib/analytics/types';
+import type { DerivedTrafficSource } from '@/types/analytics';
 import type { TrafficSourceGroup } from '@/types/analytics';
 
 const ORGANIC_UTM_SOURCES = ['google', 'bing', 'duckduckgo', 'yahoo', 'ecosia', 'brave'];

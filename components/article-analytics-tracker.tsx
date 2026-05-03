@@ -6,26 +6,13 @@ import {
     trackArticlePageViewComplete,
     trackArticlePageViewStart,
 } from '@/lib/analytics-client';
+import type {
+    ArticleAnalyticsTrackerProps,
+    TrackerState,
+} from '@/types/components/article-analytics-tracker';
 
 const ACTIVE_WINDOW_MS = 30_000;
 const HEARTBEAT_INTERVAL_MS = 5_000;
-
-interface ArticleAnalyticsTrackerProps {
-    articleSlug: string;
-    path: string;
-}
-
-interface TrackerState {
-    pageViewId: string;
-    engagedMs: number;
-    lastTickAt: number;
-    lastInteractionAt: number;
-    maxScrollDepth: number;
-    reached50: boolean;
-    reached75: boolean;
-    reached100: boolean;
-    finalized: boolean;
-}
 
 const createId = (): string =>
     typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'

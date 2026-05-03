@@ -2,14 +2,9 @@ import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 import { completePageView } from '@/lib/analytics';
 import { isAnalyticsConfigured } from '@/lib/env';
+import type { RouteContext } from '@/types/api/routes';
 
-interface RouteContext {
-    params: Promise<{
-        pageViewId: string;
-    }>;
-}
-
-export async function POST(request: Request, { params }: RouteContext) {
+export async function POST(request: Request, { params }: RouteContext<{ pageViewId: string }>) {
     const { pageViewId } = await params;
 
     if (!isAnalyticsConfigured()) {

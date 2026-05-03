@@ -3,32 +3,19 @@ import { getBlogPages, sortBlogPagesByDateDesc } from '@/lib/blog';
 import { getAbsoluteUrl, getIsoDate } from '@/lib/seo';
 import { siteConfig } from '@/lib/site';
 import type { BlogPage } from '@/types/blog';
-import type { HomeSearchParams } from '@/types/pages/home';
+import type {
+    AuthorMetadata,
+    BuildPageHrefInput,
+    HomePageData,
+    HomeSearchParams,
+    PaginationItem,
+    TagMetadata,
+} from '@/types/pages/home';
 
 const POSTS_PER_PAGE = 9;
 
 export const ALL_TAG = 'All';
 export const ARTICLES_PANEL_ID = 'filtered-articles-panel';
-
-export type PaginationItem = number | 'ellipsis';
-export type AuthorMetadata = { authorName?: string; authorAvatar?: string };
-
-type TagMetadata = { allTags: string[]; tagCounts: Record<string, number> };
-
-export interface HomePageData extends TagMetadata {
-    searchQuery?: string;
-    selectedTag: string;
-    paginatedBlogs: BlogPage[];
-    featuredBlog?: BlogPage;
-    showFeaturedPost: boolean;
-    totalPages: number;
-    currentPage: number;
-    paginationItems: PaginationItem[];
-    emptyStateLabel: string;
-    resultsSummaryLabel: string;
-    resultsContextLabel: string;
-    visibleBlogs: BlogPage[];
-}
 
 const normalizeOptionalParam = (value?: string): string | undefined => {
     const normalizedValue = value?.trim();
@@ -196,11 +183,7 @@ export const buildPageHref = ({
     page,
     searchQuery,
     selectedTag,
-}: {
-    page: number;
-    searchQuery?: string;
-    selectedTag: string;
-}): string => {
+}: BuildPageHrefInput): string => {
     const params = new URLSearchParams();
     if (searchQuery) {
         params.set('q', searchQuery);

@@ -1,6 +1,7 @@
 import { TagFilter } from '@/components/tag-filter';
 import { SearchForm } from '@/components/home/search-form';
-import { ARTICLES_PANEL_ID, type HomePageData } from '@/lib/home-page';
+import { ARTICLES_PANEL_ID } from '@/lib/home-page';
+import type { HomePageData } from '@/types/pages/home';
 
 export function HeroSection({
     allTags,

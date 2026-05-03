@@ -3,7 +3,7 @@
 import { Card, DonutChart } from '@/components/admin/analytics-dashboard-primitives';
 import { formatNumber, sourceColors } from '@/components/admin/analytics-dashboard-utils';
 import { ProgressRow } from '@/components/admin/analytics-dashboard-sections/progress-row';
-import type { AnalyticsDashboardSectionProps } from '@/components/admin/analytics-dashboard-sections/types';
+import type { AnalyticsDashboardSectionProps } from '@/types/components/admin-analytics';
 
 export function AudienceCard({ data }: AnalyticsDashboardSectionProps) {
     const audienceSegments = [

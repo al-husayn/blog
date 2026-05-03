@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { ArticlesGrid } from '@/components/home/articles-grid';
 import { ArticlesGridSkeleton } from '@/components/home/articles-grid-skeleton';
 import { Pagination } from '@/components/home/pagination';
-import type { HomePageData } from '@/lib/home-page';
+import type { HomePageData } from '@/types/pages/home';
 
 export function ArticlesSection({
     paginatedBlogs,

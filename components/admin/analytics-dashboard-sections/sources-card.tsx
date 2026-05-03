@@ -7,7 +7,7 @@ import {
     formatSourceShare,
     sourceColors,
 } from '@/components/admin/analytics-dashboard-utils';
-import type { AnalyticsDashboardSectionProps } from '@/components/admin/analytics-dashboard-sections/types';
+import type { AnalyticsDashboardSectionProps } from '@/types/components/admin-analytics';
 
 export function SourcesCard({ data }: AnalyticsDashboardSectionProps) {
     const totalSources = data.sources30d.reduce((sum, source) => sum + source.value, 0);

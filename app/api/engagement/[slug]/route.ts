@@ -2,16 +2,11 @@ import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { getEngagement } from '@/lib/engagement';
 import { isClerkConfigured, isDatabaseConfigured } from '@/lib/env';
+import type { RouteContext } from '@/types/api/routes';
 
 export const dynamic = 'force-dynamic';
 
-interface RouteContext {
-    params: Promise<{
-        slug: string;
-    }>;
-}
-
-export async function GET(_request: Request, { params }: RouteContext) {
+export async function GET(_request: Request, { params }: RouteContext<{ slug: string }>) {
     const { slug } = await params;
 
     if (!slug) {

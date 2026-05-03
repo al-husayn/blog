@@ -2,14 +2,9 @@ import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { toggleCommentUpvote } from '@/lib/engagement';
 import { isEngagementConfigured } from '@/lib/env';
+import type { RouteContext } from '@/types/api/routes';
 
-interface RouteContext {
-    params: Promise<{
-        commentId: string;
-    }>;
-}
-
-export async function POST(_request: Request, { params }: RouteContext) {
+export async function POST(_request: Request, { params }: RouteContext<{ commentId: string }>) {
     const { commentId } = await params;
 
     if (!commentId) {

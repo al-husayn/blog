@@ -8,14 +8,7 @@ import {
     isAnalyticsConfigured,
     isClerkConfigured,
 } from '@/lib/env';
-
-export type AdminAccessState =
-    | { kind: 'analytics-unconfigured' }
-    | { kind: 'clerk-unconfigured' }
-    | { kind: 'admin-unconfigured' }
-    | { kind: 'signed-out' }
-    | { kind: 'forbidden'; userId: string; primaryEmail: string | null }
-    | { kind: 'authorized'; userId: string; primaryEmail: string | null };
+import type { AdminAccessError, AdminAccessState } from '@/types/admin';
 
 const getPrimaryEmail = (user: Awaited<ReturnType<typeof currentUser>>): string | null =>
     user?.emailAddresses.find((emailAddress) => emailAddress.id === user.primaryEmailAddressId)
@@ -62,7 +55,7 @@ export const getAdminAccessState = async (): Promise<AdminAccessState> => {
 
 export const getAdminAccessError = (
     accessState: Exclude<AdminAccessState, { kind: 'authorized' }>,
-): { message: string; status: number } => {
+): AdminAccessError => {
     switch (accessState.kind) {
         case 'analytics-unconfigured':
             return {

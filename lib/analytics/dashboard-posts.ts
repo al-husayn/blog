@@ -15,14 +15,7 @@ import { getReactionMaps, toSlugCountMap } from '@/lib/analytics/dashboard-react
 import { getShareMetrics } from '@/lib/analytics/dashboard-shares';
 import { buildSinceDate } from '@/lib/analytics/date';
 import { roundToOneDecimal } from '@/lib/analytics/number';
-import type { DashboardTopPostMetric } from '@/types/analytics';
-
-interface TopPostMetrics {
-    topPosts: DashboardTopPostMetric[];
-    topPostsAllTime: DashboardTopPostMetric[];
-    totalReactionsAllTime: number;
-    avgInteractionsPerPost: number;
-}
+import type { TopPostMetrics } from '@/types/analytics';
 
 const getRecentPageViewRows = (sinceDate: Date) =>
     getDb()

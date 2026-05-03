@@ -9,7 +9,7 @@ import {
     formatNumber,
     formatPercent,
 } from '@/components/admin/analytics-dashboard-utils';
-import type { AnalyticsDashboardSectionProps } from '@/components/admin/analytics-dashboard-sections/types';
+import type { AnalyticsDashboardSectionProps } from '@/types/components/admin-analytics';
 import type { DashboardTopPostMetric } from '@/types/analytics';
 
 const emptyRankingsMessage = 'Post rankings will appear after article visits are recorded.';

@@ -5,7 +5,7 @@ import { Card } from '@/components/admin/analytics-dashboard-primitives';
 import { formatCompactNumber, formatNumber } from '@/components/admin/analytics-dashboard-utils';
 import { ProgressRow } from '@/components/admin/analytics-dashboard-sections/progress-row';
 import { SectionMetricCard } from '@/components/admin/analytics-dashboard-sections/section-metric-card';
-import type { AnalyticsDashboardSectionProps } from '@/components/admin/analytics-dashboard-sections/types';
+import type { AnalyticsDashboardSectionProps } from '@/types/components/admin-analytics';
 
 export function ViralityCard({ data }: AnalyticsDashboardSectionProps) {
     const topVelocityPosts = [...data.topPosts]

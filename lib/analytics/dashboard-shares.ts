@@ -4,7 +4,7 @@ import { getDb } from '@/lib/db/client';
 import { articleShareEvents } from '@/lib/db/schema';
 import { buildSinceDate } from '@/lib/analytics/date';
 import { toNumber } from '@/lib/analytics/number';
-import type { ShareMetrics } from '@/lib/analytics/types';
+import type { ShareMetrics } from '@/types/analytics';
 import type { ShareNetwork } from '@/types/analytics';
 
 const toCountMap = (rows: Array<{ articleSlug: string; value: number | string | bigint }>) =>

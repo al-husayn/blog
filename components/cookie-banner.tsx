@@ -4,7 +4,8 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Cookie } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getCookieConsent, setCookieConsent, type CookieConsentStatus } from '@/lib/cookie-consent';
+import { getCookieConsent, setCookieConsent } from '@/lib/cookie-consent';
+import type { CookieConsentStatus } from '@/types/cookie-consent';
 
 export function CookieBanner() {
     const [isVisible, setIsVisible] = React.useState(false);
