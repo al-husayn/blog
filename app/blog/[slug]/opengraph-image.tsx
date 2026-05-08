@@ -48,14 +48,12 @@ const getAssetData = async (authorAvatar?: string) => {
             fetchWithTimeout(assetUrls.cabinetGrotesk),
             fetchWithTimeout(assetUrls.logo),
         ];
-
         if (assetUrls.authorAvatar) {
             fetchPromises.push(fetchWithTimeout(assetUrls.authorAvatar));
         }
 
         const responses = await Promise.all(fetchPromises);
         const [clashDisplayRes, cabinetGroteskRes, logoRes, authorAvatarRes] = responses;
-
         if (!clashDisplayRes?.ok || !cabinetGroteskRes?.ok || !logoRes?.ok) {
             return null;
         }
@@ -65,7 +63,6 @@ const getAssetData = async (authorAvatar?: string) => {
             cabinetGroteskRes.arrayBuffer(),
             logoRes.arrayBuffer(),
         ];
-
         if (authorAvatarRes && authorAvatarRes.ok) {
             assetPromises.push(authorAvatarRes.arrayBuffer());
         }
@@ -179,7 +176,6 @@ export default async function Image({ params }: { params: Promise<{ slug: string
     try {
         const { slug } = await params;
         const page = getBlogPage(slug) as BlogPage | undefined;
-
         if (!page) {
             return new Response('Blog post not found', { status: 404 });
         }
