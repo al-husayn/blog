@@ -27,7 +27,6 @@ interface AcquisitionState {
 
 class AnalyticsRequestError extends Error {
     status: number;
-
     constructor(message: string, status: number) {
         super(message);
         this.name = 'AnalyticsRequestError';
@@ -71,7 +70,6 @@ const getSessionStorage = (): Storage | null => {
 const getOrCreateVisitorId = (): string => {
     const storage = getLocalStorage();
     const existingId = storage?.getItem(VISITOR_STORAGE_KEY)?.trim();
-
     if (existingId) {
         return existingId;
     }
@@ -85,7 +83,6 @@ const getOrCreateSessionId = (): string => {
     const storage = getSessionStorage();
     const currentTimestamp = Date.now();
     const sessionState = safeParseJson<SessionState>(storage?.getItem(SESSION_STORAGE_KEY) ?? null);
-
     if (sessionState && currentTimestamp - sessionState.lastTouchedAt < SESSION_TIMEOUT_MS) {
         storage?.setItem(
             SESSION_STORAGE_KEY,
@@ -110,7 +107,6 @@ const getCurrentAttribution = (): AcquisitionState => {
     const url = new URL(window.location.href);
     const referrer = document.referrer?.trim() ?? '';
     let externalReferrer: string | null = null;
-
     if (referrer) {
         try {
             const referrerUrl = new URL(referrer);
@@ -136,7 +132,6 @@ const getOrCreateAcquisitionState = (): AcquisitionState => {
     const storedData = safeParseJson<AcquisitionState & { sessionId: string }>(
         storage?.getItem(ACQUISITION_STORAGE_KEY) ?? null,
     );
-
     if (storedData && storedData.sessionId === currentSessionId) {
         return storedData;
     }
@@ -154,12 +149,10 @@ const getOrCreateAcquisitionState = (): AcquisitionState => {
 
 const getAnalyticsErrorMessage = async (response: Response): Promise<string> => {
     const payload = await response.json().catch(() => null);
-
     if (payload && typeof payload === 'object') {
         if ('message' in payload && typeof payload.message === 'string') {
             return payload.message;
         }
-
         if ('error' in payload && typeof payload.error === 'string') {
             return payload.error;
         }
@@ -177,7 +170,6 @@ const postJson = async (url: string, payload: unknown, keepalive = false): Promi
         body: JSON.stringify(payload),
         keepalive,
     });
-
     if (!response.ok) {
         throw new AnalyticsRequestError(await getAnalyticsErrorMessage(response), response.status);
     }
@@ -189,7 +181,6 @@ const sendBeaconJson = (url: string, payload: unknown): void => {
             type: 'application/json',
         });
         const wasQueued = navigator.sendBeacon(url, body);
-
         if (wasQueued) {
             return;
         }
@@ -223,7 +214,6 @@ export const reportAnalyticsError = (context: string, error: unknown): void => {
         cause,
     });
     analyticsError.name = 'AnalyticsError';
-
     if (typeof window !== 'undefined' && typeof window.reportError === 'function') {
         window.reportError(analyticsError);
         return;

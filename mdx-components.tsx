@@ -129,7 +129,6 @@ const collectBlogCardTargets = (directory: string, parentSegments: string[] = []
                 rawSegments[rawSegments.length - 1] === 'index'
                     ? rawSegments.slice(0, -1)
                     : rawSegments;
-
             if (normalizedSegments.length === 0) {
                 return [];
             }
@@ -343,7 +342,6 @@ function AccordionGroup({ children, ...props }: React.ComponentProps<typeof Acco
         if (!React.isValidElement<AccordionProps>(child)) {
             return child;
         }
-
         if (child.type !== Accordion) {
             return child;
         }

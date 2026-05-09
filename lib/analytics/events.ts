@@ -31,7 +31,6 @@ const isMissingAnalyticsTableError = (error: unknown, tableName: string): boolea
 
     const err = error as { code?: string; message?: string };
     const message = err.message?.toLowerCase() ?? '';
-
     if (err.code === '42P01') {
         return true;
     }
@@ -142,7 +141,6 @@ export const completePageView = async (input: AnalyticsPageViewCompletionInput):
 
         throw error;
     }
-
     if (updatedRows.length === 0) {
         console.warn(
             `[analytics] Page view completion received for non-existent start record: ${payload.pageViewId}`,

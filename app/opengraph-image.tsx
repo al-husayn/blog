@@ -13,7 +13,6 @@ export const contentType = 'image/png';
 const arrayBufferToBase64 = (arrayBuffer: ArrayBuffer): string => {
     const bytes = new Uint8Array(arrayBuffer);
     let binary = '';
-
     for (let i = 0; i < bytes.length; i += 0x8000) {
         const chunk = bytes.subarray(i, i + 0x8000);
         binary += String.fromCharCode(...chunk);
@@ -37,7 +36,6 @@ const getAssetData = async () => {
             fetch(fontUrls.cabinetGrotesk),
             fetch(fontUrls.logo),
         ]);
-
         if (!clashDisplayRes.ok || !cabinetGroteskRes.ok || !logoRes.ok) {
             return null;
         }
