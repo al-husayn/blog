@@ -163,7 +163,7 @@
         }
     }
 
-    .shiki>div>button {
+    .shiki > div > button {
         border-top-left-radius: 0 !important;
         border-bottom-right-radius: 0 !important;
     }

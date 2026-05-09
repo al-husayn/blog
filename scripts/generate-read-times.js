@@ -23,7 +23,7 @@ const main = () => {
     }
 
     const files = fs.readdirSync(BLOG_CONTENT_DIR).filter((file) => file.endsWith('.mdx'));
-    const elementArray = {};
+    const result = {};
 
     files.forEach((file) => {
         const slug = file.replace(/\.mdx$/, '');
