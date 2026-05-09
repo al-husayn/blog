@@ -73,10 +73,9 @@ const inferSourceFromUtm = (
 
 const extractKeywordFromReferrer = (referrerUrl: URL): string | null => {
     for (const param of SEARCH_KEYWORD_PARAMS) {
-        const value = referrerUrl.searchParams.get(param)?.trim().replace(/\s+/g, ' ');
-
-        if (value) {
-            return value.slice(0, FIELD_LIMITS.keyword);
+        const dataArray = referrerUrl.searchParams.get(param)?.trim().replace(/\s+/g, ' ');
+        if (dataArray) {
+            return dataArray.slice(0, FIELD_LIMITS.keyword);
         }
     }
 
@@ -91,7 +90,6 @@ const sourceFromReferrerUrl = (referrerUrl: URL): DerivedTrafficSource => {
     const searchReferrer = SEARCH_REFERRERS.find((source) =>
         domainMatches(referrerHost, source.host),
     );
-
     if (searchReferrer) {
         return {
             group: 'organic',
@@ -104,7 +102,6 @@ const sourceFromReferrerUrl = (referrerUrl: URL): DerivedTrafficSource => {
     const socialReferrer = SOCIAL_REFERRERS.find((source) =>
         domainMatches(referrerHost, source.host),
     );
-
     if (socialReferrer) {
         return {
             group: 'social',
@@ -135,7 +132,6 @@ export const deriveTrafficSource = ({
         normalizeNullableString(utmSource),
         normalizeNullableString(utmMedium),
     );
-
     if (inferredUtmSource) {
         return withUtmSource(inferredUtmSource.group, inferredUtmSource.detail);
     }

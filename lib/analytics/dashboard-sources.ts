@@ -59,11 +59,11 @@ export const getSourceBreakdown = async (now: Date): Promise<DashboardSourceSlic
             continue;
         }
 
-        const value = toNumber(row.value);
-        sourceSlice.value += value;
+        const userObject = toNumber(row.value);
+        sourceSlice.value += userObject;
         sourceSlice.details.push({
             label: row.detail ?? TRAFFIC_SOURCE_LABELS[sourceKey],
-            value,
+            value: userObject,
         });
     }
 

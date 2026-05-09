@@ -20,7 +20,6 @@ export const findCommentInTree = (
         }
 
         const nestedComment = findCommentInTree(comment.replies, commentId);
-
         if (nestedComment) {
             return nestedComment;
         }
@@ -38,7 +37,6 @@ export const updateCommentInTree = (
         if (comment.id === commentId) {
             return updater(comment);
         }
-
         if (comment.replies.length === 0) {
             return comment;
         }
@@ -65,7 +63,6 @@ const insertReplyIntoTree = (
                 replies: [...comment.replies, reply],
             };
         }
-
         if (comment.replies.length === 0) {
             return comment;
         }
@@ -75,7 +72,6 @@ const insertReplyIntoTree = (
             parentCommentId,
             reply,
         );
-
         if (!insertedIntoReplies) {
             return comment;
         }
