@@ -73,9 +73,9 @@ const inferSourceFromUtm = (
 
 const extractKeywordFromReferrer = (referrerUrl: URL): string | null => {
     for (const param of SEARCH_KEYWORD_PARAMS) {
-        const dataArray = referrerUrl.searchParams.get(param)?.trim().replace(/\s+/g, ' ');
-        if (dataArray) {
-            return dataArray.slice(0, FIELD_LIMITS.keyword);
+        const normalizedKeyword = referrerUrl.searchParams.get(param)?.trim().replace(/\s+/g, ' ');
+        if (normalizedKeyword) {
+            return normalizedKeyword.slice(0, FIELD_LIMITS.keyword);
         }
     }
 
