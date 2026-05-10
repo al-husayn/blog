@@ -12,6 +12,7 @@ A modern technical blog built with Next.js 15, Fumadocs MDX, Tailwind CSS, Clerk
 - TanStack Query-powered client caching, syncing, and optimistic engagement updates
 - Neon Postgres persistence through Drizzle ORM
 - Responsive UI, dark mode, RSS, sitemap, and Open Graph images
+- Public changelog page and repository changelog for release history
 
 ## Tech Stack
 
