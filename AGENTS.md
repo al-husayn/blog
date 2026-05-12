@@ -26,7 +26,7 @@ This repository is a high-performance Next.js 15 dev blog using the App Router, 
 - `lib/generated/read-times.json`: Generated read-time data. Do not edit by hand.
 - `blog/content/`: MDX article source files.
 - `drizzle/`: Generated Drizzle migrations.
-- `.source/`: Fumadocs generated output. Do not edit by hand.
+- `.source/`: Fumadocs-generated output. Do not edit by hand.
 - `scripts/`: Project automation, including read-time generation.
 - `types/`: Shared TypeScript types.
 
