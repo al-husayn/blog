@@ -1,54 +1,54 @@
-# AI Agent Instructions
+To make this AGENTS.md more effective, we need to shift from "telling a story" to providing "executable constraints." Modern coding agents perform better with explicit patterns, error prevention rules, and clear file locations.
+Here is the optimized version with improved structure, stricter logic, and better performance cues for the AI.
+------------------------------
+## AGENTS.md## 🎯 Context & Goal
+High-performance Next.js 15 blog using Fumadocs (MDX), Drizzle ORM (Neon), and Clerk. Optimized for React 19 and Tailwind 4.
+## 🛠 Tech Stack & Constraints
 
-## Project Snapshot
-- Use `pnpm` for all package and script commands.
-- Next.js 15 App Router project with React 19 and TypeScript strict mode.
-- Tailwind CSS 4 is configured through CSS and PostCSS; there is no `tailwind.config.js`.
-- Auth uses Clerk when configured. `middleware.ts` falls back to a no-op middleware when Clerk env vars are absent.
-- Database uses Neon Postgres with Drizzle ORM.
-- Content is Fumadocs MDX from `blog/content`.
-- API/client data fetching uses Server Components where possible and TanStack Query for client-side state.
-- Blog assistant inference is OpenAI-compatible through the app API layer.
+* Runtime/Package Manager: pnpm (Mandatory).
+* Framework: Next.js 15 (App Router, Turbopack).
+* React: v19 (Experimental/RC features allowed).
+* Styling: Tailwind CSS 4 (No tailwind.config.js; logic lives in CSS files).
+* Data: Neon Postgres + Drizzle ORM.
+* Content: Fumadocs MDX located in blog/content/.
+* Auth: Clerk (with a no-op fallback in middleware.ts).
 
-## Repository Layout
-- `app/`: App Router pages, layouts, route handlers, metadata, sitemap, and RSS route.
-- `components/`: Shared UI and feature components.
-- `lib/`: Shared utilities, analytics, engagement, API clients, site data, and generated read-time data.
-- `lib/db/`: Drizzle schema and Neon client.
-- `lib/hooks/`: Client hooks, including TanStack Query hooks.
-- `drizzle/`: Generated Drizzle migrations.
-- `blog/content/`: Fumadocs MDX posts.
-- `scripts/`: Project scripts such as read-time generation.
-- `types/`: Shared TypeScript types.
+## 📂 Architecture Map
 
-## Commands
-- `pnpm dev`: Generate read times, run Fumadocs, and start Next.js with Turbopack.
-- `pnpm build`: Generate read times, run Fumadocs, and build the app.
-- `pnpm start`: Start the production server.
-- `pnpm lint`: Run ESLint.
-- `pnpm format`: Format the repo with Prettier.
-- `pnpm format:check`: Check Prettier formatting.
-- `pnpm readtime`: Regenerate `lib/generated/read-times.json`.
-- `pnpm db:generate`: Generate Drizzle migrations.
-- `pnpm db:migrate`: Apply Drizzle migrations.
-- `pnpm db:push`: Push schema changes directly.
-- `pnpm db:studio`: Open Drizzle Studio.
+* app/: Routing, Metadata, RSS, Sitemap.
+* components/: UI components. Keep "leaf" components client-side.
+* lib/:
+* db/: Schema (schema.ts) and Client (client.ts using getDb()).
+   * hooks/: Custom hooks + TanStack Query logic.
+   * generated/: Read-time JSON (Do not edit manually).
+* blog/content/: MDX source files.
+* 🚫 Prohibited: Do NOT create a src/ directory. Use root aliases (@/).
 
-## Development Rules
-- Do not add a `src` directory. Import from the existing root-level folders and `@/` alias.
-- In Next.js 15 routes, treat `params`, `searchParams`, and request cookies as async when using APIs that return promises.
-- Prefer React Server Components. Add `'use client'` only for components that need browser state, effects, event handlers, or client hooks.
-- Keep client components near the leaves of the tree and pass serializable props from server components.
-- Define database tables in `lib/db/schema.ts`; let Drizzle generate migrations into `drizzle/`.
-- Use `getDb()` from `lib/db/client.ts` for database access.
-- Keep MDX posts in `blog/content` and update frontmatter according to `source.config.ts`.
-- Run `pnpm readtime` after adding or changing MDX content that affects reading time.
-- Use `InferSelectModel<typeof table>` or related Drizzle helpers for database model types.
-- Secure authenticated UI and route handlers with Clerk utilities, but preserve the current no-op fallback behavior for local environments without Clerk configuration.
+## 🤖 Critical Execution Rules
 
-## Style Notes
-- Follow the existing TypeScript, Prettier, and component patterns.
-- Prefer small, focused changes over broad rewrites.
-- Keep reusable UI in `components/`; keep route-specific behavior close to the route when it is not shared.
-- Use lucide-react icons when the UI needs icons.
-- Avoid adding new dependencies unless the existing stack cannot reasonably solve the problem.
+   1. Async Next.js 15 APIs: params, searchParams, and cookies() must be awaited before access.
+   2. Server-First: Default to Server Components. Use 'use client' only for interactivity or TanStack Query hooks.
+   3. Database Workflow:
+   * Edit lib/db/schema.ts → Run pnpm db:generate.
+      * Use InferSelectModel / InferInsertModel for TypeScript types.
+   4. Content Updates: Every time an MDX file is added/modified, you must run pnpm readtime.
+   5. Icons: Use lucide-react exclusively.
+   6. Environment Resilience: Maintain the Clerk "no-op" fallback logic. Do not break the app if NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is missing.
+
+## ⌨️ Command Reference
+
+| Task | Command |
+|---|---|
+| Dev | pnpm dev (Runs readtime + fumadocs + turbopack) |
+| Schema Change | pnpm db:generate |
+| Deploy DB | pnpm db:migrate or pnpm db:push |
+| Content Sync | pnpm readtime |
+| Lint/Format | pnpm lint && pnpm format |
+
+## 📝 Coding Style Guidelines
+
+* Imports: Always use @/ for internal modules.
+* Components: Group route-specific components inside the route folder if they aren't reused.
+* Efficiency: Favor existing utilities in lib/ over new dependencies.
+* Strict Mode: Ensure all new code passes TypeScript strict mode checks.
+
