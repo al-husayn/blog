@@ -5,7 +5,7 @@ description: "Learn higher-order functions in JavaScript. Understand functions t
 date: '2026-05-14'
 tags: ['JavaScript']
 featured: true
-readTime: '18 min read'
+readTime: '21 min read'
 author: 'al'
 thumbnail: '/thumbnails/hof.png'
 ---
@@ -212,7 +212,7 @@ console.log(triple(5))   // 15
 ```
 
 <Note>
-**Not all languages have first-class functions.** In languages like C, you can't easily pass functions around as values. Java added lambda expressions in version 8, but they work differently than JavaScript functions. JavaScript's first-class functions make functional programming patterns natural and powerful.
+**Not all languages have first-class functions.** In C, you can pass function pointers, but the ergonomics differ from JavaScript's first-class functions: C requires explicit pointer syntax and manual management, while JavaScript treats functions as seamless values. Java added lambda expressions in version 8, but they work differently than JavaScript functions. JavaScript's first-class functions make functional programming patterns natural and powerful.
 </Note>
 
 ---
@@ -596,7 +596,7 @@ console.log(account.balance)        // undefined
 
 ## Built-in Higher-Order Functions
 
-JavaScript provides many built-in higher-order functions, especially for working with arrays. These are covered in depth in the [Map, Reduce, and Filter](/concepts/map-reduce-filter) guide, but here's a quick overview:
+JavaScript provides many built-in higher-order functions, especially for working with arrays. These are covered in depth in the [Map, Reduce, and Filter](/blog/map-reduce-filter) guide, but here's a quick overview:
 
 | Method | What it does | Returns |
 |--------|--------------|---------|
@@ -623,7 +623,7 @@ numbers.every(n => n > 0)                    // true
 ```
 
 <Note>
-For a deep dive into these methods with practical examples, see [Map, Reduce, and Filter](/concepts/map-reduce-filter).
+For a deep dive into these methods with practical examples, see [Map, Reduce, and Filter](/blog/map-reduce-filter).
 </Note>
 
 ---
