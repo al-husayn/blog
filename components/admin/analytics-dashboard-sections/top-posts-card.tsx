@@ -50,7 +50,7 @@ function TopPostsMobileList({ posts }: { posts: DashboardTopPostMetric[] }) {
             {posts.length > 0 ? (
                 posts.map((post) => <TopPostsMobileCard key={`mobile-${post.slug}`} post={post} />)
             ) : (
-                <div className='rounded-2xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground'>
+                <div className='rounded-lg border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground'>
                     {emptyRankingsMessage}
                 </div>
             )}
@@ -69,7 +69,7 @@ function TopPostsMobileCard({ post }: { post: DashboardTopPostMetric }) {
     ];
 
     return (
-        <article className='rounded-[22px] border border-border/70 bg-background/60 p-4 shadow-[0_8px_30px_rgba(15,23,42,0.05)]'>
+        <article className='rounded-lg border border-border/70 bg-background/60 p-4 shadow-[0_8px_30px_rgba(15,23,42,0.05)]'>
             <div className='space-y-2'>
                 <PostLink post={post} />
                 <p className='line-clamp-2 text-sm text-muted-foreground'>{post.description}</p>
@@ -94,7 +94,7 @@ function TopPostsMobileCard({ post }: { post: DashboardTopPostMetric }) {
 
 function MobileStatCard({ label, value }: { label: string; value: string }) {
     return (
-        <div className='rounded-2xl border border-border/60 bg-background/70 p-3'>
+        <div className='rounded-lg border border-border/60 bg-background/70 p-3'>
             <p className='text-[11px] uppercase tracking-[0.2em] text-muted-foreground'>{label}</p>
             <p className='mt-2 text-xl font-semibold'>{value}</p>
         </div>
@@ -125,7 +125,7 @@ function TopPostsTable({ posts }: { posts: DashboardTopPostMetric[] }) {
                         <tr>
                             <td
                                 colSpan={9}
-                                className='rounded-2xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground'
+                                className='rounded-lg border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground'
                             >
                                 {emptyRankingsMessage}
                             </td>
@@ -139,8 +139,8 @@ function TopPostsTable({ posts }: { posts: DashboardTopPostMetric[] }) {
 
 function TopPostsTableRow({ post }: { post: DashboardTopPostMetric }) {
     return (
-        <tr className='rounded-2xl bg-background/60 text-sm shadow-[0_8px_30px_rgba(15,23,42,0.05)]'>
-            <td className='rounded-l-2xl border border-border/70 border-r-0 px-4 py-4 align-top'>
+        <tr className='rounded-lg bg-background/60 text-sm shadow-[0_8px_30px_rgba(15,23,42,0.05)]'>
+            <td className='rounded-l-lg border border-border/70 border-r-0 px-4 py-4 align-top'>
                 <div className='space-y-1'>
                     <PostLink post={post} />
                     <p className='line-clamp-2 max-w-sm text-muted-foreground'>
@@ -169,7 +169,7 @@ function TopPostsTableRow({ post }: { post: DashboardTopPostMetric }) {
             <td className='border border-border/70 border-l-0 border-r-0 px-4 py-4'>
                 {formatNumber(post.comments)}
             </td>
-            <td className='rounded-r-2xl border border-border/70 border-l-0 px-4 py-4'>
+            <td className='rounded-r-lg border border-border/70 border-l-0 px-4 py-4'>
                 {formatNumber(post.shares30d)}
             </td>
         </tr>

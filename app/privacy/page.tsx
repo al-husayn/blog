@@ -142,7 +142,7 @@ export default function PrivacyPage() {
                         <section
                             key={section.title}
                             id={'id' in section ? section.id : undefined}
-                            className='rounded-2xl border border-border bg-card p-6 space-y-3'
+                            className='rounded-lg border border-border bg-card p-6 space-y-3'
                         >
                             <h2 className='text-2xl font-semibold tracking-tight'>
                                 {section.title}
@@ -157,25 +157,25 @@ export default function PrivacyPage() {
                 </article>
 
                 <aside className='space-y-4'>
-                    <div className='rounded-2xl border border-border bg-card p-5 space-y-4'>
+                    <div className='rounded-lg border border-border bg-card p-5 space-y-4'>
                         <h2 className='text-xl font-semibold tracking-tight'>Quick Summary</h2>
                         <div className='space-y-3 text-sm text-muted-foreground'>
-                            <p className='rounded-xl border border-border bg-background px-4 py-3'>
+                            <p className='rounded-lg border border-border bg-background px-4 py-3'>
                                 Information may be collected to operate, maintain, and improve the
                                 website.
                             </p>
-                            <p className='rounded-xl border border-border bg-background px-4 py-3'>
+                            <p className='rounded-lg border border-border bg-background px-4 py-3'>
                                 Cookies or similar technologies may be used for functionality and
                                 general usage insights.
                             </p>
-                            <p className='rounded-xl border border-border bg-background px-4 py-3'>
+                            <p className='rounded-lg border border-border bg-background px-4 py-3'>
                                 You may contact us to ask questions or make privacy-related
                                 requests.
                             </p>
                         </div>
                     </div>
 
-                    <div className='rounded-2xl border border-border bg-card p-5 space-y-4'>
+                    <div className='rounded-lg border border-border bg-card p-5 space-y-4'>
                         <h2 className='text-xl font-semibold tracking-tight'>Contact</h2>
                         <p className='text-sm text-muted-foreground'>
                             If you have questions about this privacy policy or would like to make a
@@ -186,7 +186,7 @@ export default function PrivacyPage() {
                                 href={siteConfig.creatorUrl}
                                 target='_blank'
                                 rel='noopener noreferrer'
-                                className='inline-flex items-center justify-between rounded-xl border border-border px-4 py-3 text-sm font-medium transition-colors hover:bg-muted/40'
+                                className='inline-flex items-center justify-between rounded-lg border border-border px-4 py-3 text-sm font-medium transition-colors hover:bg-muted/40'
                             >
                                 Contact via portfolio
                                 <span className='sr-only'>(opens in a new tab)</span>
@@ -194,7 +194,7 @@ export default function PrivacyPage() {
                             </a>
                             <Link
                                 href='/'
-                                className='inline-flex items-center justify-between rounded-xl border border-border px-4 py-3 text-sm font-medium transition-colors hover:bg-muted/40'
+                                className='inline-flex items-center justify-between rounded-lg border border-border px-4 py-3 text-sm font-medium transition-colors hover:bg-muted/40'
                             >
                                 Return to the blog
                                 <ArrowUpRight className='h-4 w-4 text-primary' aria-hidden='true' />

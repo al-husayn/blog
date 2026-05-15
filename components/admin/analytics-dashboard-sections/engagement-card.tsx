@@ -42,7 +42,7 @@ export function EngagementCard({ data }: AnalyticsDashboardSectionProps) {
                             label='Avg scroll depth'
                         />
                     </div>
-                    <div className='space-y-3 rounded-2xl border border-border/70 bg-background/60 p-4'>
+                    <div className='space-y-3 rounded-lg border border-border/70 bg-background/60 p-4'>
                         {scrollMilestones.map((item) => (
                             <ProgressRow
                                 key={item.label}

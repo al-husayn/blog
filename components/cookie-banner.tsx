@@ -25,7 +25,7 @@ export function CookieBanner() {
     return (
         <section
             aria-label='Cookie preferences'
-            className='fixed inset-x-4 bottom-4 z-50 mx-auto max-w-sm rounded-2xl border border-border bg-card/95 p-4 text-card-foreground shadow-2xl shadow-black/10 backdrop-blur supports-[backdrop-filter]:bg-card/85 sm:inset-x-auto sm:right-6 sm:bottom-6 sm:max-w-md'
+            className='fixed inset-x-4 bottom-4 z-50 mx-auto max-w-sm rounded-lg border border-border bg-card/95 p-4 text-card-foreground shadow-2xl shadow-black/10 backdrop-blur supports-[backdrop-filter]:bg-card/85 sm:inset-x-auto sm:right-6 sm:bottom-6 sm:max-w-md'
         >
             <div className='flex items-start gap-3'>
                 <div className='mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground'>

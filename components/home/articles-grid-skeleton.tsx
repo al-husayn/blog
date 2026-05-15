@@ -6,7 +6,7 @@ export function ArticlesGridSkeleton({ count = SKELETON_CARD_COUNT }: { count?: 
             <span className='sr-only'>Loading articles...</span>
             <div className='grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6'>
                 {Array.from({ length: count }, (_, index) => (
-                    <article key={index} className='rounded-xl border border-border bg-background'>
+                    <article key={index} className='rounded-lg border border-border bg-background'>
                         <div className='aspect-[16/10] w-full animate-pulse bg-muted/50' />
                         <div className='p-6 space-y-3'>
                             <div className='flex gap-2'>

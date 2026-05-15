@@ -17,7 +17,7 @@ export function ViewsCard({ data }: AnalyticsDashboardSectionProps) {
             className='md:col-span-2 xl:col-span-7'
         >
             <div className='grid gap-4 2xl:grid-cols-[minmax(0,1.45fr)_minmax(17rem,0.95fr)]'>
-                <div className='space-y-5 rounded-[24px] border border-orange-500/20 bg-[linear-gradient(135deg,rgba(234,88,12,0.12),rgba(234,88,12,0.02)_55%,rgba(255,255,255,0))] p-4 sm:p-5'>
+                <div className='space-y-5 rounded-lg border border-orange-500/20 bg-[linear-gradient(135deg,rgba(234,88,12,0.12),rgba(234,88,12,0.02)_55%,rgba(255,255,255,0))] p-4 sm:p-5'>
                     <div className='flex flex-col items-start justify-between gap-4 sm:flex-row'>
                         <div>
                             <p className='text-sm font-medium uppercase tracking-[0.24em] text-orange-600'>
@@ -35,7 +35,7 @@ export function ViewsCard({ data }: AnalyticsDashboardSectionProps) {
                                 Previous 30 days comparison, based on first-party article visits.
                             </p>
                         </div>
-                        <div className='w-full rounded-2xl border border-border/70 bg-background/80 px-4 py-3 text-left sm:w-auto sm:text-right'>
+                        <div className='w-full rounded-lg border border-border/70 bg-background/80 px-4 py-3 text-left sm:w-auto sm:text-right'>
                             <p className='text-xs uppercase tracking-[0.2em] text-muted-foreground'>
                                 Unique 30d
                             </p>
@@ -51,7 +51,7 @@ export function ViewsCard({ data }: AnalyticsDashboardSectionProps) {
                     {data.periods.map((period, index) => (
                         <div
                             key={period.label}
-                            className='rounded-[22px] border border-border/70 bg-background/60 p-4'
+                            className='rounded-lg border border-border/70 bg-background/60 p-4'
                         >
                             <div className='flex items-center justify-between gap-3'>
                                 <p className='text-sm font-medium text-muted-foreground'>

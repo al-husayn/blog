@@ -35,7 +35,7 @@ export function ArticlesGrid({
                     );
                 })
             ) : (
-                <div className='col-span-full rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground'>
+                <div className='col-span-full rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground'>
                     No articles found for{' '}
                     <span className='font-medium text-foreground'>{emptyStateLabel}</span>.
                 </div>

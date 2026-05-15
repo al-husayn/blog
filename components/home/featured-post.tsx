@@ -23,7 +23,7 @@ export function FeaturedPost({ blog }: { blog: BlogPage }) {
                 </div>
                 <Link
                     href={blog.url}
-                    className='group block rounded-xl border border-border bg-card overflow-hidden transition-[background-color,box-shadow] duration-200 hover:bg-muted/20 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
+                    className='group block rounded-lg border border-border bg-card overflow-hidden transition-[background-color,box-shadow] duration-200 hover:bg-muted/20 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
                 >
                     <div className='grid gap-0 md:grid-cols-2'>
                         {blog.data.thumbnail && (

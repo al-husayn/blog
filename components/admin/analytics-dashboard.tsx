@@ -19,10 +19,10 @@ function DashboardState({
     isLoading?: boolean;
 }) {
     return (
-        <section className='rounded-[26px] border border-border/70 bg-card/95 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur sm:rounded-[30px] sm:p-8'>
+        <section className='rounded-lg border border-border/70 bg-card/95 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur sm:p-8'>
             <div className='flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between'>
                 <div className='flex items-start gap-4'>
-                    <div className='inline-flex rounded-2xl border border-border/70 bg-background/70 p-3'>
+                    <div className='inline-flex rounded-lg border border-border/70 bg-background/70 p-3'>
                         {isLoading ? (
                             <RefreshCw className='h-5 w-5 animate-spin text-muted-foreground' />
                         ) : (

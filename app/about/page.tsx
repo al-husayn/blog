@@ -161,7 +161,7 @@ export default function AboutPage() {
 
             <section className='max-w-7xl mx-auto w-full px-6 py-12 relative z-10 grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,0.65fr)]'>
                 <article className='space-y-6'>
-                    <div className='rounded-xl border border-border bg-card p-6 space-y-3'>
+                    <div className='rounded-lg border border-border bg-card p-6 space-y-3'>
                         <h2 className='text-xl font-semibold tracking-tight'>Mission</h2>
                         <p className='text-muted-foreground'>
                             The mission is simple: help developers{' '}
@@ -178,7 +178,7 @@ export default function AboutPage() {
                         </p>
                     </div>
 
-                    <div className='rounded-xl border border-border bg-card p-6 space-y-4'>
+                    <div className='rounded-lg border border-border bg-card p-6 space-y-4'>
                         <h2 className='text-xl font-semibold tracking-tight'>Focus Areas</h2>
                         <ul className='flex flex-wrap gap-2'>
                             {focusAreas.map((area) => (
@@ -194,7 +194,7 @@ export default function AboutPage() {
                 </article>
 
                 <aside className='space-y-4'>
-                    <div className='rounded-xl border border-border bg-card p-5 space-y-4'>
+                    <div className='rounded-lg border border-border bg-card p-5 space-y-4'>
                         <h2 className='text-xl font-semibold tracking-tight'>Connect</h2>
                         <div className='space-y-2'>
                             {connectLinks.map((link) => {
@@ -255,7 +255,7 @@ export default function AboutPage() {
 
             {recentPosts.length > 0 && (
                 <section className='max-w-7xl mx-auto w-full px-6 pb-14 relative z-10'>
-                    <div className='rounded-2xl border border-border bg-card overflow-hidden'>
+                    <div className='rounded-lg border border-border bg-card overflow-hidden'>
                         <div className='p-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
                             <div>
                                 <p className='text-xs uppercase tracking-wide text-primary font-semibold'>

@@ -35,7 +35,7 @@ export function AudienceCard({ data }: AnalyticsDashboardSectionProps) {
                 </div>
                 <div className='flex-1 space-y-4'>
                     <div className='grid gap-3 sm:grid-cols-2'>
-                        <div className='rounded-2xl border border-border/70 bg-background/60 p-4'>
+                        <div className='rounded-lg border border-border/70 bg-background/60 p-4'>
                             <p className='text-xs uppercase tracking-[0.2em] text-muted-foreground'>
                                 30d Unique
                             </p>
@@ -43,7 +43,7 @@ export function AudienceCard({ data }: AnalyticsDashboardSectionProps) {
                                 {formatNumber(data.uniqueVisitors30d)}
                             </p>
                         </div>
-                        <div className='rounded-2xl border border-border/70 bg-background/60 p-4'>
+                        <div className='rounded-lg border border-border/70 bg-background/60 p-4'>
                             <p className='text-xs uppercase tracking-[0.2em] text-muted-foreground'>
                                 All-time Unique
                             </p>

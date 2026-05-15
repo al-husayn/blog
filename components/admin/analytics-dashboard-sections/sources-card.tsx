@@ -49,7 +49,7 @@ export function SourcesCard({ data }: AnalyticsDashboardSectionProps) {
                         {data.sources30d.map((source) => (
                             <div
                                 key={source.key}
-                                className='rounded-2xl border border-border/70 bg-background/60 p-4'
+                                className='rounded-lg border border-border/70 bg-background/60 p-4'
                             >
                                 <div className='flex items-center justify-between gap-3'>
                                     <div className='flex items-center gap-3'>

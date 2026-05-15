@@ -134,7 +134,7 @@ export function ArticleShare({ articleSlug, title, description, url }: ArticleSh
     const shareLinks = createShareLinks({ title, description, url });
 
     return (
-        <section className='rounded-2xl border border-border bg-card/80 p-4 shadow-xs backdrop-blur sm:p-5'>
+        <section className='rounded-lg border border-border bg-card/80 p-4 shadow-xs backdrop-blur sm:p-5'>
             <div className='flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between'>
                 <div className='space-y-1'>
                     <p className='text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground'>

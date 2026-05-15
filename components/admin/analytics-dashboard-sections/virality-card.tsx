@@ -40,7 +40,7 @@ export function ViralityCard({ data }: AnalyticsDashboardSectionProps) {
                     />
                 </div>
 
-                <div className='rounded-2xl border border-border/70 bg-background/60 p-4'>
+                <div className='rounded-lg border border-border/70 bg-background/60 p-4'>
                     <p className='text-sm font-medium'>Share breakdown</p>
                     <div className='mt-3 space-y-3'>
                         {data.shareBreakdown30d.length > 0 ? (
@@ -65,7 +65,7 @@ export function ViralityCard({ data }: AnalyticsDashboardSectionProps) {
                     </div>
                 </div>
 
-                <div className='rounded-2xl border border-border/70 bg-background/60 p-4'>
+                <div className='rounded-lg border border-border/70 bg-background/60 p-4'>
                     <p className='text-sm font-medium'>Comments velocity in the first 48h</p>
                     <div className='mt-3 space-y-3'>
                         {topVelocityPosts.length > 0 ? (

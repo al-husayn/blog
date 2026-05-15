@@ -30,7 +30,7 @@ export function OrganicCard({ data }: AnalyticsDashboardSectionProps) {
                     />
                 </div>
                 <LineChart points={data.organicTrend90d} gradientId='organic-trend-fill' />
-                <div className='rounded-2xl border border-border/70 bg-background/60 p-4'>
+                <div className='rounded-lg border border-border/70 bg-background/60 p-4'>
                     <p className='text-sm font-medium'>Top keywords driving traffic</p>
                     <div className='mt-3 space-y-3'>
                         {data.topKeywords90d.length > 0 ? (

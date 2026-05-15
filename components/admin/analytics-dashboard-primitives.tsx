@@ -28,7 +28,7 @@ export function Card({ title, description, className, children }: CardProps) {
     return (
         <section
             className={cn(
-                'min-w-0 rounded-[24px] border border-border/70 bg-card/95 p-4 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur sm:rounded-[28px] sm:p-6',
+                'min-w-0 rounded-lg border border-border/70 bg-card/95 p-4 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur sm:p-6',
                 className,
             )}
         >
@@ -61,7 +61,7 @@ export function Sparkline({
     const chartPoints = buildChartPoints(points, width, height, padding);
 
     if (chartPoints.length === 0) {
-        return <div className='h-20 rounded-2xl bg-muted/40 sm:h-24' />;
+        return <div className='h-20 rounded-lg bg-muted/40 sm:h-24' />;
     }
 
     const linePath = buildPath(chartPoints);
@@ -112,7 +112,7 @@ export function LineChart({
             : sampledPoints;
 
     if (chartPoints.length === 0) {
-        return <div className='h-[220px] rounded-3xl bg-muted/40' />;
+        return <div className='h-[220px] rounded-lg bg-muted/40' />;
     }
 
     const linePath = buildPath(chartPoints);
@@ -251,7 +251,7 @@ export function LeaderboardList({
     metricValue: (post: DashboardTopPostMetric) => string;
 }) {
     return (
-        <div className='rounded-[22px] border border-border/70 bg-background/60 p-4 sm:rounded-[24px] sm:p-5'>
+        <div className='rounded-lg border border-border/70 bg-background/60 p-4 sm:p-5'>
             <div className='mb-4 flex items-center justify-between gap-3'>
                 <h3 className='text-base font-semibold tracking-tight'>{title}</h3>
                 <p className='hidden text-xs uppercase tracking-[0.22em] text-muted-foreground sm:block'>
@@ -263,7 +263,7 @@ export function LeaderboardList({
                     posts.map((post, index) => (
                         <div
                             key={`${title}-${post.slug}`}
-                            className='rounded-2xl border border-border/60 bg-background/70 p-3'
+                            className='rounded-lg border border-border/60 bg-background/70 p-3'
                         >
                             <div className='flex flex-col gap-3 sm:flex-row sm:items-start'>
                                 <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground'>
