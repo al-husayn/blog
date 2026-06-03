@@ -9,9 +9,21 @@ import type { AnalyticsDashboardSectionProps } from '@/components/admin/analytic
 
 export function EngagementCard({ data }: AnalyticsDashboardSectionProps) {
     const scrollMilestones = [
-        { label: 'Reached 50%', value: data.scrollReach30d.reached50, color: '#0f766e' },
-        { label: 'Reached 75%', value: data.scrollReach30d.reached75, color: '#ea580c' },
-        { label: 'Reached 100%', value: data.scrollReach30d.reached100, color: '#2563eb' },
+        {
+            label: 'Reached 50%',
+            value: data.scrollReach30d.reached50,
+            color: 'var(--chart-1)',
+        },
+        {
+            label: 'Reached 75%',
+            value: data.scrollReach30d.reached75,
+            color: 'var(--chart-3)',
+        },
+        {
+            label: 'Reached 100%',
+            value: data.scrollReach30d.reached100,
+            color: 'var(--chart-2)',
+        },
     ];
 
     return (

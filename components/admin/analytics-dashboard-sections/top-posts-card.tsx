@@ -69,7 +69,7 @@ function TopPostsMobileCard({ post }: { post: DashboardTopPostMetric }) {
     ];
 
     return (
-        <article className='rounded-[22px] border border-border/70 bg-background/60 p-4 shadow-[0_8px_30px_rgba(15,23,42,0.05)]'>
+        <article className='shadow-dashboard-soft rounded-[22px] border border-border/70 bg-background/60 p-4'>
             <div className='space-y-2'>
                 <PostLink post={post} />
                 <p className='line-clamp-2 text-sm text-muted-foreground'>{post.description}</p>
@@ -139,7 +139,7 @@ function TopPostsTable({ posts }: { posts: DashboardTopPostMetric[] }) {
 
 function TopPostsTableRow({ post }: { post: DashboardTopPostMetric }) {
     return (
-        <tr className='rounded-2xl bg-background/60 text-sm shadow-[0_8px_30px_rgba(15,23,42,0.05)]'>
+        <tr className='shadow-dashboard-soft rounded-2xl bg-background/60 text-sm'>
             <td className='rounded-l-2xl border border-border/70 border-r-0 px-4 py-4 align-top'>
                 <div className='space-y-1'>
                     <PostLink post={post} />
@@ -180,7 +180,7 @@ function PostLink({ post }: { post: DashboardTopPostMetric }) {
     return (
         <Link
             href={`/blog/${post.slug}`}
-            className='inline-flex max-w-full items-center gap-2 font-medium text-foreground transition-colors hover:text-orange-600'
+            className='inline-flex max-w-full items-center gap-2 font-medium text-foreground transition-colors hover:text-primary'
         >
             <span className='truncate'>{post.title}</span>
             <ArrowRight className='h-4 w-4 shrink-0' />

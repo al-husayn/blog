@@ -17,17 +17,17 @@ export function ViewsCard({ data }: AnalyticsDashboardSectionProps) {
             className='md:col-span-2 xl:col-span-7'
         >
             <div className='grid gap-4 2xl:grid-cols-[minmax(0,1.45fr)_minmax(17rem,0.95fr)]'>
-                <div className='space-y-5 rounded-[24px] border border-orange-500/20 bg-[linear-gradient(135deg,rgba(234,88,12,0.12),rgba(234,88,12,0.02)_55%,rgba(255,255,255,0))] p-4 sm:p-5'>
+                <div className='bg-views-highlight space-y-5 rounded-[24px] border border-chart-3/20 p-4 sm:p-5'>
                     <div className='flex flex-col items-start justify-between gap-4 sm:flex-row'>
                         <div>
-                            <p className='text-sm font-medium uppercase tracking-[0.24em] text-orange-600'>
+                            <p className='text-sm font-medium uppercase tracking-[0.24em] text-chart-3'>
                                 30d Views
                             </p>
                             <div className='mt-3 flex flex-wrap items-end gap-3'>
                                 <p className='text-4xl font-semibold tracking-tight sm:text-5xl'>
                                     {formatCompactNumber(data.views30d)}
                                 </p>
-                                <p className='mb-1 rounded-full border border-orange-500/20 bg-orange-500/10 px-3 py-1 text-sm font-medium text-orange-700 dark:text-orange-300'>
+                                <p className='mb-1 rounded-full border border-chart-3/20 bg-chart-3/10 px-3 py-1 text-sm font-medium text-chart-3'>
                                     {formatDelta(data.viewsDeltaVsPrevious30d)}
                                 </p>
                             </div>
@@ -69,7 +69,7 @@ export function ViewsCard({ data }: AnalyticsDashboardSectionProps) {
                                 <Sparkline
                                     points={period.trend}
                                     height={56}
-                                    stroke={index % 2 === 0 ? '#0f766e' : '#2563eb'}
+                                    stroke={index % 2 === 0 ? 'var(--chart-1)' : 'var(--chart-2)'}
                                     gradientId={`period-trend-${period.label}`}
                                 />
                             </div>

@@ -45,7 +45,7 @@ function AccessState({
                 />
             </div>
             <div className='relative mx-auto flex min-h-screen max-w-4xl items-center px-4 py-10 sm:px-6 sm:py-12'>
-                <section className='w-full rounded-[32px] border border-border/70 bg-card/95 p-8 shadow-[0_24px_80px_rgba(15,23,42,0.1)] backdrop-blur sm:p-10'>
+                <section className='shadow-dashboard-access w-full rounded-[32px] border border-border/70 bg-card/95 p-8 backdrop-blur sm:p-10'>
                     <div className='inline-flex rounded-2xl border border-border/70 bg-background/70 p-4'>
                         {icon}
                     </div>
