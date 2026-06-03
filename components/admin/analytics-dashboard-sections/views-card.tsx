@@ -69,11 +69,7 @@ export function ViewsCard({ data }: AnalyticsDashboardSectionProps) {
                                 <Sparkline
                                     points={period.trend}
                                     height={56}
-                                    stroke={
-                                        index % 2 === 0
-                                            ? 'var(--chart-1)'
-                                            : 'var(--chart-2)'
-                                    }
+                                    stroke={index % 2 === 0 ? 'var(--chart-1)' : 'var(--chart-2)'}
                                     gradientId={`period-trend-${period.label}`}
                                 />
                             </div>
