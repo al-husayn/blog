@@ -39,7 +39,7 @@ export function BuyMeACoffeeButton({
                 className,
             )}
         >
-            <span className='inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-background/95 text-coffee-foreground shadow-sm'>
+            <span className='inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-foreground/10 text-foreground shadow-sm'>
                 <Coffee className='h-4 w-4' aria-hidden='true' />
             </span>
             {size === 'icon' ? <span className='sr-only'>{label}</span> : <span>{label}</span>}
