@@ -28,7 +28,7 @@ export function Card({ title, description, className, children }: CardProps) {
     return (
         <section
             className={cn(
-                'min-w-0 rounded-[24px] border border-border/70 bg-card/95 p-4 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur sm:rounded-[28px] sm:p-6',
+                'shadow-dashboard-card min-w-0 rounded-[24px] border border-border/70 bg-card/95 p-4 backdrop-blur sm:rounded-[28px] sm:p-6',
                 className,
             )}
         >
@@ -48,7 +48,7 @@ export function Card({ title, description, className, children }: CardProps) {
 export function Sparkline({
     points,
     height = 96,
-    stroke = '#ea580c',
+    stroke = 'var(--chart-3)',
     gradientId = 'sparkline-fill',
 }: {
     points: AnalyticsTimeseriesPoint[];
@@ -125,8 +125,8 @@ export function LineChart({
             <svg viewBox={`0 0 ${width} ${height}`} className='h-[220px] w-full'>
                 <defs>
                     <linearGradient id={gradientId} x1='0' x2='0' y1='0' y2='1'>
-                        <stop offset='0%' stopColor='#0f766e' stopOpacity='0.3' />
-                        <stop offset='100%' stopColor='#0f766e' stopOpacity='0' />
+                        <stop offset='0%' stopColor='var(--chart-1)' stopOpacity='0.3' />
+                        <stop offset='100%' stopColor='var(--chart-1)' stopOpacity='0' />
                     </linearGradient>
                 </defs>
                 {yAxisValues.map((value, index) => {
@@ -149,7 +149,7 @@ export function LineChart({
                 <path
                     d={linePath}
                     fill='none'
-                    stroke='#0f766e'
+                    stroke='var(--chart-1)'
                     strokeLinecap='round'
                     strokeLinejoin='round'
                     strokeWidth='3'
@@ -222,7 +222,7 @@ export function EngagementGauge({ score, label }: { score: number; label: string
             <div
                 className='relative flex h-36 w-36 items-center justify-center rounded-full sm:h-44 sm:w-44'
                 style={{
-                    backgroundImage: `conic-gradient(#ea580c 0% ${clampedScore}%, rgba(148,163,184,0.15) ${clampedScore}% 100%)`,
+                    backgroundImage: `conic-gradient(var(--chart-3) 0% ${clampedScore}%, var(--chart-track) ${clampedScore}% 100%)`,
                 }}
             >
                 <div className='flex h-24 w-24 flex-col items-center justify-center rounded-full bg-card text-center shadow-inner sm:h-[7.5rem] sm:w-[7.5rem]'>
@@ -272,7 +272,7 @@ export function LeaderboardList({
                                 <div className='min-w-0 flex-1'>
                                     <Link
                                         href={`/blog/${post.slug}`}
-                                        className='inline-flex max-w-full items-center gap-2 font-medium text-foreground transition-colors hover:text-orange-600'
+                                        className='inline-flex max-w-full items-center gap-2 font-medium text-foreground transition-colors hover:text-primary'
                                     >
                                         <span className='truncate'>{post.title}</span>
                                         <ArrowRight className='h-4 w-4 shrink-0' />

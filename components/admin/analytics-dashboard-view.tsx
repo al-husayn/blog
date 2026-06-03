@@ -30,7 +30,7 @@ export function AnalyticsDashboardView({
 }: AnalyticsDashboardViewProps) {
     return (
         <div className='space-y-5 sm:space-y-6'>
-            <header className='rounded-[26px] border border-border/70 bg-[linear-gradient(135deg,rgba(15,118,110,0.14),rgba(37,99,235,0.06)_45%,rgba(234,88,12,0.08)_100%)] p-5 shadow-[0_24px_80px_rgba(15,23,42,0.12)] backdrop-blur sm:rounded-[30px] sm:p-6 lg:p-8'>
+            <header className='bg-analytics-hero shadow-dashboard-hero rounded-[26px] border border-border/70 p-5 backdrop-blur sm:rounded-[30px] sm:p-6 lg:p-8'>
                 <div className='flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between'>
                     <div className='space-y-3'>
                         <p className='text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground'>
@@ -56,7 +56,7 @@ export function AnalyticsDashboardView({
                                 {dateTimeFormatter.format(new Date(data.generatedAt))}
                             </p>
                             {refreshError ? (
-                                <p className='mt-2 max-w-xs text-xs text-amber-700 dark:text-amber-300'>
+                                <p className='mt-2 max-w-xs text-xs text-warning-foreground dark:text-warning'>
                                     {refreshError} Showing the last successful snapshot.
                                 </p>
                             ) : null}

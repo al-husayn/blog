@@ -38,7 +38,7 @@ export function FeaturedPost({ blog }: { blog: BlogPage }) {
                                 />
                                 <div
                                     aria-hidden='true'
-                                    className='pointer-events-none absolute inset-0 bg-black/0 dark:bg-black/20 transition-colors duration-300 group-hover:dark:bg-black/10'
+                                    className='pointer-events-none absolute inset-0 bg-foreground/0 transition-colors duration-300 dark:bg-background/20 group-hover:dark:bg-background/10'
                                 />
                             </div>
                         )}

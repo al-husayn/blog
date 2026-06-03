@@ -1,8 +1,7 @@
 'use client';
 
-import { gooeyToast } from 'goey-toast';
 import React, { useEffect, useState } from 'react';
-import { copySectionLink, scrollToSection, updateSectionHash } from '@/lib/section-links';
+import { scrollToSection, updateSectionHash } from '@/lib/section-links';
 import { cn } from '@/lib/utils';
 import type { Heading, TableOfContentsProps } from '@/types/components/table-of-contents';
 
@@ -119,24 +118,11 @@ export function TableOfContents({ className }: TableOfContentsProps) {
         };
     }, [headings, activeId]);
 
-    const handleClick = async (id: string) => {
+    const handleClick = (id: string) => {
+        // Only update the hash and scroll to the section when clicking the TOC.
+        // Copying the link (and showing a toast) is reserved for the heading's copy button.
         updateSectionHash(id);
         scrollToSection(id);
-
-        try {
-            await copySectionLink(id);
-            gooeyToast.success('Section link copied', {
-                description: 'You can paste this heading link anywhere.',
-                timing: { displayDuration: 2600 },
-                showTimestamp: false,
-            });
-        } catch {
-            gooeyToast.error('Could not copy this section link', {
-                description:
-                    'The page still jumped to the section, so you can copy the URL from the address bar.',
-                showTimestamp: false,
-            });
-        }
     };
 
     if (headings.length === 0) return null;

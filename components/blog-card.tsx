@@ -16,7 +16,7 @@ export function BlogCard({
     return (
         <Link
             href={url}
-            className='group relative block h-full overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-[transform,border-color,box-shadow] duration-200 ease-out hover:z-10 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_14px_28px_-18px_rgba(0,0,0,0.55)] focus-visible:z-10 focus-visible:-translate-y-1 focus-visible:border-primary/40 focus-visible:shadow-[0_14px_28px_-18px_rgba(0,0,0,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:hover:shadow-[0_18px_36px_-20px_rgba(0,0,0,0.85)] dark:focus-visible:shadow-[0_18px_36px_-20px_rgba(0,0,0,0.85)]'
+            className='group relative block h-full overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-[transform,border-color,box-shadow] duration-200 ease-out hover:z-10 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_14px_28px_-18px_oklch(0.18_0.04_253_/_0.55)] focus-visible:z-10 focus-visible:-translate-y-1 focus-visible:border-primary/40 focus-visible:shadow-[0_14px_28px_-18px_oklch(0.18_0.04_253_/_0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:hover:shadow-[0_18px_36px_-20px_oklch(0.06_0.02_253_/_0.85)] dark:focus-visible:shadow-[0_18px_36px_-20px_oklch(0.06_0.02_253_/_0.85)]'
         >
             <div className='flex h-full flex-col bg-background transition-colors duration-200 group-hover:bg-muted/40 group-focus-visible:bg-muted/40'>
                 {thumbnail && (
@@ -31,7 +31,7 @@ export function BlogCard({
                         />
                         <div
                             aria-hidden='true'
-                            className='pointer-events-none absolute inset-0 bg-black/0 dark:bg-black/20 transition-colors duration-300 group-hover:dark:bg-black/10'
+                            className='pointer-events-none absolute inset-0 bg-foreground/0 transition-colors duration-300 dark:bg-background/20 group-hover:dark:bg-background/10'
                         />
                     </div>
                 )}

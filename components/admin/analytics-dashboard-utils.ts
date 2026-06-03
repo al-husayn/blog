@@ -14,12 +14,12 @@ export const dateTimeFormatter = new Intl.DateTimeFormat('en-US', {
 });
 
 export const sourceColors: Record<string, string> = {
-    direct: '#0f766e',
-    organic: '#ea580c',
-    social: '#2563eb',
-    referral: '#7c3aed',
-    new: '#ea580c',
-    returning: '#0f766e',
+    direct: 'var(--chart-1)',
+    organic: 'var(--chart-3)',
+    social: 'var(--chart-2)',
+    referral: 'var(--chart-4)',
+    new: 'var(--chart-3)',
+    returning: 'var(--chart-1)',
 };
 
 export const formatNumber = (value: number): string => numberFormatter.format(value);

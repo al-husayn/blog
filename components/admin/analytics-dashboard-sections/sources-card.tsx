@@ -11,10 +11,11 @@ import type { AnalyticsDashboardSectionProps } from '@/components/admin/analytic
 
 export function SourcesCard({ data }: AnalyticsDashboardSectionProps) {
     const totalSources = data.sources30d.reduce((sum, source) => sum + source.value, 0);
+    const fallbackSourceColor = 'var(--source-fallback)';
     const sourceSegments = data.sources30d.map((source) => ({
         label: source.label,
         value: source.value,
-        color: sourceColors[source.key] ?? '#64748b',
+        color: sourceColors[source.key] ?? fallbackSourceColor,
     }));
 
     return (
@@ -39,7 +40,8 @@ export function SourcesCard({ data }: AnalyticsDashboardSectionProps) {
                                     key={`source-bar-${source.key}`}
                                     style={{
                                         width: `${totalSources === 0 ? 0 : (source.value / totalSources) * 100}%`,
-                                        backgroundColor: sourceColors[source.key] ?? '#64748b',
+                                        backgroundColor:
+                                            sourceColors[source.key] ?? fallbackSourceColor,
                                     }}
                                 />
                             ))}
@@ -57,7 +59,7 @@ export function SourcesCard({ data }: AnalyticsDashboardSectionProps) {
                                             className='h-3 w-3 rounded-full'
                                             style={{
                                                 backgroundColor:
-                                                    sourceColors[source.key] ?? '#64748b',
+                                                    sourceColors[source.key] ?? fallbackSourceColor,
                                             }}
                                         />
                                         <p className='font-medium'>{source.label}</p>
