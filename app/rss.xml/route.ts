@@ -1,13 +1,13 @@
-import { docs, meta } from '@/.source';
+import { docs, meta } from '@/.source/server';
 import { getAuthor, isValidAuthor } from '@/lib/authors';
 import { siteConfig } from '@/lib/site';
 import type { BlogPage } from '@/types/blog';
 import { loader } from 'fumadocs-core/source';
-import { createMDXSource } from 'fumadocs-mdx';
+import { toFumadocsSource } from 'fumadocs-mdx/runtime/server';
 
 const blogSource = loader({
     baseUrl: '/blog',
-    source: createMDXSource(docs, meta),
+    source: toFumadocsSource(docs, meta),
 });
 
 const getTimestamp = (value: string): number => {
