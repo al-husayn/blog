@@ -103,7 +103,7 @@ export default function AboutPage() {
             >
                 <div
                     aria-hidden='true'
-                    className='absolute top-0 left-0 z-0 w-full h-50 mask-[linear-gradient(to_top,transparent_25%,black_95%)]pointer-events-none'
+                    className='absolute top-0 left-0 z-0 w-full h-50 mask-[linear-gradient(to_top,transparent_25%,black_95%)] pointer-events-none'
                 >
                     <FlickeringGrid
                         className='absolute top-0 left-0 size-full'
