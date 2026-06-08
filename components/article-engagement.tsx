@@ -587,7 +587,7 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                                 {message.length}/{MAX_COMMENT_LENGTH} characters
                             </p>
                             {formError && (
-                                <p className='w-full wra-break-word text-xs text-destructive sm:w-auto'>
+                                <p className='w-full wrap-break-word text-xs text-destructive sm:w-auto'>
                                     {formError}
                                 </p>
                             )}
