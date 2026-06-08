@@ -11,7 +11,7 @@ export function PromoContent({ variant = 'desktop', className }: PromoContentPro
                     <img
                         src='/logo.png'
                         alt='Logo'
-                        className='w-8 h-8 rounded object-cover flex-shrink-0'
+                        className='w-8 h-8 rounded object-cover shrink-0'
                     />
                     <div className='flex-1 min-w-0'>
                         <p className='text-xs font-medium text-foreground/90 truncate'>

@@ -248,7 +248,7 @@ export function LeaderboardList({
     metricValue: (post: DashboardTopPostMetric) => string;
 }) {
     return (
-        <div className='rounded-[22px] border border-border/70 bg-background/60 p-4 sm:rounded-[24px] sm:p-5'>
+        <div className='rounded-[22px] border border-border/70 bg-background/60 p-4 sm:rounded-3xl sm:p-5'>
             <div className='mb-4 flex items-center justify-between gap-3'>
                 <h3 className='text-base font-semibold tracking-tight'>{title}</h3>
                 <p className='hidden text-xs uppercase tracking-[0.22em] text-muted-foreground sm:block'>

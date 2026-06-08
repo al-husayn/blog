@@ -103,7 +103,7 @@ export default function AboutPage() {
             >
                 <div
                     aria-hidden='true'
-                    className='absolute top-0 left-0 z-0 w-full h-[200px] [mask-image:linear-gradient(to_top,transparent_25%,black_95%)] pointer-events-none'
+                    className='absolute top-0 left-0 z-0 w-full h-50 mask-[linear-gradient(to_top,transparent_25%,black_95%)]pointer-events-none'
                 >
                     <FlickeringGrid
                         className='absolute top-0 left-0 size-full'
@@ -114,7 +114,7 @@ export default function AboutPage() {
                         flickerChance={0.05}
                     />
                 </div>
-                <div className='max-w-7xl mx-auto p-6 min-h-[250px] flex items-center relative z-10'>
+                <div className='max-w-7xl mx-auto p-6 min-h-62.5 flex items-center relative z-10'>
                     <div className='flex flex-col md:flex-row items-center gap-8'>
                         <div className='relative h-32 w-32 overflow-hidden rounded-full border-4 border-border bg-muted shadow-lg'>
                             <Image

@@ -27,7 +27,7 @@ export function FeaturedPost({ blog }: { blog: BlogPage }) {
                 >
                     <div className='grid gap-0 md:grid-cols-2'>
                         {blog.data.thumbnail && (
-                            <div className='relative min-h-[220px] md:min-h-[300px]'>
+                            <div className='relative min-h-55 md:min-h-75'>
                                 <Image
                                     src={blog.data.thumbnail}
                                     alt={blog.data.title}

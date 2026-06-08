@@ -87,7 +87,7 @@ export function CopyHeader({
                     onClick={copyToClipboard}
                     aria-label='Copy link to this section'
                     title='Copy link to this section'
-                    className='opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity duration-200 flex-shrink-0'
+                    className='opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity duration-200 shrink-0'
                 >
                     <Link className='w-4 h-4' />
                 </button>

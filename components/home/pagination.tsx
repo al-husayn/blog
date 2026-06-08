@@ -15,7 +15,7 @@ function PaginationLink({
         <Link
             href={href}
             aria-disabled={disabled}
-            className={`inline-flex h-9 min-w-[84px] items-center justify-center rounded-md border px-3 text-center text-sm font-medium leading-none transition-colors md:min-w-[96px] ${
+            className={`inline-flex h-9 min-w-21 items-center justify-center rounded-md border px-3 text-center text-sm font-medium leading-none transition-colors md:min-w-24 ${
                 disabled
                     ? 'pointer-events-none opacity-50 border-border'
                     : 'border-border hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
@@ -88,7 +88,7 @@ export function Pagination({
                 Previous
             </PaginationLink>
 
-            <div className='order-3 w-full justify-center flex items-center gap-2 md:order-none md:w-auto'>
+            <div className='order-3 w-full justify-center flex items-center gap-2 md:order-0 md:w-auto'>
                 {paginationItems.map((item, index) => (
                     <PageNumberLink
                         key={item === 'ellipsis' ? `ellipsis-${index}` : item}
