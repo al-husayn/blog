@@ -10,7 +10,12 @@ export function CookieBanner() {
     const [isVisible, setIsVisible] = React.useState(false);
 
     React.useEffect(() => {
-        setIsVisible(getCookieConsent() === null);
+        // Avoid calling setState synchronously in the effect body.
+        const id = window.setTimeout(() => {
+            setIsVisible(getCookieConsent() === null);
+        }, 0);
+
+        return () => clearTimeout(id);
     }, []);
 
     const handleConsent = (status: CookieConsentStatus) => {

@@ -9,7 +9,8 @@ export function GoeyToaster() {
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
-        setIsMounted(true);
+        const id = window.setTimeout(() => setIsMounted(true), 0);
+        return () => clearTimeout(id);
     }, []);
 
     if (!isMounted) {

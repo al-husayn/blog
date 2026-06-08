@@ -43,7 +43,10 @@ export function Drawer({ children }: DrawerProps) {
     }, [isOpen]);
 
     useEffect(() => {
-        setIsOpen(false);
+        // Defer closing the drawer in response to pathname changes to avoid
+        // calling setState synchronously inside the effect.
+        const id = window.setTimeout(() => setIsOpen(false), 0);
+        return () => clearTimeout(id);
     }, [pathname]);
 
     return (
