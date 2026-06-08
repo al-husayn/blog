@@ -33,7 +33,7 @@ function AccessState({
         <main className='relative min-h-screen overflow-hidden bg-background'>
             <div
                 aria-hidden='true'
-                className='absolute inset-x-0 top-0 h-[220px] [mask-image:linear-gradient(to_top,transparent_18%,black_95%)]'
+                className='absolute inset-x-0 top-0 h-55 mask-[linear-gradient(to_top,transparent_18%,black_95%)]'
             >
                 <FlickeringGrid
                     className='absolute inset-0 h-full w-full'
@@ -45,7 +45,7 @@ function AccessState({
                 />
             </div>
             <div className='relative mx-auto flex min-h-screen max-w-4xl items-center px-4 py-10 sm:px-6 sm:py-12'>
-                <section className='shadow-dashboard-access w-full rounded-[32px] border border-border/70 bg-card/95 p-8 backdrop-blur sm:p-10'>
+                <section className='shadow-dashboard-access w-full rounded-4xl border border-border/70 bg-card/95 p-8 backdrop-blur sm:p-10'>
                     <div className='inline-flex rounded-2xl border border-border/70 bg-background/70 p-4'>
                         {icon}
                     </div>
@@ -112,44 +112,50 @@ export default async function AdminDashboardPage() {
             break;
     }
 
+    const queryClient = new QueryClient();
+    let isMissingTables = false;
+
     try {
         const analytics = await getDashboardAnalytics();
-        const queryClient = new QueryClient();
         queryClient.setQueryData(adminAnalyticsQueryKey, analytics);
-
-        return (
-            <main className='relative min-h-screen overflow-hidden bg-background'>
-                <div
-                    aria-hidden='true'
-                    className='absolute inset-x-0 top-0 h-[220px] [mask-image:linear-gradient(to_top,transparent_18%,black_95%)]'
-                >
-                    <FlickeringGrid
-                        className='absolute inset-0 h-full w-full'
-                        squareSize={4}
-                        gridGap={6}
-                        color='var(--muted-foreground)'
-                        maxOpacity={0.2}
-                        flickerChance={0.05}
-                    />
-                </div>
-                <div className='relative mx-auto max-w-[1440px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10'>
-                    <HydrationBoundary state={dehydrate(queryClient)}>
-                        <AnalyticsDashboard />
-                    </HydrationBoundary>
-                </div>
-            </main>
-        );
     } catch (error) {
         if (isMissingAnalyticsTablesError(error)) {
-            return (
-                <AccessState
-                    icon={<Settings2 className='h-6 w-6 text-muted-foreground' />}
-                    title='Analytics tables have not been applied yet'
-                    description='The dashboard code is in place, but your database is still missing the analytics tables. Run `pnpm db:push` or your preferred Drizzle migration flow, then refresh `/admin`.'
-                />
-            );
+            isMissingTables = true;
+        } else {
+            throw error;
         }
-
-        throw error;
     }
+
+    if (isMissingTables) {
+        return (
+            <AccessState
+                icon={<Settings2 className='h-6 w-6 text-muted-foreground' />}
+                title='Analytics tables have not been applied yet'
+                description='The dashboard code is in place, but your database is still missing the analytics tables. Run `pnpm db:push` or your preferred Drizzle migration flow, then refresh `/admin`.'
+            />
+        );
+    }
+
+    return (
+        <main className='relative min-h-screen overflow-hidden bg-background'>
+            <div
+                aria-hidden='true'
+                className='absolute inset-x-0 top-0 h-55 mask-[linear-gradient(to_top,transparent_18%,black_95%)]'
+            >
+                <FlickeringGrid
+                    className='absolute inset-0 h-full w-full'
+                    squareSize={4}
+                    gridGap={6}
+                    color='var(--muted-foreground)'
+                    maxOpacity={0.2}
+                    flickerChance={0.05}
+                />
+            </div>
+            <div className='relative mx-auto max-w-360 px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10'>
+                <HydrationBoundary state={dehydrate(queryClient)}>
+                    <AnalyticsDashboard />
+                </HydrationBoundary>
+            </div>
+        </main>
+    );
 }
