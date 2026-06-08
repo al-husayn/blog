@@ -1,10 +1,8 @@
 'use client';
 
 import type React from 'react';
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { AnalyticsTimeseriesPoint, DashboardTopPostMetric } from '@/types/analytics';
+import type { AnalyticsTimeseriesPoint  } from '@/types/analytics';
 import {
     buildChartPoints,
     buildPath,
@@ -28,7 +26,7 @@ export function Card({ title, description, className, children }: CardProps) {
     return (
         <section
             className={cn(
-                'shadow-dashboard-card min-w-0 rounded-[24px] border border-border/70 bg-card/95 p-4 backdrop-blur sm:rounded-[28px] sm:p-6',
+                'shadow-dashboard-card min-w-0 rounded-3xl border border-border/70 bg-card/95 p-4 backdrop-blur sm:rounded-[28px] sm:p-6',
                 className,
             )}
         >
@@ -112,7 +110,7 @@ export function LineChart({
             : sampledPoints;
 
     if (chartPoints.length === 0) {
-        return <div className='h-[220px] rounded-3xl bg-muted/40' />;
+        return <div className='h-55 rounded-3xl bg-muted/40' />;
     }
 
     const linePath = buildPath(chartPoints);
@@ -122,7 +120,7 @@ export function LineChart({
 
     return (
         <div className='space-y-3'>
-            <svg viewBox={`0 0 ${width} ${height}`} className='h-[220px] w-full'>
+            <svg viewBox={`0 0 ${width} ${height}`} className='h-55 w-full'>
                 <defs>
                     <linearGradient id={gradientId} x1='0' x2='0' y1='0' y2='1'>
                         <stop offset='0%' stopColor='var(--chart-1)' stopOpacity='0.3' />
@@ -189,15 +187,17 @@ export function DonutChart({
         );
     }
 
-    let currentOffset = 0;
-    const gradient = segments
-        .map((segment) => {
-            const start = currentOffset;
-            const end = currentOffset + (segment.value / total) * 100;
-            currentOffset = end;
-            return `${segment.color} ${start}% ${end}%`;
-        })
-        .join(', ');
+    const { gradientSegments } = segments.reduce(
+        (acc, segment) => {
+            const start = acc.offset;
+            const end = acc.offset + (segment.value / total) * 100;
+            acc.gradientSegments.push(`${segment.color} ${start}% ${end}%`);
+            acc.offset = end;
+            return acc;
+        },
+        { gradientSegments: [] as string[], offset: 0 },
+    );
+    const gradient = gradientSegments.join(', ');
 
     return (
         <div
@@ -225,76 +225,10 @@ export function EngagementGauge({ score, label }: { score: number; label: string
                     backgroundImage: `conic-gradient(var(--chart-3) 0% ${clampedScore}%, var(--chart-track) ${clampedScore}% 100%)`,
                 }}
             >
-                <div className='flex h-24 w-24 flex-col items-center justify-center rounded-full bg-card text-center shadow-inner sm:h-[7.5rem] sm:w-[7.5rem]'>
-                    <p className='text-3xl font-semibold tracking-tight sm:text-4xl'>
-                        {clampedScore}
-                    </p>
-                    <p className='text-xs uppercase tracking-[0.22em] text-muted-foreground'>
-                        Score
-                    </p>
+                <div className='flex h-24 w-24 flex-col items-center justify-center rounded-full bg-card text-center shadow-inner sm:h-30 sm:w-30'>
+                    <p className='text-xl font-semibold sm:text-2xl'>{clampedScore}%</p>
+                    <p className='text-xs text-muted-foreground'>{label}</p>
                 </div>
-            </div>
-            <p className='text-sm text-muted-foreground'>{label}</p>
-        </div>
-    );
-}
-
-export function LeaderboardList({
-    title,
-    posts,
-    metricLabel,
-    metricValue,
-}: {
-    title: string;
-    posts: DashboardTopPostMetric[];
-    metricLabel: string;
-    metricValue: (post: DashboardTopPostMetric) => string;
-}) {
-    return (
-        <div className='rounded-[22px] border border-border/70 bg-background/60 p-4 sm:rounded-[24px] sm:p-5'>
-            <div className='mb-4 flex items-center justify-between gap-3'>
-                <h3 className='text-base font-semibold tracking-tight'>{title}</h3>
-                <p className='hidden text-xs uppercase tracking-[0.22em] text-muted-foreground sm:block'>
-                    {metricLabel}
-                </p>
-            </div>
-            <div className='space-y-3'>
-                {posts.length > 0 ? (
-                    posts.map((post, index) => (
-                        <div
-                            key={`${title}-${post.slug}`}
-                            className='rounded-2xl border border-border/60 bg-background/70 p-3'
-                        >
-                            <div className='flex flex-col gap-3 sm:flex-row sm:items-start'>
-                                <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground'>
-                                    {index + 1}
-                                </div>
-                                <div className='min-w-0 flex-1'>
-                                    <Link
-                                        href={`/blog/${post.slug}`}
-                                        className='inline-flex max-w-full items-center gap-2 font-medium text-foreground transition-colors hover:text-primary'
-                                    >
-                                        <span className='truncate'>{post.title}</span>
-                                        <ArrowRight className='h-4 w-4 shrink-0' />
-                                    </Link>
-                                    <p className='mt-1 line-clamp-2 text-sm text-muted-foreground'>
-                                        {post.description}
-                                    </p>
-                                </div>
-                                <div className='flex items-center justify-between gap-3 sm:block sm:shrink-0 sm:text-right'>
-                                    <p className='text-[11px] uppercase tracking-[0.22em] text-muted-foreground sm:hidden'>
-                                        {metricLabel}
-                                    </p>
-                                    <p className='text-base font-semibold'>{metricValue(post)}</p>
-                                </div>
-                            </div>
-                        </div>
-                    ))
-                ) : (
-                    <p className='text-sm text-muted-foreground'>
-                        Post rankings will appear after analytics data arrives.
-                    </p>
-                )}
             </div>
         </div>
     );
