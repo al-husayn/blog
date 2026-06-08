@@ -13,7 +13,6 @@ const eslintConfig = defineConfig([
         'node_modules/**',
         '**/*.md',
         '**/*.mdx',
-        'scripts/generate-read-times.js',
     ]),
     {
         files: ['scripts/**/*.js'],
