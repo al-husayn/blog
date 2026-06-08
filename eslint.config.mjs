@@ -7,13 +7,7 @@ const eslintConfig = defineConfig([
     ...nextVitals,
     ...nextTs,
     eslintConfigPrettier,
-    globalIgnores([
-        '.next/**',
-        '.source/**',
-        'node_modules/**',
-        '**/*.md',
-        '**/*.mdx',
-    ]),
+    globalIgnores(['.next/**', '.source/**', 'node_modules/**', '**/*.md', '**/*.mdx']),
     {
         files: ['scripts/**/*.js'],
         rules: {
