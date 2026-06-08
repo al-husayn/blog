@@ -23,7 +23,9 @@ export function TableOfContents({ className }: TableOfContentsProps) {
             }
         });
 
-        setHeadings(headingsArray);
+        // Schedule the state update to avoid synchronous setState within the effect.
+        const id = window.setTimeout(() => setHeadings(headingsArray), 0);
+        return () => clearTimeout(id);
     }, []);
 
     useEffect(() => {

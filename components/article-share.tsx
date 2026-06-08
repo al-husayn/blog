@@ -64,11 +64,14 @@ export function ArticleShare({ articleSlug, title, description, url }: ArticleSh
     };
 
     useEffect(() => {
-        setNativeShareAvailable(
-            typeof navigator !== 'undefined' && typeof navigator.share === 'function',
-        );
+        const id = window.setTimeout(() => {
+            setNativeShareAvailable(
+                typeof navigator !== 'undefined' && typeof navigator.share === 'function',
+            );
+        }, 0);
 
         return () => {
+            clearTimeout(id);
             if (copyTimeoutRef.current) {
                 window.clearTimeout(copyTimeoutRef.current);
             }

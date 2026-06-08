@@ -131,7 +131,7 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
             />
             <HashScrollHandler />
             <ArticleAnalyticsTracker articleSlug={slug} path={`/blog/${slug}`} />
-            <div className='absolute top-0 left-0 z-0 w-full h-[200px] [mask-image:linear-gradient(to_top,transparent_25%,black_95%)]'>
+            <div className='absolute top-0 left-0 z-0 w-full h-50 mask-[linear-gradient(to_top,transparent_25%,black_95%)]'>
                 <FlickeringGrid
                     className='absolute top-0 left-0 size-full'
                     squareSize={4}
@@ -188,7 +188,7 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
                 <div className='absolute max-w-7xl mx-auto left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] lg:w-full h-full border-x border-border p-0 pointer-events-none' />
                 <div className='w-full p-0 overflow-hidden'>
                     {page.data.thumbnail && (
-                        <div className='relative w-full overflow-hidden border border-transparent bg-muted/30 aspect-video md:h-[500px] md:aspect-auto'>
+                        <div className='relative w-full overflow-hidden border border-transparent bg-muted/30 aspect-video md:h-125 md:aspect-auto'>
                             <Image
                                 src={page.data.thumbnail}
                                 alt={page.data.title}
@@ -213,7 +213,7 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
                     </div>
                 </div>
 
-                <aside className='hidden lg:block w-[350px] flex-shrink-0 p-6 lg:p-10 bg-muted/60 dark:bg-muted/20'>
+                <aside className='hidden lg:block w-87.5 shrink-0 p-6 lg:p-10 bg-muted/60 dark:bg-muted/20'>
                     <div className='sticky top-20 space-y-8'>
                         {author && <AuthorCard author={author} />}
                         <div className='border border-border rounded-lg p-6 bg-card'>

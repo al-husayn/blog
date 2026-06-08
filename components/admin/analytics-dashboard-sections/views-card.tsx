@@ -17,7 +17,7 @@ export function ViewsCard({ data }: AnalyticsDashboardSectionProps) {
             className='md:col-span-2 xl:col-span-7'
         >
             <div className='grid gap-4 2xl:grid-cols-[minmax(0,1.45fr)_minmax(17rem,0.95fr)]'>
-                <div className='bg-views-highlight space-y-5 rounded-[24px] border border-chart-3/20 p-4 sm:p-5'>
+                <div className='bg-views-highlight space-y-5 rounded-3xl border border-chart-3/20 p-4 sm:p-5'>
                     <div className='flex flex-col items-start justify-between gap-4 sm:flex-row'>
                         <div>
                             <p className='text-sm font-medium uppercase tracking-[0.24em] text-chart-3'>

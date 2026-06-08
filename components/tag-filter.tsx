@@ -50,7 +50,36 @@ export function TagFilter({
         router.push(queryString ? `${pathname}?${queryString}` : pathname, { scroll: false });
     };
 
-    const DesktopTagFilter = () => (
+    return (
+        <>
+            <DesktopTagFilter
+                tags={tags}
+                selectedTag={selectedTag}
+                tagCounts={tagCounts}
+                panelId={panelId}
+                onTagClick={handleTagClick}
+            />
+            <MobileTagFilter
+                tags={tags}
+                selectedTag={selectedTag}
+                tagCounts={tagCounts}
+                panelId={panelId}
+                onTagClick={handleTagClick}
+            />
+        </>
+    );
+}
+
+type InnerProps = {
+    tags: string[];
+    selectedTag: string;
+    tagCounts?: Record<string, number> | undefined;
+    panelId: string;
+    onTagClick: (tag: string) => void;
+};
+
+function DesktopTagFilter({ tags, selectedTag, tagCounts, panelId, onTagClick }: InnerProps) {
+    return (
         <div
             className='hidden md:flex flex-wrap gap-2'
             role='tablist'
@@ -64,7 +93,7 @@ export function TagFilter({
                     <button
                         type='button'
                         key={tag}
-                        onClick={() => handleTagClick(tag)}
+                        onClick={() => onTagClick(tag)}
                         role='tab'
                         id={tabId}
                         aria-selected={isSelected}
@@ -92,8 +121,10 @@ export function TagFilter({
             })}
         </div>
     );
+}
 
-    const MobileTagFilter = () => (
+function MobileTagFilter({ tags, selectedTag, tagCounts, panelId, onTagClick }: InnerProps) {
+    return (
         <Drawer>
             <DrawerTrigger
                 className='md:hidden w-full flex items-center justify-between rounded-lg border border-border bg-background px-4 py-2.5 text-left transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
@@ -125,7 +156,7 @@ export function TagFilter({
                                 <button
                                     type='button'
                                     key={tag}
-                                    onClick={() => handleTagClick(tag)}
+                                    onClick={() => onTagClick(tag)}
                                     role='tab'
                                     id={tabId}
                                     aria-selected={isSelected}
@@ -160,12 +191,5 @@ export function TagFilter({
                 </DrawerBody>
             </DrawerContent>
         </Drawer>
-    );
-
-    return (
-        <>
-            <DesktopTagFilter />
-            <MobileTagFilter />
-        </>
     );
 }

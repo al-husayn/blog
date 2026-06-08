@@ -48,8 +48,8 @@ export function ReadMoreSection({ currentSlug, currentTags = [] }: ReadMoreSecti
                                 className='group grid grid-cols-1 lg:grid-cols-12 items-center gap-4 cursor-pointer'
                             >
                                 {post.data.thumbnail && (
-                                    <div className='flex-shrink-0 col-span-1 lg:col-span-4'>
-                                        <div className='relative w-full aspect-[16/10] overflow-hidden rounded-lg'>
+                                    <div className='shrink-0 col-span-1 lg:col-span-4'>
+                                        <div className='relative w-full aspect-16/10 overflow-hidden rounded-lg'>
                                             <Image
                                                 src={post.data.thumbnail}
                                                 alt={post.data.title}

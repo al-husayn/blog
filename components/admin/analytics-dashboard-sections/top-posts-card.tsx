@@ -104,7 +104,7 @@ function MobileStatCard({ label, value }: { label: string; value: string }) {
 function TopPostsTable({ posts }: { posts: DashboardTopPostMetric[] }) {
     return (
         <div className='hidden overflow-x-auto xl:block'>
-            <table className='min-w-[980px] border-separate border-spacing-y-3'>
+            <table className='min-w-245 border-separate border-spacing-y-3'>
                 <thead>
                     <tr className='text-left text-xs uppercase tracking-[0.18em] text-muted-foreground'>
                         <th className='pb-1 pr-4 font-medium'>Post</th>

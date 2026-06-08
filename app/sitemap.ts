@@ -1,13 +1,13 @@
 import type { MetadataRoute } from 'next';
-import { docs, meta } from '@/.source';
+import { docs, meta } from '@/.source/server';
 import type { BlogPage } from '@/types/blog';
 import { loader } from 'fumadocs-core/source';
-import { createMDXSource } from 'fumadocs-mdx';
 import { getAbsoluteUrl } from '@/lib/seo';
+import { toFumadocsSource } from 'fumadocs-mdx/runtime/server';
 
 const blogSource = loader({
     baseUrl: '/blog',
-    source: createMDXSource(docs, meta),
+    source: toFumadocsSource(docs, meta),
 });
 
 const parseLastModified = (value: string): Date => {

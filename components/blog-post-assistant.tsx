@@ -164,7 +164,7 @@ export function BlogPostAssistant({ slug, title }: BlogPostAssistantProps) {
             </div>
 
             <div className='rounded-lg border border-border bg-muted/30'>
-                <div className='max-h-[360px] space-y-3 overflow-y-auto p-4'>
+                <div className='max-h-90 space-y-3 overflow-y-auto p-4'>
                     {messages.length === 0 ? (
                         <div className='rounded-md border border-dashed border-border bg-background p-4 text-sm text-muted-foreground'>
                             Ask a question about this post and I&apos;ll keep it concise, practical,

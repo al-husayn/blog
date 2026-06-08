@@ -11,7 +11,8 @@ export function ThemeToggle() {
     const [mounted, setMounted] = React.useState(false);
 
     React.useEffect(() => {
-        setMounted(true);
+        const id = window.setTimeout(() => setMounted(true), 0);
+        return () => clearTimeout(id);
     }, []);
 
     const isDark = mounted ? resolvedTheme === 'dark' : false;

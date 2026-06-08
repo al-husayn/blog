@@ -124,7 +124,7 @@ function CommentThread({
                             </Button>
                         </div>
 
-                        <p className='whitespace-pre-wrap break-words text-sm text-foreground/90'>
+                        <p className='whitespace-pre-wrap wrap-break-word text-sm text-foreground/90'>
                             {comment.message}
                         </p>
 
@@ -168,14 +168,14 @@ function CommentThread({
                                         placeholder={`Reply to ${comment.authorName}`}
                                         rows={4}
                                         maxLength={MAX_COMMENT_LENGTH}
-                                        className='min-h-[110px] w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50'
+                                        className='min-h-27.5 w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50'
                                     />
                                     <div className='flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between'>
                                         <p className='text-xs text-muted-foreground'>
                                             {replyDraft.length}/{MAX_COMMENT_LENGTH} characters
                                         </p>
                                         {replyFormError && (
-                                            <p className='w-full break-words text-xs text-destructive sm:w-auto'>
+                                            <p className='w-full wrap-break-word text-xs text-destructive sm:w-auto'>
                                                 {replyFormError}
                                             </p>
                                         )}
@@ -281,9 +281,13 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
             return;
         }
 
-        setRequestError(null);
-        setFormError(null);
-        setReplyFormError(null);
+        const id = setTimeout(() => {
+            setRequestError(null);
+            setFormError(null);
+            setReplyFormError(null);
+        }, 0);
+
+        return () => clearTimeout(id);
     }, [isSignedIn]);
 
     const openSignInModal = (messageText: string, scope: SignInPromptScope = 'general') => {
@@ -490,7 +494,7 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                             aria-pressed={state.userUpvotedArticle}
                             onClick={handleArticleUpvote}
                             disabled={isTogglingArticleUpvote || isInitialLoading || !isLoaded}
-                            className='min-w-[130px] justify-between'
+                            className='min-w-32.5 justify-between'
                         >
                             <span className='inline-flex items-center gap-2'>
                                 {isTogglingArticleUpvote ? (
@@ -524,7 +528,7 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                                 size='sm'
                                 onClick={handleArticleUpvote}
                                 disabled={isInitialLoading || !isLoaded}
-                                className='min-w-[130px] justify-between'
+                                className='min-w-32.5 justify-between'
                             >
                                 <span className='inline-flex items-center gap-2'>
                                     <ChevronUp className='h-4 w-4' />
@@ -576,14 +580,14 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                             placeholder='What did you think about this post?'
                             rows={5}
                             maxLength={MAX_COMMENT_LENGTH}
-                            className='min-h-[140px] w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50'
+                            className='min-h-35 w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50'
                         />
                         <div className='flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between'>
                             <p className='text-xs text-muted-foreground'>
                                 {message.length}/{MAX_COMMENT_LENGTH} characters
                             </p>
                             {formError && (
-                                <p className='w-full break-words text-xs text-destructive sm:w-auto'>
+                                <p className='w-full wrap-break-word text-xs text-destructive sm:w-auto'>
                                     {formError}
                                 </p>
                             )}
@@ -627,7 +631,7 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
                             role='region'
                             aria-labelledby={`comments-panel-title-${slug}`}
                             tabIndex={0}
-                            className='max-h-[65vh] overflow-y-auto overscroll-contain p-4 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 sm:max-h-[42rem]'
+                            className='max-h-[65vh] overflow-y-auto overscroll-contain p-4 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 sm:max-h-168'
                         >
                             {isInitialLoading ? (
                                 <div className='rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground'>

@@ -43,7 +43,10 @@ export function Drawer({ children }: DrawerProps) {
     }, [isOpen]);
 
     useEffect(() => {
-        setIsOpen(false);
+        // Defer closing the drawer in response to pathname changes to avoid
+        // calling setState synchronously inside the effect.
+        const id = window.setTimeout(() => setIsOpen(false), 0);
+        return () => clearTimeout(id);
     }, [pathname]);
 
     return (
@@ -132,7 +135,7 @@ export function DrawerContent({ children, className, onClick }: DrawerContentPro
                             }
                         }}
                         className={cn(
-                            'fixed bottom-3 left-0 right-0 bg-background border-t border-border rounded-lg z-[60] max-h-[70vh] overflow-hidden w-[95%] mx-auto flex flex-col',
+                            'fixed bottom-3 left-0 right-0 bg-background border-t border-border rounded-lg z-60 max-h-[70vh] overflow-hidden w-[95%] mx-auto flex flex-col',
                             className,
                         )}
                     >

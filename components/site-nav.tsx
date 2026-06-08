@@ -35,7 +35,7 @@ export function SiteNav() {
     const pathname = usePathname();
 
     return (
-        <header className='sticky top-0 z-20 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
+        <header className='sticky top-0 z-20 w-full border-b border-border/40 bg-background/95 backdrop-blur [`@supports`(backdrop-filter:blur(1px))]:bg-background/60'>
             <div className='max-w-7xl mx-auto w-full flex h-14 items-center justify-between px-6'>
                 <div className='mr-4 flex'>
                     <Link
@@ -97,7 +97,7 @@ export function SiteNav() {
                     >
                         <MenuIcon size={28} className='text-muted-foreground' aria-hidden='true' />
                     </DrawerTrigger>
-                    <DrawerContent className='md:hidden !top-14 !bottom-0 !left-0 !right-0 !w-full !mx-0 !max-h-none min-h-[260px] rounded-none border-x-0 border-b-0 shadow-2xl'>
+                    <DrawerContent className='md:hidden top-14! bottom-0! left-0! right-0! w-full! mx-0! max-h-none! min-h-65 rounded-none border-x-0 border-b-0 shadow-2xl'>
                         <DrawerHeader>
                             <h2 className='text-sm font-semibold'>Menu</h2>
                         </DrawerHeader>
