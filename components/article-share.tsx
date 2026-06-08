@@ -64,7 +64,6 @@ export function ArticleShare({ articleSlug, title, description, url }: ArticleSh
     };
 
     useEffect(() => {
-        
         const id = window.setTimeout(() => {
             setNativeShareAvailable(
                 typeof navigator !== 'undefined' && typeof navigator.share === 'function',

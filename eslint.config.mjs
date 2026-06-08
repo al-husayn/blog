@@ -7,7 +7,14 @@ const eslintConfig = defineConfig([
     ...nextVitals,
     ...nextTs,
     eslintConfigPrettier,
-    globalIgnores(['.next/**', '.source/**', 'node_modules/**', '**/*.md', '**/*.mdx', 'scripts/generate-read-times.js']),
+    globalIgnores([
+        '.next/**',
+        '.source/**',
+        'node_modules/**',
+        '**/*.md',
+        '**/*.mdx',
+        'scripts/generate-read-times.js',
+    ]),
     {
         files: ['scripts/**/*.js'],
         rules: {

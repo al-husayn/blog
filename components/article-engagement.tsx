@@ -281,7 +281,6 @@ function ConfiguredArticleEngagement({ slug }: ArticleEngagementProps) {
             return;
         }
 
-        
         const id = setTimeout(() => {
             setRequestError(null);
             setFormError(null);
