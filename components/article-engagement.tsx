@@ -168,14 +168,14 @@ function CommentThread({
                                         placeholder={`Reply to ${comment.authorName}`}
                                         rows={4}
                                         maxLength={MAX_COMMENT_LENGTH}
-                                        className='min-h-[110px] w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50'
+                                        className='min-h-27.5 w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50'
                                     />
                                     <div className='flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between'>
                                         <p className='text-xs text-muted-foreground'>
                                             {replyDraft.length}/{MAX_COMMENT_LENGTH} characters
                                         </p>
                                         {replyFormError && (
-                                            <p className='w-full break-words text-xs text-destructive sm:w-auto'>
+                                            <p className='w-full wrap-break-word text-xs text-destructive sm:w-auto'>
                                                 {replyFormError}
                                             </p>
                                         )}
