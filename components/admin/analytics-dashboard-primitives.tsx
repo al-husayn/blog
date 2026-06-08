@@ -1,8 +1,10 @@
 'use client';
 
 import type React from 'react';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { AnalyticsTimeseriesPoint } from '@/types/analytics';
+import type { AnalyticsTimeseriesPoint, DashboardTopPostMetric } from '@/types/analytics';
 import {
     buildChartPoints,
     buildPath,
@@ -229,6 +231,67 @@ export function EngagementGauge({ score, label }: { score: number; label: string
                     <p className='text-xl font-semibold sm:text-2xl'>{clampedScore}%</p>
                     <p className='text-xs text-muted-foreground'>{label}</p>
                 </div>
+            </div>
+        </div>
+    );
+}
+
+export function LeaderboardList({
+    title,
+    posts,
+    metricLabel,
+    metricValue,
+}: {
+    title: string;
+    posts: DashboardTopPostMetric[];
+    metricLabel: string;
+    metricValue: (post: DashboardTopPostMetric) => string;
+}) {
+    return (
+        <div className='rounded-[22px] border border-border/70 bg-background/60 p-4 sm:rounded-[24px] sm:p-5'>
+            <div className='mb-4 flex items-center justify-between gap-3'>
+                <h3 className='text-base font-semibold tracking-tight'>{title}</h3>
+                <p className='hidden text-xs uppercase tracking-[0.22em] text-muted-foreground sm:block'>
+                    {metricLabel}
+                </p>
+            </div>
+            <div className='space-y-3'>
+                {posts.length > 0 ? (
+                    posts.map((post, index) => (
+                        <div
+                            key={`${title}-${post.slug}`}
+                            className='rounded-2xl border border-border/60 bg-background/70 p-3'
+                        >
+                            <div className='flex flex-col gap-3 sm:flex-row sm:items-start'>
+                                <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground'>
+                                    {index + 1}
+                                </div>
+                                <div className='min-w-0 flex-1'>
+                                    <Link
+                                        href={`/blog/${post.slug}`}
+                                        className='inline-flex max-w-full items-center gap-2 font-medium text-foreground transition-colors hover:text-primary'
+                                    >
+                                        <span className='truncate'>{post.title}</span>
+                                        <ArrowRight className='h-4 w-4 shrink-0' />
+                                    </Link>
+                                    <p className='mt-1 line-clamp-2 text-sm text-muted-foreground'>
+                                        {post.description}
+                                    </p>
+                                </div>
+                                <div className='flex items-center justify-between gap-3 sm:block sm:shrink-0 sm:text-right'>
+                                    <p className='text-[11px] uppercase tracking-[0.22em] text-muted-foreground sm:hidden'>
+                                        {metricLabel}
+                                    </p>
+                                    <p className='text-base font-semibold'>{metricValue(post)}</p>
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <p className='text-sm text-muted-foreground'>
+                        Post rankings will appear after analytics data arrives.
+                    </p>
+                )}
             </div>
         </div>
     );
