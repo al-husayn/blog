@@ -3,6 +3,7 @@ import type { ButtonHTMLAttributes, MouseEventHandler, ReactNode } from 'react';
 export interface DrawerContextType {
     isOpen: boolean;
     setIsOpen: (open: boolean) => void;
+    contentId: string;
 }
 
 export interface DrawerProps {

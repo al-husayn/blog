@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, createContext, useContext, useRef } from 'react';
+import React, { useState, useEffect, createContext, useContext, useRef, useId } from 'react';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { X } from 'lucide-react';
@@ -28,6 +28,7 @@ const useDrawer = () => {
 export function Drawer({ children }: DrawerProps) {
     const [isOpen, setIsOpen] = useState(false);
     const pathname = usePathname();
+    const contentId = useId();
 
     useEffect(() => {
         if (!isOpen) {
@@ -50,16 +51,20 @@ export function Drawer({ children }: DrawerProps) {
     }, [pathname]);
 
     return (
-        <DrawerContext.Provider value={{ isOpen, setIsOpen }}>{children}</DrawerContext.Provider>
+        <DrawerContext.Provider value={{ isOpen, setIsOpen, contentId }}>
+            {children}
+        </DrawerContext.Provider>
     );
 }
 
 export function DrawerTrigger({ children, className, onClick, ...props }: DrawerTriggerProps) {
-    const { setIsOpen } = useDrawer();
+    const { isOpen, setIsOpen, contentId } = useDrawer();
 
     return (
         <button
             type='button'
+            aria-expanded={isOpen}
+            aria-controls={contentId}
             onClick={(event) => {
                 onClick?.(event);
                 if (!event.defaultPrevented) {
@@ -75,7 +80,7 @@ export function DrawerTrigger({ children, className, onClick, ...props }: Drawer
 }
 
 export function DrawerContent({ children, className, onClick }: DrawerContentProps) {
-    const { isOpen, setIsOpen } = useDrawer();
+    const { isOpen, setIsOpen, contentId } = useDrawer();
     const contentRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -113,6 +118,7 @@ export function DrawerContent({ children, className, onClick }: DrawerContentPro
 
                     <motion.div
                         ref={contentRef}
+                        id={contentId}
                         initial={{ y: '100%', opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: '100%', opacity: 0 }}
