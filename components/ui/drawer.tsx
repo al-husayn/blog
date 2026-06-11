@@ -119,9 +119,9 @@ export function DrawerContent({ children, className, onClick }: DrawerContentPro
                     <motion.div
                         ref={contentRef}
                         id={contentId}
-                        initial={{ y: '100%', opacity: 0 }}
+                        initial={{ y: '-100%', opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: '100%', opacity: 0 }}
+                        exit={{ y: '-100%', opacity: 0 }}
                         transition={{
                             duration: 0.25,
                             ease: [0.16, 1, 0.3, 1],
@@ -141,7 +141,7 @@ export function DrawerContent({ children, className, onClick }: DrawerContentPro
                             }
                         }}
                         className={cn(
-                            'fixed bottom-3 left-0 right-0 bg-background border-t border-border rounded-lg z-60 max-h-[70vh] overflow-hidden w-[95%] mx-auto flex flex-col',
+                            'fixed inset-x-0 top-14 bottom-0 h-[calc(100vh-3.5rem)] bg-background border border-border shadow-2xl z-60 overflow-hidden w-full flex flex-col',
                             className,
                         )}
                     >
@@ -181,7 +181,7 @@ export function DrawerHeader({ children, className, showCloseButton = true }: Dr
 }
 
 export function DrawerBody({ children, className }: DrawerBodyProps) {
-    return <div className={cn('p-4 overflow-y-auto flex-1', className)}>{children}</div>;
+    return <div className={cn('flex-1 min-h-0 overflow-y-auto p-4', className)}>{children}</div>;
 }
 
 export function DrawerFooter({ children, className }: DrawerFooterProps) {

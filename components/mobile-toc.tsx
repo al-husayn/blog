@@ -25,7 +25,7 @@ export function MobileTableOfContents() {
                 <span className='sr-only'>Open table of contents</span>
             </DrawerTrigger>
 
-            <DrawerContent className='lg:hidden'>
+            <DrawerContent className='lg:hidden h-full rounded-none border-0 shadow-none'>
                 <DrawerHeader>
                     <h3 className='font-semibold'>Table of Contents</h3>
                 </DrawerHeader>
