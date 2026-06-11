@@ -152,6 +152,8 @@ export function TableOfContents({ className }: TableOfContentsProps) {
                     {headings.map((heading) => (
                         <li key={heading.id} className={getIndentClass(heading.level)}>
                             <button
+                                type='button'
+                                data-drawer-close='true'
                                 onClick={() => handleClick(heading.id)}
                                 aria-current={activeId === heading.id ? 'location' : undefined}
                                 className={cn(
