@@ -42,7 +42,7 @@ export function BlogCard({
                             {tags.slice(0, 3).map((tag) => (
                                 <span
                                     key={tag}
-                                    className='inline-flex items-center rounded-full border border-border px-2 py-0.5 text-[11px] font-medium text-muted-foreground'
+                                    className='inline-flex items-center rounded-full border border-border px-2 py-0.5 text-[11px] font-medium text-primary'
                                 >
                                     {tag}
                                 </span>

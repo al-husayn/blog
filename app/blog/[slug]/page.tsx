@@ -156,7 +156,7 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
                                 {page.data.tags.map((tag: string) => (
                                     <span
                                         key={tag}
-                                        className='h-6 w-fit px-3 text-sm font-medium bg-muted text-muted-foreground rounded-md border flex items-center justify-center'
+                                        className='h-6 w-fit px-3 text-sm font-medium bg-muted text-primary rounded-md border flex items-center justify-center'
                                     >
                                         {tag}
                                     </span>

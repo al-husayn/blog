@@ -132,7 +132,7 @@ export function SiteNav() {
                                 >
                                     <span>Portfolio</span>
                                 </a>
-                                <div className='mt-3 flex items-center justify-between rounded-md  px-3 py-2'>
+                                <div className='mt-3 flex items-center justify-between rounded-md px-3 py-2'>
                                     <ThemeToggle />
                                 </div>
                             </nav>
