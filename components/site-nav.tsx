@@ -97,7 +97,7 @@ export function SiteNav() {
                     >
                         <MenuIcon size={28} className='text-muted-foreground' aria-hidden='true' />
                     </DrawerTrigger>
-                    <DrawerContent className='md:hidden top-14! bottom-0! left-0! right-0! w-full! mx-0! max-h-none! min-h-65 rounded-none border-x-0 border-b-0 shadow-2xl'>
+                    <DrawerContent className='md:hidden top-14 bottom-0 left-0 right-0 w-full mx-0 max-h-none rounded-none border-x-0 border-b-0 shadow-2xl'>
                         <DrawerHeader>
                             <h2 className='text-sm font-semibold'>Menu</h2>
                         </DrawerHeader>
@@ -132,7 +132,7 @@ export function SiteNav() {
                                 >
                                     <span>Portfolio</span>
                                 </a>
-                                <div className='mt-3 flex items-center justify-between rounded-md border px-3 py-2'>
+                                <div className='mt-3 flex items-center justify-between rounded-md px-3 py-2'>
                                     <ThemeToggle />
                                 </div>
                             </nav>
