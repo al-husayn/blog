@@ -1,0 +1,172 @@
+---
+title: "Introduction to TanStack Query"
+description: "TanStack Query (formerly known as React Query) is a data-fetching library for web applications, but in more technical terms, it makes fetching, caching, synchronizing and updating server state in your web applications a breeze."
+date: "2026-06-12"
+tags: ["React", "Tanstack"]
+featured: true
+readTime: "18 min read"
+author: "al"
+thumbnail: "/thumbnails/tanstack-query.png"
+---
+
+Most React developers have used TanStack Query at least once, while some had barely heard of it. This article assumes no prior knowledge of Tanstack Query.
+
+## Before TanStack Query
+
+To begin, let’s write data fetching the way you'd write it with nothing but React. Imagine having a component that needs a user from an API.
+
+You would usually store incoming data, request errors, and loading state in separate **useStates** and use an **useEffect** to run the fetch on mount.
+
+Put together, it looks like this:
+
+```javascript
+function UserProfile({ userId }) {
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetch(`/api/users/${userId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setUser(data);
+        setError(null);
+      })
+      .catch((err) => setError(err))
+      .finally(() => setIsLoading(false));
+  }, [userId]);
+
+  if (isLoading) return <Spinner />;
+  if (error) return <ErrorMessage error={error} />;
+
+  return <div>{user.name}</div>;
+}
+```
+
+While this code is perfectly valid React code and it works, there are a few problems with it especially when you start to scale your application.
+
+The first problem is that these three state variables and an effect are copied into every data-fetching component, and each copy gets tweaked, leading to inconsistent loading behavior.
+
+A real bug hides in the effect. If **userId** changes mid-request, both old and new requests may resolve in any order, possibly displaying the wrong data. (We know how hard useEffect logic truly is)
+
+The third problem is that the moment this component unmounts and remounts, you fetch everything again from scratch. The user navigates away, comes back two seconds later, and stares at your spinner again, looking at the data they were just looking at.
+
+None of these are hard to fix individually. The challenge is fixing them consistently, every time, in every component.
+
+## The abstraction
+
+When you see repeated patterns, the instinct is to write a custom hook for it and on the surface this is what Tanstack Query provides, an abstraction that handles data fetching, loading state, pending state and error state (plus a lot more extra spicy sauce).
+
+```javascript
+function UserProfile({ userId }) {
+  const { data: user, isPending, error } = useUsersQuery(userId);
+
+  if (isPending) return <Spinner />;
+  if (error) return <ErrorMessage error={error} />;
+
+  return <div>{user.name}</div>;
+}
+```
+
+We define our useUsersQuery in another file, where we pass out fetch function, either direct or we can import it and use it in the queryFn key plus a very important queryKey.
+
+```javascript
+import { useQuery } from '@tanstack/react-query';
+
+function useUsersQuery(userId: string) {
+  return useQuery({
+    queryKey: ['users', userId],
+    queryFn: () => fetch(`/api/users/${userId}`).then((res) => res.json()),
+  });
+}
+```
+
+That queryKey does a lot of work behind the scenes.
+
+
+A fair reaction at this point is that useUsersQuery isn’t special. It’s a custom hook that wraps a fetch, and you could write one yourself, and probably we all did at one point or another.
+
+But the magic that Tanstack Query provides is a shared cache between components.
+
+Remember that queryKey we defined before? Say two different components both need that user information. Your navbar shows their avatar, and your sidebar shows their name:
+
+```javascript
+function Navbar({ userId }) {
+  const { data: user } = useUsersQuery(userId);
+  return <Avatar src={user?.avatarUrl} />;
+}
+
+function Sidebar({ userId }) {
+  const { data: user } = useUsersQuery(userId);
+  return <span>{user?.name}</span>;
+}
+```
+
+Both call ```useUsersQuery(42)```,  so both ask for the key ```['users', 42]```. You might expect two components that call that custom hook to mean two network requests. But that is not what will happen.
+
+TanStack Query sees the navbar’s request first, finds nothing under the ```['users', 42]``` cache, and starts a single request.
+
+When the sidebar asks for the same key a moment later, the request is still in flight, so TanStack Query attaches the sidebar to it rather than starting a second.
+
+One request is sent out, and both components use the same result.
+
+The shared cache also fixes the third problem we had in our initial implementation of fetching data, the one where unmounting threw the data away.
+
+The cache outlives the component, so when the user navigates back, the data for ['users', 42] remains in the cache. The component shows it instantly while a quiet background request checks for changes.
+
+## One Time Setup
+
+Before any of this runs, TanStack Query needs two things wired up once at the root of your app: a ```QueryClient```, which is the actual cache and the brain that manages every query, and a ```QueryClientProvider```, which hands that client down to every component through React context.
+
+You create the client once and wrap your app in the provider:
+
+```javascript
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// created once, lives for the lifetime of the app
+const queryClient = new QueryClient();
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <UserProfile userId="42" />
+    </QueryClientProvider>
+  );
+}
+```
+
+That ```queryClient``` is the cache we keep talking about. Every ```useUsersQuery``` anywhere in the tree reads from and writes to this one instance, which is exactly why two components asking for the same key share a result instead of firing two requests.
+
+One thing worth knowing: you can also reach this client directly with the ```useQueryClient()``` hook, or hold the reference like above to call methods on it yourself. That’s how prefetching and cache invalidation work, and we’ll use both further down.
+
+## TanStack Options
+
+Now that you understand what TanStack Query is, and how it works, you need to understand that it has much more options than the queryFn and queryKey we passed in our initial file.
+
+Lets dive into some of them and the default options the library comes with.
+
+## Retries and exponential backoff🔗
+When you make a request and that request fails (from a multitude of reasons), TanStack Query doesn’t immediately give up and show an error.
+
+By default, it retries the failed query 3 times before giving up, increasing the delay between retries.
+
+That growing delay is called “exponential backoff”.
+
+Each retry waits longer than the last, and the wait is capped at thirty seconds, so it can’t grow without limit. Why do they do this? Well if a server is briefly overwhelmed, firing instant retries at it just overwhelms the server even more.
+
+Spacing the attempts further apart gives it room to recover before you ask again.
+
+Both halves of this are configurable. The retry option controls how many times to try, and it accepts a number, a boolean, or, most usefully, a function:
+
+```javascript
+const { data } = useQuery({
+  queryKey: ['user', userId],
+  queryFn: () => fetchUser(userId),
+  retry: (failureCount, error) => {
+    // a 404 is never going to succeed; don't waste retries on it
+    if (error.status === 404) return false;
+    return failureCount < 3;
+  },
+});
+```
