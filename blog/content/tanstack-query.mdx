@@ -19,7 +19,7 @@ You would usually store incoming data, request errors, and loading state in sepa
 
 Put together, it looks like this:
 
-```javascript
+```jsx
 function UserProfile({ userId }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -58,7 +58,7 @@ None of these are hard to fix individually. The challenge is fixing them consist
 
 When you see repeated patterns, the instinct is to write a custom hook for it and on the surface this is what Tanstack Query provides, an abstraction that handles data fetching, loading state, pending state and error state (plus a lot more extra spicy sauce).
 
-```javascript
+```jsx
 function UserProfile({ userId }) {
   const { data: user, isPending, error } = useUsersQuery(userId);
 
@@ -71,7 +71,7 @@ function UserProfile({ userId }) {
 
 We define our useUsersQuery in another file, where we pass out fetch function, either direct or we can import it and use it in the queryFn key plus a very important queryKey.
 
-```javascript
+```jsx
 import { useQuery } from '@tanstack/react-query';
 
 function useUsersQuery(userId: string) {
@@ -91,7 +91,7 @@ But the magic that Tanstack Query provides is a shared cache between components.
 
 Remember that queryKey we defined before? Say two different components both need that user information. Your navbar shows their avatar, and your sidebar shows their name:
 
-```javascript
+```jsx
 function Navbar({ userId }) {
   const { data: user } = useUsersQuery(userId);
   return <Avatar src={user?.avatarUrl} />;
@@ -121,7 +121,7 @@ Before any of this runs, TanStack Query needs two things wired up once at the ro
 
 You create the client once and wrap your app in the provider:
 
-```javascript
+```jsx
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // created once, lives for the lifetime of the app
@@ -146,7 +146,7 @@ Now that you understand what TanStack Query is, and how it works, you need to un
 
 Lets dive into some of them and the default options the library comes with.
 
-## Retries and exponential backoff🔗
+## Retries and exponential backoff
 When you make a request and that request fails (from a multitude of reasons), TanStack Query doesn’t immediately give up and show an error.
 
 By default, it retries the failed query 3 times before giving up, increasing the delay between retries.
@@ -159,7 +159,7 @@ Spacing the attempts further apart gives it room to recover before you ask again
 
 Both halves of this are configurable. The retry option controls how many times to try, and it accepts a number, a boolean, or, most usefully, a function:
 
-```javascript
+```jsx
 const { data } = useQuery({
   queryKey: ['user', userId],
   queryFn: () => fetchUser(userId),
@@ -170,3 +170,23 @@ const { data } = useQuery({
   },
 });
 ```
+
+I love the function form, because it lets you decide based on why the request failed. Retrying a ```404``` might be pointless (unless you have a race condition), since the resource doesn’t exist, and asking three more times won’t change that.
+
+The ```retryDelay``` option controls the spacing, and the default is I love the function form, because it lets you decide based on why the request failed. Retrying a ```404``` might be pointless (unless you have a race condition), since the resource doesn’t exist, and asking three more times won’t change that.
+
+The retryDelay option controls the spacing, and the default is this:
+
+```jsx
+retryDelay: (attempt) => Math.min(attempt > 1 ? 2 ** attempt * 1000 : 1000, 30 * 1000),
+```
+
+You can make this longer or shorter depending on your preference, I usually either turn it off or leave it alone.
+
+## Passing the signal to abort requests
+
+Remember the race condition from the hand-rolled version, where a stale request could return last and overwrite the correct data? TanStack Query already protects you from that at the cache level; it ignores the stale response.
+
+But ignoring a response and stopping the request are two different things, and there’s a way to actually stop it.
+
+Every ```queryFn``` receives a context argument when TanStack Query calls it, and tucked inside that context is an AbortSignal. If you haven’t met AbortSignal before, it’s the browser’s built-in way to cancel an in-progress request, and fetch knows how to listen to one.
