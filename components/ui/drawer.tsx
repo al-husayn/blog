@@ -63,10 +63,7 @@ export function Drawer({ children }: DrawerProps) {
         closeDrawer();
     }, [closeDrawer, pathname]);
 
-    const contextValue = useMemo(
-        () => ({ isOpen, setIsOpen, contentId }),
-        [contentId, isOpen],
-    );
+    const contextValue = useMemo(() => ({ isOpen, setIsOpen, contentId }), [contentId, isOpen]);
 
     return <DrawerContext.Provider value={contextValue}>{children}</DrawerContext.Provider>;
 }
