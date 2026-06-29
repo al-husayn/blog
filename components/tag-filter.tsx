@@ -127,7 +127,7 @@ function MobileTagFilter({ tags, selectedTag, tagCounts, panelId, onTagClick }: 
     return (
         <Drawer>
             <DrawerTrigger
-                className='md:hidden w-full flex items-center justify-between rounded-lg border border-border bg-background px-4 py-2.5 text-left transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+                className='md:hidden w-full flex items-center justify-between rounded-lg border border-border bg-background px-4 py-2.5 text-left transition-colors hover:bg-muted active:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
                 aria-label='Open tag filters'
             >
                 <span className='flex min-w-0 items-center gap-2'>
@@ -162,7 +162,7 @@ function MobileTagFilter({ tags, selectedTag, tagCounts, panelId, onTagClick }: 
                                     aria-selected={isSelected}
                                     aria-controls={panelId}
                                     data-drawer-close='true'
-                                    className={`w-full rounded-md border px-3 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                                    className={`w-full rounded-md border px-3 py-2.5 text-sm transition-colors active:bg-muted active:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                                         isSelected
                                             ? 'border-primary bg-primary/10 text-foreground'
                                             : 'border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground'

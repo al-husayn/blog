@@ -74,6 +74,7 @@ export function DrawerTrigger({ children, className, onClick, ...props }: Drawer
     return (
         <button
             type='button'
+            data-tap-target='true'
             aria-expanded={isOpen}
             aria-controls={contentId}
             onClick={(event) => {
@@ -182,7 +183,7 @@ export function DrawerHeader({ children, className, showCloseButton = true }: Dr
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setIsOpen(false)}
                     aria-label='Close drawer'
-                    className='ml-4 rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+                    className='ml-4 rounded-sm text-muted-foreground transition-colors hover:text-foreground active:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
                 >
                     <X size={20} />
                 </motion.button>

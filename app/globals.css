@@ -224,6 +224,15 @@
         text-decoration: none;
     }
 
+    :where(a, button, summary, [role='button'], [role='tab'], [data-tap-target='true']) {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+
+    :where(button, [role='button'], [role='tab'], [data-tap-target='true']) {
+        user-select: none;
+    }
+
     ::selection {
         background: color-mix(in oklch, var(--primary) 32%, var(--background));
         color: var(--foreground);

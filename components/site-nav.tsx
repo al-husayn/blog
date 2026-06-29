@@ -21,7 +21,7 @@ const navLinks = [
 ] as const;
 
 const navLinkClass =
-    'inline-flex h-9 items-center rounded-md px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background';
+    'inline-flex h-9 items-center rounded-md px-3 text-sm font-medium transition-colors active:bg-muted/70 active:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 
 const getNavItemClass = (isActive: boolean): string =>
     cn(
@@ -92,10 +92,10 @@ export function SiteNav() {
                 {/* Mobile nav */}
                 <Drawer>
                     <DrawerTrigger
-                        className='md:hidden list-none inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
+                        className='md:hidden list-none inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:bg-muted active:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
                         aria-label='Open menu'
                     >
-                        <MenuIcon size={28} className='text-muted-foreground' aria-hidden='true' />
+                        <MenuIcon size={28} className='text-current' aria-hidden='true' />
                     </DrawerTrigger>
                     <DrawerContent className='md:hidden top-14 bottom-0 left-0 right-0 w-full mx-0 max-h-none rounded-none border-x-0 border-b-0 shadow-2xl'>
                         <DrawerHeader>
@@ -113,7 +113,7 @@ export function SiteNav() {
                                             data-drawer-close='true'
                                             aria-current={isActive ? 'page' : undefined}
                                             className={cn(
-                                                'inline-flex min-h-10 items-center rounded-md px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                                                'inline-flex min-h-10 items-center rounded-md px-3 text-sm font-medium transition-colors active:bg-muted/70 active:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                                                 isActive
                                                     ? 'bg-muted text-foreground'
                                                     : 'text-muted-foreground hover:bg-muted/70 hover:text-foreground',
@@ -126,7 +126,7 @@ export function SiteNav() {
                                 <a
                                     href='https://www.al-husayn.dev'
                                     data-drawer-close='true'
-                                    className='inline-flex min-h-10 items-center rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+                                    className='inline-flex min-h-10 items-center rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground active:bg-muted/70 active:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
                                     target='_blank'
                                     rel='noopener noreferrer'
                                 >
