@@ -173,8 +173,6 @@ const { data } = useQuery({
 
 I love the function form, because it lets you decide based on why the request failed. Retrying a ```404``` might be pointless (unless you have a race condition), since the resource doesn’t exist, and asking three more times won’t change that.
 
-The ```retryDelay``` option controls the spacing, and the default is I love the function form, because it lets you decide based on why the request failed. Retrying a ```404``` might be pointless (unless you have a race condition), since the resource doesn’t exist, and asking three more times won’t change that.
-
 The retryDelay option controls the spacing, and the default is this:
 
 ```jsx
@@ -189,4 +187,63 @@ Remember the race condition from the hand-rolled version, where a stale request 
 
 But ignoring a response and stopping the request are two different things, and there’s a way to actually stop it.
 
-Every ```queryFn``` receives a context argument when TanStack Query calls it, and tucked inside that context is an AbortSignal. If you haven’t met AbortSignal before, it’s the browser’s built-in way to cancel an in-progress request, and fetch knows how to listen to one.
+Every ```queryFn``` receives a context argument when TanStack Query calls it, and tucked inside that context is an ```AbortSignal```. If you haven’t met ```AbortSignal``` before, it’s the browser’s built-in way to cancel an in-progress request, and ```fetch``` knows how to listen to one.
+
+```jsx
+const { data } = useQuery({
+  queryKey: ['search', term],
+  queryFn: ({ signal }) => fetch(`/api/search?q=${term}`, { signal }).then((r) => r.json()),
+});
+
+```
+
+TanStack Query creates the signal, and it triggers it the moment a request stops being relevant: the component is unmounted, the key has changed, or a newer request superseded this one.
+
+If you’ve forwarded that signal into fetch, the browser cancels the actual network request when any of those conditions occur. That means only the latest request is left running and stale fetches are aborted before they can finish, so they don't waste bandwidth or overwrite fresher data.
+
+The clearest case is the search-as-you-type. The user enters “react” into a search box, and the query key changes on every keystroke, so five requests go out in quick succession, racing each other.
+
+TanStack Query maintains a consistent cache by using only the last response. But without the signal, the four stale requests still run to completion, consume bandwidth, and occupy a connection slot in the browser.
+
+(In my talk I was making 50 extra requests and built my own queue to handle this, not knowing about the signal option)
+
+## Calling a query conditionally
+
+Sometimes a query shouldn’t run yet.
+
+The usual reason is that it depends on a value that isn’t available on the first render. You need a ```userId``` before you can fetch that user, and when the component first mounts, that ```userId``` might still be undefined.
+
+You can’t solve this by wrapping the hook in an ```if```, because hooks have to be called the same way on every render. TanStack Query handles it with the ```enabled``` option instead:
+
+```jsx
+const { data } = useQuery({
+  queryKey: ['user', userId],
+  queryFn: () => fetchUser(userId),
+  enabled: userId != null,
+});
+
+```
+
+As long as ```enabled``` is ```false```, the query remains idle. It won’t fetch anything, and it won’t produce an error either; it simply waits. Then, the moment your condition flips to ```true```, the query runs as it normally would.
+
+This works, but if you’re using TypeScript, there’s a subtle issue.
+
+Inside ```queryFn```, ```userId``` is still typed as ```string | undefined```, because TypeScript has no way of knowing that the ```enabled``` flag guarantees the value is defined by the time the function actually runs.
+
+So you end up writing a non-null assertion, the ```userId!``` syntax, which tells the compiler, “trust me, this isn’t undefined here.”
+
+The alternative is a redundant ```if``` guard inside the function. Either way, you’re asserting something the compiler can’t check for itself, and assertions like that are exactly the thing that quietly turns into a bug later.
+
+```skipToken``` closes that subtle issue. Instead of a separate ```enabled``` flag, you assign the imported ```skipToken``` value directly to ```queryFn``` when the query isn’t ready to run:
+
+```jsx 
+import { skipToken } from '@tanstack/react-query';
+
+const { data } = useQuery({
+  queryKey: ['user', userId],
+  queryFn: userId
+    ? () => fetchUser(userId)
+    : skipToken,
+});
+
+```
