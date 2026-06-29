@@ -4,7 +4,7 @@ description: "TanStack Query (formerly known as React Query) is a data-fetching 
 date: "2026-06-12"
 tags: ["React", "Tanstack", "react-query", "cache", "performance"]
 featured: true
-readTime: "18 min read"
+readTime: "22 min read"
 author: "al"
 thumbnail: "/thumbnails/tanstack-query.png"
 ---
@@ -326,9 +326,9 @@ Your “simple” wrapper now carries four type parameters and reads like the li
 
 There’s a second problem, which has nothing to do with types.
 
-A custom hook is a hook, so it only works inside a React component. You can’t call ```useProducts``` in a route loader, you can’t call it to prefetch on hover, and you can’t hand it to ````useSuspenseQuery```.
+A custom hook is a hook, so it only works inside a React component. You can’t call `useProducts` in a route loader, you can’t call it to prefetch on hover, and you can’t hand it to `useSuspenseQuery`.
 
-In comes our superhero: ```queryOptions```, a small helper that solves both problems by being almost nothing. It’s a function that takes your config and hands it back, fully typed:
+In comes our superhero: `queryOptions`, a small helper that solves both problems by being almost nothing. It’s a function that takes your config and hands it back, fully typed:
 
 ```jsx
 
