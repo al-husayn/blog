@@ -13,6 +13,10 @@ const MenuIcon = forwardRef<MenuIconHandle, MenuIconProps>(
         const reduced = useReducedMotion();
         const isControlled = useRef(false);
 
+        const supportsHover = () =>
+            typeof window !== 'undefined' &&
+            window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
         useImperativeHandle(ref, () => {
             isControlled.current = true;
             return {
@@ -24,7 +28,7 @@ const MenuIcon = forwardRef<MenuIconHandle, MenuIconProps>(
 
         const handleEnter = useCallback(
             (e: React.MouseEvent<HTMLDivElement>) => {
-                if (reduced) return;
+                if (reduced || !supportsHover()) return;
                 if (!isControlled.current) {
                     controls.start('animate');
                 } else {

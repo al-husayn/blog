@@ -1,0 +1,588 @@
+---
+title: "Introduction to TanStack Query"
+description: "TanStack Query (formerly known as React Query) is a data-fetching library for web applications, but in more technical terms, it makes fetching, caching, synchronizing and updating server state in your web applications a breeze."
+date: "2026-06-12"
+tags: ["React", "Tanstack", "react-query", "cache", "performance"]
+featured: true
+readTime: "22 min read"
+author: "al"
+thumbnail: "/thumbnails/tanstack-query.png"
+---
+
+Most React developers have used TanStack Query at least once, while some had barely heard of it. This article assumes no prior knowledge of Tanstack Query.
+
+## Before TanStack Query
+
+To begin, let’s write data fetching the way you'd write it with nothing but React. Imagine having a component that needs a user from an API.
+
+You would usually store incoming data, request errors, and loading state in separate **useStates** and use an **useEffect** to run the fetch on mount.
+
+Put together, it looks like this:
+
+```jsx
+function UserProfile({ userId }) {
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetch(`/api/users/${userId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setUser(data);
+        setError(null);
+      })
+      .catch((err) => setError(err))
+      .finally(() => setIsLoading(false));
+  }, [userId]);
+
+  if (isLoading) return <Spinner />;
+  if (error) return <ErrorMessage error={error} />;
+
+  return <div>{user.name}</div>;
+}
+```
+
+While this code is perfectly valid React code and it works, there are a few problems with it especially when you start to scale your application.
+
+The first problem is that these three state variables and an effect are copied into every data-fetching component, and each copy gets tweaked, leading to inconsistent loading behavior.
+
+A real bug hides in the effect. If **userId** changes mid-request, both old and new requests may resolve in any order, possibly displaying the wrong data. (We know how hard useEffect logic truly is)
+
+The third problem is that the moment this component unmounts and remounts, you fetch everything again from scratch. The user navigates away, comes back two seconds later, and stares at your spinner again, looking at the data they were just looking at.
+
+None of these are hard to fix individually. The challenge is fixing them consistently, every time, in every component.
+
+## The abstraction
+
+When you see repeated patterns, the instinct is to write a custom hook for it and on the surface this is what Tanstack Query provides, an abstraction that handles data fetching, loading state, pending state and error state (plus a lot more extra spicy sauce).
+
+```jsx
+function UserProfile({ userId }) {
+  const { data: user, isPending, error } = useUsersQuery(userId);
+
+  if (isPending) return <Spinner />;
+  if (error) return <ErrorMessage error={error} />;
+
+  return <div>{user.name}</div>;
+}
+```
+
+We define our useUsersQuery in another file, where we pass out fetch function, either direct or we can import it and use it in the queryFn key plus a very important queryKey.
+
+```jsx
+import { useQuery } from '@tanstack/react-query';
+
+function useUsersQuery(userId: string) {
+  return useQuery({
+    queryKey: ['users', userId],
+    queryFn: () => fetch(`/api/users/${userId}`).then((res) => res.json()),
+  });
+}
+```
+
+That queryKey does a lot of work behind the scenes.
+
+
+A fair reaction at this point is that useUsersQuery isn’t special. It’s a custom hook that wraps a fetch, and you could write one yourself, and probably we all did at one point or another.
+
+But the magic that Tanstack Query provides is a shared cache between components.
+
+Remember that queryKey we defined before? Say two different components both need that user information. Your navbar shows their avatar, and your sidebar shows their name:
+
+```jsx
+function Navbar({ userId }) {
+  const { data: user } = useUsersQuery(userId);
+  return <Avatar src={user?.avatarUrl} />;
+}
+
+function Sidebar({ userId }) {
+  const { data: user } = useUsersQuery(userId);
+  return <span>{user?.name}</span>;
+}
+```
+
+Both call ```useUsersQuery(42)```,  so both ask for the key ```['users', 42]```. You might expect two components that call that custom hook to mean two network requests. But that is not what will happen.
+
+TanStack Query sees the navbar’s request first, finds nothing under the ```['users', 42]``` cache, and starts a single request.
+
+When the sidebar asks for the same key a moment later, the request is still in flight, so TanStack Query attaches the sidebar to it rather than starting a second.
+
+One request is sent out, and both components use the same result.
+
+The shared cache also fixes the third problem we had in our initial implementation of fetching data, the one where unmounting threw the data away.
+
+The cache outlives the component, so when the user navigates back, the data for ['users', 42] remains in the cache. The component shows it instantly while a quiet background request checks for changes.
+
+## One Time Setup
+
+Before any of this runs, TanStack Query needs two things wired up once at the root of your app: a ```QueryClient```, which is the actual cache and the brain that manages every query, and a ```QueryClientProvider```, which hands that client down to every component through React context.
+
+You create the client once and wrap your app in the provider:
+
+```jsx
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// created once, lives for the lifetime of the app
+const queryClient = new QueryClient();
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <UserProfile userId="42" />
+    </QueryClientProvider>
+  );
+}
+```
+
+That ```queryClient``` is the cache we keep talking about. Every ```useUsersQuery``` anywhere in the tree reads from and writes to this one instance, which is exactly why two components asking for the same key share a result instead of firing two requests.
+
+One thing worth knowing: you can also reach this client directly with the ```useQueryClient()``` hook, or hold the reference like above to call methods on it yourself. That’s how prefetching and cache invalidation work, and we’ll use both further down.
+
+## TanStack Options
+
+Now that you understand what TanStack Query is, and how it works, you need to understand that it has much more options than the queryFn and queryKey we passed in our initial file.
+
+Lets dive into some of them and the default options the library comes with.
+
+## Retries and exponential backoff
+When you make a request and that request fails (from a multitude of reasons), TanStack Query doesn’t immediately give up and show an error.
+
+By default, it retries the failed query 3 times before giving up, increasing the delay between retries.
+
+That growing delay is called “exponential backoff”.
+
+Each retry waits longer than the last, and the wait is capped at thirty seconds, so it can’t grow without limit. Why do they do this? Well if a server is briefly overwhelmed, firing instant retries at it just overwhelms the server even more.
+
+Spacing the attempts further apart gives it room to recover before you ask again.
+
+Both halves of this are configurable. The retry option controls how many times to try, and it accepts a number, a boolean, or, most usefully, a function:
+
+```jsx
+const { data } = useQuery({
+  queryKey: ['user', userId],
+  queryFn: () => fetchUser(userId),
+  retry: (failureCount, error) => {
+    // a 404 is never going to succeed; don't waste retries on it
+    if (error.status === 404) return false;
+    return failureCount < 3;
+  },
+});
+```
+
+I love the function form, because it lets you decide based on why the request failed. Retrying a ```404``` might be pointless (unless you have a race condition), since the resource doesn’t exist, and asking three more times won’t change that.
+
+The retryDelay option controls the spacing, and the default is this:
+
+```jsx
+retryDelay: (attempt) => Math.min(attempt > 1 ? 2 ** attempt * 1000 : 1000, 30 * 1000),
+```
+
+You can make this longer or shorter depending on your preference, I usually either turn it off or leave it alone.
+
+## Passing the signal to abort requests
+
+Remember the race condition from the hand-rolled version, where a stale request could return last and overwrite the correct data? TanStack Query already protects you from that at the cache level; it ignores the stale response.
+
+But ignoring a response and stopping the request are two different things, and there’s a way to actually stop it.
+
+Every ```queryFn``` receives a context argument when TanStack Query calls it, and tucked inside that context is an ```AbortSignal```. If you haven’t met ```AbortSignal``` before, it’s the browser’s built-in way to cancel an in-progress request, and ```fetch``` knows how to listen to one.
+
+```jsx
+const { data } = useQuery({
+  queryKey: ['search', term],
+  queryFn: ({ signal }) => fetch(`/api/search?q=${term}`, { signal }).then((r) => r.json()),
+});
+
+```
+
+TanStack Query creates the signal, and it triggers it the moment a request stops being relevant: the component is unmounted, the key has changed, or a newer request superseded this one.
+
+If you’ve forwarded that signal into fetch, the browser cancels the actual network request when any of those conditions occur. That means only the latest request is left running and stale fetches are aborted before they can finish, so they don't waste bandwidth or overwrite fresher data.
+
+The clearest case is the search-as-you-type. The user enters “react” into a search box, and the query key changes on every keystroke, so five requests go out in quick succession, racing each other.
+
+TanStack Query maintains a consistent cache by using only the last response. But without the signal, the four stale requests still run to completion, consume bandwidth, and occupy a connection slot in the browser.
+
+(In my talk I was making 50 extra requests and built my own queue to handle this, not knowing about the signal option)
+
+## Calling a query conditionally
+
+Sometimes a query shouldn’t run yet.
+
+The usual reason is that it depends on a value that isn’t available on the first render. You need a ```userId``` before you can fetch that user, and when the component first mounts, that ```userId``` might still be undefined.
+
+You can’t solve this by wrapping the hook in an ```if```, because hooks have to be called the same way on every render. TanStack Query handles it with the ```enabled``` option instead:
+
+```jsx
+const { data } = useQuery({
+  queryKey: ['user', userId],
+  queryFn: () => fetchUser(userId),
+  enabled: userId != null,
+});
+
+```
+
+As long as ```enabled``` is ```false```, the query remains idle. It won’t fetch anything, and it won’t produce an error either; it simply waits. Then, the moment your condition flips to ```true```, the query runs as it normally would.
+
+This works, but if you’re using TypeScript, there’s a subtle issue.
+
+Inside ```queryFn```, ```userId``` is still typed as ```string | undefined```, because TypeScript has no way of knowing that the ```enabled``` flag guarantees the value is defined by the time the function actually runs.
+
+So you end up writing a non-null assertion, the ```userId!``` syntax, which tells the compiler, “trust me, this isn’t undefined here.”
+
+The alternative is a redundant ```if``` guard inside the function. Either way, you’re asserting something the compiler can’t check for itself, and assertions like that are exactly the thing that quietly turns into a bug later.
+
+```skipToken``` closes that subtle issue. Instead of a separate ```enabled``` flag, you assign the imported ```skipToken``` value directly to ```queryFn``` when the query isn’t ready to run:
+
+```jsx 
+import { skipToken } from '@tanstack/react-query';
+
+const { data } = useQuery({
+  queryKey: ['user', userId],
+  queryFn: userId
+    ? () => fetchUser(userId)
+    : skipToken,
+});
+
+```
+
+Now the type narrowing is real.
+
+Inside the truthy branch of that ternary, ```userId``` is ```string```, not ```string | undefined```, because that branch can only be reached when ```userId``` actually has a value. TanStack Query treats a ```queryFn``` of ```skipToken``` exactly as it treats ```enabled: false```, so the query is skipped the same way.
+
+## staleTime, and what “stale” means
+The single most useful default to understand is ```staleTime```, and it defaults to ```0```.
+
+When a query’s data is ```0``` milliseconds fresh, it is considered stale the instant it arrives. It helps to be precise about what “stale” means here, because the word sounds worse than the reality.
+
+Stale does not mean the data is deleted or wrong. The data stays in the cache and on screen. Stale only means that the next time something prompts the query, TanStack Query will refetch it in the background to check for updates.
+
+A few different things count as a prompt here. A component can mount and request that key, the user can click back into your browser tab after being away for a while, or the network can reconnect after dropping out.
+
+With ```staleTime``` left at ```0```, every one of those moments triggers a background refetch.
+
+Data rarely changes every second. For something like a user profile, you can tell TanStack Query how long to trust data before checking again:
+
+```jsx
+const { data } = useQuery({
+  queryKey: ['user', userId],
+  queryFn: () => fetchUser(userId),
+  staleTime: 5 * 60 * 1000, // trust this data for 5 minutes
+});
+
+```
+
+For those five minutes, the query is fresh. Components mounting, tab refocuses, and reconnects all read straight from the cache with no network call at all. After five minutes, it goes stale, and the normal background refetches resume.
+
+There’s a second time value that people constantly confuse with this one, so it’s worth naming it now while we’re here. ```gcTime```, which is short for garbage collection time, isn’t about freshness at all. It controls how long an unused query, meaning one that no component is currently rendering, is kept around in memory before TanStack Query discards it entirely.
+
+The way I keep them straight is that staleTime decides when to refetch, while ```gcTime``` decides when to forget. So the move is to pick a ```staleTime``` for each query based on how fast that particular data changes in reality.
+
+Something like a stock ticker would stay at ```0``` so it refetches eagerly, whereas a list of country codes changes so little that it could happily be set to Infinity.
+
+## Doing this at scale
+Everything so far is enough to use TanStack Query well in a single component. The rest of this article is the set of things that start to matter once you have a real app: dozens of queries, mutations, lists that page, and a team touching all of it. This is the part of the talk the React Paris room was there for, now that the foundation has been laid beneath it.
+
+## Stop wrapping useQuery in custom hooks
+This one sounds like it contradicts everything above, so stay with me.
+
+Earlier I said TanStack Query is the custom hook you’d have written. The natural next step most teams take is to wrap it in another custom hook, one per query, to share the config:
+
+```jsx
+function useProducts(categoryId: string) {
+  return useQuery({
+    queryKey: ['products', categoryId],
+    queryFn: () => fetchProducts(categoryId),
+  });
+}
+```
+At this size, the hook is lovely to work with. The types infer themselves, and every call site is a single tidy line. Then the real-world requests start arriving. One screen needs a longer ```staleTime``` than the others; another needs a ```select``` function to filter the list; and someone needs an error boundary on one page but not on another.
+
+To accommodate all of that, the hook grows an options parameter so callers can pass things through:
+
+```jsx
+function useProducts(
+  categoryId: string,
+  options?: Partial<UseQueryOptions>,
+) {
+  return useQuery({
+    queryKey: ['products', categoryId],
+    queryFn: () => fetchProducts(categoryId),
+    ...options,
+  });
+}
+
+```
+
+And here it falls apart.
+
+The moment you type ```Partial<UseQueryOptions>``` without filling in its four generic parameters, TypeScript loses the thread, and ```data``` collapses to ```unknown```.
+
+To get the inference back, you have to thread all four generics, ```TQueryFnData```, ```TError```, ```TData```, and ```TQueryKey```, through your own signature by hand.
+
+Your “simple” wrapper now carries four type parameters and reads like the library’s internals.
+
+There’s a second problem, which has nothing to do with types.
+
+A custom hook is a hook, so it only works inside a React component. You can’t call `useProducts` in a route loader, you can’t call it to prefetch on hover, and you can’t hand it to `useSuspenseQuery`.
+
+In comes our superhero: `queryOptions`, a small helper that solves both problems by being almost nothing. It’s a function that takes your config and hands it back, fully typed:
+
+```jsx
+
+import { queryOptions } from '@tanstack/react-query';
+
+function productOptions(categoryId: string) {
+  return queryOptions({
+    queryKey: ['products', categoryId],
+    queryFn: () => fetchProducts(categoryId),
+  });
+}
+
+```
+
+Because it’s a plain function and not a hook, you can call it anywhere:
+
+```jsx
+// in a component
+const { data } = useQuery(productOptions('shoes'));
+
+// with suspense, the same options object
+const { data } = useSuspenseQuery(productOptions('shoes'));
+
+// in a route loader, prefetching before the component renders
+queryClient.prefetchQuery(productOptions('shoes'));
+
+```
+
+And composition moves to the call site rather than living in a single giant wrapper. Each place that uses the query spreads in whatever extra options it specifically needs:
+
+```jsx
+const { data } = useQuery({
+  ...productOptions('shoes'),
+  staleTime: 5 * 60 * 1000,
+  select: (products) => products.filter((p) => p.inStock),
+});
+```
+
+The types stay correct the whole way through, because you never annotated a generic yourself; ```queryOptions``` infers everything from the ```queryFn```.
+
+The shared abstraction stays tiny, and each consumer decides the rest. This comes straight from TkDodo’s writing on query abstractions, and it’s the single best structural change you can make to a growing TanStack Query codebase.
+
+## Group your queries under domains
+Once you’re using ```queryOptions```, a nice organizational pattern emerges almost for free.
+
+The idea is to gather all the option functions for one domain into a single file and expose them together as one object:
+
+```jsx
+
+// queries/products.ts
+export const productQueries = {
+  all: () => queryOptions({
+    queryKey: ['products'],
+    queryFn: fetchAllProducts,
+  }),
+  byCategory: (categoryId: string) => queryOptions({
+    queryKey: ['products', categoryId],
+    queryFn: () => fetchProducts(categoryId),
+  }),
+  detail: (productId: string) => queryOptions({
+    queryKey: ['products', 'detail', productId],
+    queryFn: () => fetchProduct(productId),
+  }),
+};
+
+```
+
+With that in place, using a query reads almost like a sentence: ```useQuery(productQueries.detail(id))```.
+
+The real payoff is what this does for your query keys.
+
+Before, those keys were scattered across forty components as hand-typed string arrays, and a single typo, ```'product'``` in one place where everywhere else says ```'products'```, would silently break an invalidation with no error to warn you.
+
+Now the keys live in a single file, derived from a single source. When you need to invalidate everything product-related, the shared prefix is right there in front of you: ```queryClient.invalidateQueries({ queryKey: ['products'] })```.
+
+## Generate your queries from an OpenAPI schema
+If your backend already exposes an OpenAPI schema, you shouldn’t be writing those ```queryOptions``` functions by hand at all.
+
+[Orval](https://orval.dev/) reads an OpenAPI spec and generates the whole data layer for you. That means the typed fetch functions that call your endpoints, the TanStack Query hooks that wrap them, the query keys those hooks use, and the TypeScript types for every request and response shape.
+
+You point it at a schema, run it once, and get back a folder of hooks that line up exactly with your backend:
+
+```jsx
+// orval.config.ts
+import { defineConfig } from 'orval';
+
+export default defineConfig({
+  api: {
+    input: './openapi.json',
+    output: {
+      mode: 'tags-split',
+      target: './src/api/generated',
+      client: 'react-query',
+    },
+  },
+});
+```
+
+The ```mode: tags-split``` setting tells Orval to group the generated hooks by their OpenAPI tag, which gives you the domain grouping from the previous section automatically. If your API tags its endpoints as ```products```, ```users```, and ```orders```, you get one file per domain, without having to organize anything yourself.
+
+The argument for this is the same one I make everywhere: CRUD is a solved problem.
+
+The query key, the fetch function, and the request and response types are all mechanically derivable from a schema you already wrote.
+
+Writing them by hand is like translating a document that already exists, and that translation quickly becomes outdated the moment the backend changes.
+
+Generate it instead, regenerate it on every schema change, and your backend and queries are always in sync.
+
+You still write all the interesting code yourself (or with AI), the ```select``` transforms, the optimistic updates, the ```staleTime``` decisions; Orval only removes the mechanical boilerplate underneath.
+
+## Running queries in parallel with useQueries
+When you have a fixed, known set of queries, you don’t need anything special; you call useQuery a few times in a row, and React runs them in parallel anyway.
+
+The case that needs a real solution is a dynamic set.
+
+Picture an array of user IDs where you don’t know the length ahead of time, because it came from props or another query. Your instinct might be to loop over the array and call ```useQuery``` inside the loop, but that violates the rules of hooks, which require the same hooks to be called in the same order on every render.
+
+A loop over a changing array means the number of calls changes from render to render, which React won’t allow.
+
+```useQueries``` exists for exactly this. You make one hook call, hand it an array of query configs, and get back an array of results:
+
+```jsx
+function UserAvatars({ userIds }: { userIds: string[] }) {
+  const results = useQueries({
+    queries: userIds.map((id) => ({
+      queryKey: ['user', id],
+      queryFn: () => fetchUser(id),
+    })),
+  });
+
+  const isPending = results.some((r) => r.isPending);
+  // ...
+}
+```
+
+All of those queries fire in parallel, each one cached under its own key. And because they share the same cache as every other query in the app, there’s a nice side effect: if a ```['user', '42']``` query already exists because some other component fetched it, ```useQueries``` reuses that cached entry instead of fetching the same user again. It’s the deduplication from earlier, working across a dynamic list.
+
+```useQueries``` also takes a ```combine``` option, which merges the array of results into a single value so you don’t repeat that aggregation logic everywhere you call it:
+
+```jsx
+const { users, pending } = useQueries({
+  queries: userIds.map((id) => ({
+    queryKey: ['user', id],
+    queryFn: () => fetchUser(id),
+  })),
+  combine: (results) => ({
+    users: results.map((r) => r.data),
+    pending: results.some((r) => r.isPending),
+  }),
+});
+```
+
+## Infinite queries for “load more.”
+For a “load more” button or an infinite scroll, ```useQuery``` is the wrong tool.
+
+You don’t want a single result that gets replaced each time; you want a growing list of pages that accumulate.
+
+```useInfiniteQuery``` is built for exactly that. It holds onto every page it has fetched and gives you a function to fetch the next one:
+
+```jsx
+const {
+  data,
+  fetchNextPage,
+  hasNextPage,
+  isFetchingNextPage,
+} = useInfiniteQuery({
+  queryKey: ['products'],
+  queryFn: ({ pageParam }) => fetchProducts({ cursor: pageParam }),
+  initialPageParam: null,
+  getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+});
+
+```
+
+Two functions do the real work, passing a value back and forth. After each fetch, the hook hands ```getNextPageParam``` the page that just came back, and its job is to return the cursor for the next page.
+
+If it returns ```undefined```, that’s the signal that there are no more pages, and the hook flips ```hasNextPage``` to false for you. The ```pageParam``` is simply whatever ```getNextPageParam``` returned last time, passed into ```queryFn``` so the next fetch knows where to continue.
+
+The data comes back as a list of pages, not a flat array, so to render a flat list, you flatten it yourself:
+
+```jsx
+const allProducts = data?.pages.flatMap((page) => page.items) ?? [];
+```
+Keeping the pages separate lets TanStack Query refetch a single page on its own or drop the earliest pages from a very long scroll to save memory, neither of which would be possible if it had merged everything into one array.
+
+From there, infinite scroll is just wiring: connect ```fetchNextPage``` to a button or an ```IntersectionObserver``` watching the bottom of the list, and guard it with ```hasNextPage``` and ```isFetchingNextPage``` so you don’t fire the same fetch twice.
+
+## Batching invalidation when mutations overlap
+The last tip is the most specific and applies only when you’re doing optimistic updates, so a quick definition first.
+
+An optimistic update is when you change the UI immediately, before the server confirms anything, on the optimistic assumption the request will succeed.
+
+The user clicks, the screen updates instantly, and the network request catches up a moment later. If it fails, you roll back the change.
+
+The problem appears when several of these can run at once. You’ve probably seen the symptom: the UI flickers.
+
+The reason it flickers comes down to how each mutation cleans up after itself. Each mutation, when it finishes, invalidates its related queries inside its ```onSettled``` callback, and invalidating a query triggers a refetch.
+
+So if you fire three mutations close together, you get three separate invalidations, which means three refetches, which means three separate moments where the UI swaps between your optimistic guess and the server’s real response. That rapid back-and-forth is the flicker the user sees.
+
+The fix, which I picked up from TkDodo, is to hold off on invalidating until the last in-flight mutation has settled. TanStack Query keeps an internal count of how many mutations are running, and you can ask it for that count:
+
+```jsx
+function useUpdateTodo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateTodoApi,
+    onMutate: async (newTodo) => {
+      await queryClient.cancelQueries({ queryKey: ['todos'] });
+      const previousTodos = queryClient.getQueryData(['todos']);
+      queryClient.setQueryData(['todos'], (old) =>
+        old.map((todo) =>
+          todo.id === newTodo.id ? { ...todo, ...newTodo } : todo,
+        ),
+      );
+      return { previousTodos };
+    },
+    onError: (_err, _newTodo, context) => {
+      queryClient.setQueryData(['todos'], context.previousTodos);
+    },
+    onSettled: () => {
+      // only invalidate when this is the last mutation in flight
+      if (queryClient.isMutating() === 1) {
+        return queryClient.invalidateQueries({ queryKey: ['todos'] });
+      }
+    },
+  });
+}
+```
+
+The ```onMutate``` callback runs the instant you fire the mutation, before the server hears anything. It first cancels any in-flight ```todos``` queries so a refetch can’t land mid-update and clobber your change, then it snapshots the current cache value into ```previousTodos```, and finally it writes the optimistic update so the UI moves right away.
+
+Wire it up this way, run three mutations together, and instead of three, you get a single invalidation, a single refetch, and one clean transition from your optimistic guess to the confirmed state.
+
+No more flash.
+
+## Next Steps
+There is so much more to be explored with Tanstack Query, so I recommend everyone go checkout the [official documentation](https://tanstack.com/query/latest) and [TkDodo’s blog](https://tkdodo.eu/blog).
+
+Don’t sleep on TanStack Query, it truly should be in every React / React Native / Solid / Svelte project out there.
+
+There is no reason not to use it.
+
+## References
+
+[TanStack Query — Important Defaults](https://tanstack.com/query/latest/docs/framework/react/guides/important-defaults) — staleTime, gcTime, retry, structural sharing
+
+[TanStack Query — Query Cancellation](https://tanstack.com/query/latest/docs/framework/react/guides/query-cancellation) — the ```signal``` and ```AbortController``` details
+
+[TanStack Query — Disabling Queries](https://tanstack.com/query/latest/docs/framework/react/guides/disabling-queries) — ```enabled``` and ```skipToken```
+
+[TkDodo — The Query Options API](https://tkdodo.eu/blog/the-query-options-api) — the case against custom-hook wrappers
+
+[TkDodo — Concurrent Optimistic Updates in React Query](https://tkdodo.eu/blog/concurrent-optimistic-updates-in-react-query) — the source of the batched-invalidation pattern
+
+[Orval](https://orval.dev/) — OpenAPI to TanStack Query code generation

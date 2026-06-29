@@ -1,6 +1,15 @@
 'use client';
 
-import React, { useState, useEffect, createContext, useContext, useRef, useId } from 'react';
+import React, {
+    useState,
+    useEffect,
+    createContext,
+    useContext,
+    useRef,
+    useId,
+    useMemo,
+    useCallback,
+} from 'react';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { X } from 'lucide-react';
@@ -29,6 +38,8 @@ export function Drawer({ children }: DrawerProps) {
     const [isOpen, setIsOpen] = useState(false);
     const pathname = usePathname();
     const contentId = useId();
+    const previousPathname = useRef(pathname);
+    const closeDrawer = useCallback(() => setIsOpen(false), []);
 
     useEffect(() => {
         if (!isOpen) {
@@ -44,17 +55,17 @@ export function Drawer({ children }: DrawerProps) {
     }, [isOpen]);
 
     useEffect(() => {
-        // Defer closing the drawer in response to pathname changes to avoid
-        // calling setState synchronously inside the effect.
-        const id = window.setTimeout(() => setIsOpen(false), 0);
-        return () => clearTimeout(id);
-    }, [pathname]);
+        if (previousPathname.current === pathname) {
+            return;
+        }
 
-    return (
-        <DrawerContext.Provider value={{ isOpen, setIsOpen, contentId }}>
-            {children}
-        </DrawerContext.Provider>
-    );
+        previousPathname.current = pathname;
+        closeDrawer();
+    }, [closeDrawer, pathname]);
+
+    const contextValue = useMemo(() => ({ isOpen, setIsOpen, contentId }), [contentId, isOpen]);
+
+    return <DrawerContext.Provider value={contextValue}>{children}</DrawerContext.Provider>;
 }
 
 export function DrawerTrigger({ children, className, onClick, ...props }: DrawerTriggerProps) {
