@@ -35,7 +35,7 @@ Do not create a `src/` directory. Internal imports must use the root alias `@/`.
 ## Execution Rules
 
 1. Prefer Server Components. Add `'use client'` only for browser interactivity, React client hooks, TanStack Query hooks, or client-only libraries.
-2. Await asynchronous Next.js 15 request APIs before reading values. Treat `params`, `searchParams`, `cookies()`, and similar dynamic APIs as async when used in App Router code.
+2. Await asynchronous Next.js 16 request APIs before reading values. Treat `params`, `searchParams`, `cookies()`, and similar dynamic APIs as async when used in App Router code.
 3. Keep the Clerk fallback resilient. Do not break startup when Clerk environment variables are missing; preserve the `isClerkConfigured()` gate in `middleware.ts`.
 4. After editing `lib/db/schema.ts`, run `pnpm run db:generate`.
 5. Use Drizzle types from schema objects, such as `InferSelectModel` and `InferInsertModel`, instead of hand-written row types.
