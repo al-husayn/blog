@@ -4,7 +4,7 @@ A modern technical blog built with Next.js 15, Fumadocs MDX, Tailwind CSS, Clerk
 
 ## Highlights
 
-- Next.js 15 App Router blog with MDX-powered content
+- Next.js 16 App Router blog with MDX-powered content
 - Automatic read-time generation for every post
 - Embedded article-aware AI assistant
 - Clerk-authenticated engagement system
@@ -15,7 +15,7 @@ A modern technical blog built with Next.js 15, Fumadocs MDX, Tailwind CSS, Clerk
 
 ## Tech Stack
 
-- Next.js 15
+- Next.js 16
 - React 19
 - TypeScript
 - Fumadocs MDX

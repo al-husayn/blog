@@ -2,7 +2,7 @@
 
 ## Project Context
 
-This repository is a high-performance Next.js 15 dev blog using the App Router, Fumadocs MDX, Tailwind CSS 4, Drizzle ORM, Neon Postgres, Clerk, and React 19 and TypeScript.
+This repository is a high-performance Next.js 16 dev blog using the App Router, Fumadocs MDX, Tailwind CSS 4, Drizzle ORM, Neon Postgres, Clerk, and React 19 and TypeScript.
 
 ## Required Stack
 
