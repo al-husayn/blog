@@ -167,6 +167,7 @@ function useWindowSize() {
   useEffect(() => {
     const onResize = () => setSize([innerWidth, innerHeight]);
     addEventListener("resize", onResize);
+    return () => removeEventListener("resize", onResize);
   }, []);
   return size;
 }
