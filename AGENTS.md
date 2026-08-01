@@ -7,7 +7,7 @@ This repository is a high-performance Next.js 15 dev blog using the App Router, 
 ## Required Stack
 
 - Package manager: `pnpm` only.
-- Framework: Next.js 15 App Router with Turbopack for development.
+- Framework: Next.js 16 App Router with Turbopack for development.
 - React: 19.
 - Styling: Tailwind CSS 4 through CSS/PostCSS. Do not add `tailwind.config.js` unless the project is intentionally migrated to config-based Tailwind.
 - Content: Fumadocs MDX in `blog/content/`.
