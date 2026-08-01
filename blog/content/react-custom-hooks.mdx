@@ -1,0 +1,609 @@
+---
+title: "9 React Custom Hooks You'll Actually Reuse in Real Projects"
+description: "A practical guide to React custom hooks that solve real production problems, from API fetching and forms to authentication, performance, and browser APIs."
+date: "2026-07-31"
+tags: ["JavaScript", "React", "Frontend"]
+featured: true
+author: "al"
+thumbnail: "/thumbnails/react-custom-hooks.png"
+---
+
+# 9 React Custom Hooks You'll Actually Reuse in Real Projects
+
+One of the biggest turning points in becoming a better React developer is realizing that **you shouldn't keep rewriting the same logic**.
+
+If you've ever copied API fetching logic between components, recreated the same form validation, or written the same resize event listener for the fifth time, you've already encountered a problem that custom hooks solve.
+
+Custom hooks let you extract reusable stateful logic into a single function. Instead of duplicating behavior across your application, you write it once and use it everywhere.
+
+In this article, we'll look at **nine categories of custom hooks** that appear repeatedly in real-world React applications. These aren't toy examples. They're patterns you'll see in most react and nextjs projects such as dashboards, e-commerce apps, SaaS products, admin panels, and production codebases.
+
+---
+
+## 1. Data Fetching
+
+Almost every application communicates with an API.
+
+Whether you're displaying products, loading blog posts, or fetching a user's profile, the pattern is nearly always the same:
+
+- make a request
+- show a loading state
+- display the result
+- handle errors
+
+Instead of repeating this logic in every component, wrap it inside a reusable hook.
+
+### `useFetch`
+
+```tsx
+// useFetch - GET/POST + loading/error state
+function useFetch(url) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    fetch(url)
+      .then((res) => res.json())
+      .then(setData)
+      .finally(() => setLoading(false));
+  }, [url]);
+  return { data, loading };
+}
+```
+
+A good `useFetch` hook centralizes request logic so every component stays focused on rendering UI instead of managing network requests.
+
+### `useInfiniteScroll`
+
+Infinite scrolling is another common pattern for feeds, search results, and product listings.
+
+Instead of manually attaching scroll listeners throughout your application, create a hook that triggers a callback whenever the user approaches the bottom of the page.
+
+```tsx
+// useInfiniteScroll - load more near bottom
+function useInfiniteScroll(callback) {
+  useEffect(() => {
+    const onScroll = () => {
+      const bottom = innerHeight + scrollY >= document.body.offsetHeight - 100;
+      if (bottom) callback();
+    };
+    addEventListener("scroll", onScroll);
+    return () => removeEventListener("scroll", onScroll);
+  }, [callback]);
+}
+```
+
+**Why this matters**
+
+These two hooks cover a surprisingly large percentage of data-loading scenarios without introducing additional libraries.
+
+---
+
+## 2. Form Handling
+
+Forms are everywhere.
+
+Login pages.
+
+Checkout pages.
+
+Contact forms.
+
+Settings pages.
+
+Each one usually needs the same things:
+
+- field values
+- validation
+- submission handling
+- error tracking
+
+Instead of rebuilding all of that every time, abstract it into reusable hooks.
+
+### `useForm`
+
+Ideal for larger forms with multiple fields and validation.
+
+```tsx
+// useForm - values, validation, submit
+function useForm(initial, validate) {
+  const [values, setValues] = useState(initial);
+  const [errors, setErrors] = useState({});
+  const handleChange = (e) =>
+    setValues((v) => ({ ...v, [e.target.name]: e.target.value }));
+  const handleSubmit = (onSubmit) => (e) => {
+    e.preventDefault();
+    const errs = validate(values);
+    setErrors(errs);
+    if (!Object.keys(errs).length) onSubmit(values);
+  };
+  return { values, errors, handleChange, handleSubmit };
+}
+```
+
+### `useInput`
+
+Sometimes you only need to manage a single field.
+
+A search box.
+
+A filter.
+
+A newsletter input.
+
+That's where a lightweight hook like this shines.
+
+```tsx
+// useInput - single field state + onChange
+function useInput(initial = "") {
+  const [value, setValue] = useState(initial);
+  const onChange = (e) => setValue(e.target.value);
+  return { value, onChange };
+}
+```
+
+**Why this matters**
+
+The simpler your components become, the easier they are to understand, test, and maintain.
+
+---
+
+## 3. Browser & Device Interaction
+
+Modern web apps respond to their environment.
+
+They adapt to different screen sizes.
+
+They detect internet connectivity.
+
+They react to media queries.
+
+These are all excellent candidates for reusable hooks.
+
+### `useWindowSize`
+```tsx
+function useWindowSize() {
+  const [size, setSize] = useState([innerWidth, innerHeight]);
+  useEffect(() => {
+    const onResize = () => setSize([innerWidth, innerHeight]);
+    addEventListener("resize", onResize);
+    return () => removeEventListener("resize", onResize);
+  }, []);
+  return size;
+}
+```
+
+Keeps track of the viewport dimensions.
+
+Useful for responsive layouts and dashboards.
+
+### `useMediaQuery`
+
+```tsx
+//  useMediaQuery - check css breakpoint
+function useMediaQuery(q) {
+  const [matches, setMatches] = useState(() => matchMedia(q).matches);
+  useEffect(() => {
+    const onChange = (e) => setMatches(e.matches);
+    matchMedia(q).addEventListener("change", onChange);
+    return () => matchMedia(q).removeEventListener("change", onChange);
+  }, [q]);
+  return matches;
+}
+```
+
+Need to know whether the current viewport matches a CSS breakpoint?
+
+Instead of duplicating `matchMedia()` everywhere, encapsulate it once.
+
+### `useOnlineStatus`
+
+```tsx
+// useOnlineStatus - detect connection drops
+function useOnlineStatus() {
+  const [online, setOnline] = useState(navigator.onLine);
+  useEffect(() => {
+    const sync = () => setOnline(navigator.onLine);
+    addEventListener("online", sync);
+    addEventListener("offline", sync);
+    return () => {
+      removeEventListener("online", sync);
+      removeEventListener("offline", sync);
+    };
+  }, []);
+  return online;
+}
+```
+
+Detect when the user's internet connection changes.
+
+Perfect for showing offline banners or preventing failed requests.
+
+**Why this matters**
+
+Together, these hooks make your application feel responsive and resilient.
+
+---
+
+## 4. Storage & Persistence
+
+Users expect preferences to persist.
+
+Dark mode.
+
+Language settings.
+
+Authentication tokens.
+
+Draft forms.
+
+All of these typically live in browser storage.
+
+### `useLocalStorage`
+
+Persists data across browser sessions.
+
+```tsx
+// useLocalStorage - persists across sessions
+function useLocalStorage(key, initial) {
+  const [value, setValue] = useState(() => {
+    if(typeof window === "undefined") return initial;
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : initial;
+  });
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value));
+  }, [key, value]);
+  return [value, setValue];
+}
+
+```
+
+### `useSessionStorage`
+
+```tsx
+//  useSessionStorage - cleared when tabs closes
+function useSessionStorage(key, initial) {
+  const [value, setValue] = useState(() => {
+    const saved = sessionStorage.getItem(key);
+    return saved ? JSON.parse(saved) : initial;
+  });
+  useEffect(() => {
+    sessionStorage.setItem(key, JSON.stringify(value));
+  }, [key, value]);
+  return [value, setValue];
+}
+```
+
+Works similarly but clears automatically when the browser tab closes.
+
+Great for temporary data.
+
+**Why this matters**
+
+Using lazy initialization avoids reading from storage during every render, which improves performance and prevents unnecessary work.
+
+---
+
+## 5. Performance Optimization
+
+Not every event should trigger an immediate update.
+
+Typing.
+
+Scrolling.
+
+Window resizing.
+
+Mouse movement.
+
+These events can fire dozens or even hundreds of times every second.
+
+### `useDebounce`
+
+```tsx
+// useDebounce  - waiting for typing to stop
+function useDebounce(value, delay = 400) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debounced;
+}
+
+```
+
+Wait until the user stops typing before updating.
+
+Perfect for:
+
+- search inputs
+- autocomplete
+- API queries
+
+### `useThrottle`
+
+```tsx
+
+//  useThrottle - limit calls to once per interval
+function useThrottle(callback, limit = 300) {
+  const lastRun = useRef(0);
+  return (...args) => {
+    const now = Date.now();
+    if (now - lastRun.current >= limit) {
+      lastRun.current = now;
+      callback(...args);
+    }
+  };
+}
+
+```
+
+Limit how often expensive operations can execute.
+
+Ideal for:
+
+- scroll handlers
+- resize listeners
+- mouse tracking
+
+**Why this matters**
+
+A responsive interface isn't just about fast rendering. It's also about avoiding unnecessary work.
+
+---
+
+## 6. UI State Management
+
+Many UI interactions boil down to simple state changes.
+
+Open.
+
+Close.
+
+Expand.
+
+Collapse.
+
+Hover.
+
+Instead of recreating these patterns everywhere, create dedicated hooks.
+
+### `useToggle`
+
+Great for boolean state.
+
+```tsx
+// useToggle - flip a boolean state
+function useToggle(initial = false) {
+  const [state, setState] = useState(initial);
+  return [state, () => setState((s) => !s)];
+}
+```
+
+### `useDisclosure`
+
+Especially useful for dialogs, drawers, and modals.
+
+Its API is more expressive than a generic toggle.
+
+```tsx
+// useDisclosure - explicit open/close (modals)
+function useDisclosure() {
+  const [isOpen, setIsOpen] = useState(false);
+  return {
+    isOpen,
+    onOpen: () => setIsOpen(true),
+    onClose: () => setIsOpen(false),
+  };
+}
+```
+
+### `useHover`
+
+```tsx
+// useHover - Track hover state on a ref.
+function useHover() {
+  const ref = useRef(null);
+  const [hovered, setHovered] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const onEnter = () => setHovered(true);
+    const onLeave = () => setHovered(false);
+    el.addEventListener("mouseenter", onEnter);
+    el.addEventListener("mouseleave", onLeave);
+    return () => {
+      el.removeEventListener("mouseenter", onEnter);
+      el.removeEventListener("mouseleave", onLeave);
+    };
+  }, []);
+  return [ref, hovered];
+}
+
+```
+
+Track whether an element is currently being hovered.
+
+Useful for tooltips, interactive cards, and previews.
+
+**Why this matters**
+
+Good hook names make your components read almost like English.
+
+---
+
+## 7. Authentication & Permissions
+
+Authentication logic shouldn't be scattered across your application.
+
+Your components shouldn't need to know how authentication works internally.
+
+They should simply ask for the current user.
+
+### `useAuth`
+
+Provides access to authentication state and actions.
+
+```tsx
+// useAuth - read auth context (login/logout)
+function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth needs AuthProvider");
+  return ctx; // {user, login, logout }
+}
+
+```
+
+### `usePermissions`
+
+Role-based access control becomes much cleaner when wrapped inside a hook.
+
+```tsx
+//  usePermissions - role based access check
+function usePermissions(required = []) {
+  const { user } = useAuth();
+  return useMemo(() => {
+    if (!user) return false;
+    return required.every(p => user.permissions.includes(p))
+  }, [user, required]);
+}
+
+```
+
+**Why this matters**
+
+Centralizing permission checks makes your application easier to secure and much easier to maintain.
+
+---
+
+## 8. Timers & Intervals
+
+JavaScript timers often introduce subtle bugs because they capture stale values.
+
+React hooks provide a cleaner approach.
+
+### `useInterval`
+
+```tsx
+// useInterval - setInterval with fresh callback
+function useInterval(callback, delay) {
+  const saved = useRef(callback);
+  saved.current = callback;
+  useEffect(() => {
+    if (delay == null) return;
+    const id = setInterval(() => saved.current(), delay);
+    return () => clearInterval(id);
+  }, [delay]);
+}
+
+```
+
+Keeps the callback up to date while the interval continues running.
+
+Useful for:
+
+- polling APIs
+- clocks
+- dashboards
+- live updates
+
+### `useTimeout`
+
+```tsx
+// useTimeout - setTimeout with auto cleanup
+function useTimeout(callback, delay) {
+  const saved = useRef(callback);
+  saved.current = callback;
+  useEffect(() => {
+    if ((delay == null)) return;
+    const id = setTimeout(() => saved.current(), delay);
+    return () => clearTimeout(id);
+  }, [delay]);
+}
+```
+
+Perfect for delayed actions like:
+
+- notifications
+- temporary messages
+- automatic redirects
+
+**Why this matters**
+
+Using refs internally prevents the classic "stale closure" problem that trips up many React developers.
+
+---
+
+## 9. Third-Party Browser APIs
+
+Modern browsers expose powerful APIs, but they often involve asynchronous operations, permissions, and error handling.
+
+Wrapping them inside custom hooks dramatically improves readability.
+
+### `useGeolocation`
+
+Access the user's current location.
+
+```tsx
+// useGeolocation - user's current position.
+function useGeolocation() {
+  const [pos, setPos] = useState(null);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (p) => setPos(p.coords),
+      (err) => setError(err.message)
+    );
+  }, []);
+  return { pos, error };
+}
+```
+
+### `useClipboard`
+
+Copy text to the clipboard while exposing useful UI state.
+
+```tsx
+// useClipboard - copy text, show confirmation
+function useClipboard() {
+  const [copied, setCopied] = useState(false);
+  const copy = async (text) => {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+  return { copied, copy };
+}
+
+```
+
+This makes implementing "Copy Link" or "Copy Invite Code" buttons much cleaner.
+
+**Why this matters**
+
+These browser APIs can fail for many reasons. Encapsulating permission handling inside the hook keeps your components clean and predictable.
+
+---
+
+# Final Thoughts
+
+Custom hooks aren't about writing less code.
+
+They're about writing **better code**.
+
+When you notice yourself repeating the same state management or side-effect logic across multiple components, that's usually your cue to extract it into a custom hook.
+
+Over time, you'll build a small collection of reusable hooks tailored to your projects. That collection becomes one of your biggest productivity boosts as a React developer.
+
+Start small.
+
+Extract one repeated pattern at a time.
+
+Your future self (and your teammates) will thank you.
+
+---
+
+## Which hooks do you reuse the most?
+
+I'd love to hear which custom hooks have become indispensable in your own React projects. Share them with me, and let's compare patterns.

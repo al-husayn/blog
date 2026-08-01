@@ -1,10 +1,10 @@
 # Learn. Build. Share.
 
-A modern technical blog built with Next.js 15, Fumadocs MDX, Tailwind CSS, Clerk, Neon, Drizzle, and TanStack Query. It includes article pages, SEO metadata, an embedded AI assistant, and a synced engagement system with article upvotes, comments, and comment upvotes.
+A modern technical blog built with Next.js 16, Fumadocs MDX, Tailwind CSS, Clerk, Neon, Drizzle, and TanStack Query. It includes article pages, SEO metadata, an embedded AI assistant, and a synced engagement system with article upvotes, comments, and comment upvotes.
 
 ## Highlights
 
-- Next.js 15 App Router blog with MDX-powered content
+- Next.js 16 App Router blog with MDX-powered content
 - Automatic read-time generation for every post
 - Embedded article-aware AI assistant
 - Clerk-authenticated engagement system
@@ -15,7 +15,7 @@ A modern technical blog built with Next.js 15, Fumadocs MDX, Tailwind CSS, Clerk
 
 ## Tech Stack
 
-- Next.js 15
+- Next.js 16
 - React 19
 - TypeScript
 - Fumadocs MDX
