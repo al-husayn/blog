@@ -404,8 +404,14 @@ function useHover() {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    el.addEventListener("mouseenter", () => setHovered(true));
-    el.addEventListener("mouseleave", () => setHovered(false));
+    const onEnter = () => setHovered(true);
+    const onLeave = () => setHovered(false);
+    el.addEventListener("mouseenter", onEnter);
+    el.addEventListener("mouseleave", onLeave);
+    return () => {
+      el.removeEventListener("mouseenter", onEnter);
+      el.removeEventListener("mouseleave", onLeave);
+    };
   }, []);
   return [ref, hovered];
 }
