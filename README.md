@@ -1,6 +1,6 @@
 # Learn. Build. Share.
 
-A modern technical blog built with Next.js 15, Fumadocs MDX, Tailwind CSS, Clerk, Neon, Drizzle, and TanStack Query. It includes article pages, SEO metadata, an embedded AI assistant, and a synced engagement system with article upvotes, comments, and comment upvotes.
+A modern technical blog built with Next.js 16, Fumadocs MDX, Tailwind CSS, Clerk, Neon, Drizzle, and TanStack Query. It includes article pages, SEO metadata, an embedded AI assistant, and a synced engagement system with article upvotes, comments, and comment upvotes.
 
 ## Highlights
 
