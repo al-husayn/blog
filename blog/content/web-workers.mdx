@@ -140,7 +140,7 @@ async function processLargeArray(data) {
 
 ## The Restaurant Analogy: Multiple Chefs
 
-If you've read our [Event Loop guide](/concepts/event-loop), you know JavaScript is like a restaurant with a **single chef**. The chef can only cook one dish at a time, but clever scheduling (the event loop) keeps things moving.
+If you've read our [Event Loop guide](/blog/event-loop), you know JavaScript is like a restaurant with a **single chef**. The chef can only cook one dish at a time, but clever scheduling (the event loop) keeps things moving.
 
 Web Workers are like **hiring more chefs**.
 
@@ -662,7 +662,7 @@ Use shared workers for:
 - Reducing resource usage for identical workers
 
 <Warning>
-Shared Workers have limited browser support. They work in Chrome, Firefox, Edge, and Safari 16+, but are **not supported on Android browsers** (Chrome for Android, Samsung Internet). Check [caniuse.com](https://caniuse.com/sharedworkers) before using in production.
+Shared Workers have limited browser support. Older browsers and devices may lack support. Check [caniuse.com](https://caniuse.com/sharedworkers) before using in production.
 </Warning>
 
 ### Service Workers (Brief Overview)
