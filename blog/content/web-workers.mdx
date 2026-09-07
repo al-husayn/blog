@@ -48,7 +48,7 @@ That's JavaScript's single thread at work. But there's a way out: **[Web Workers
 </Info>
 
 <Warning>
-**Prerequisites:** This guide builds on [the Event Loop](/concepts/event-loop) and [async/await](/concepts/async-await). Understanding those concepts will help you see why Web Workers solve problems that async code can't.
+**Prerequisites:** This guide builds on [the Event Loop](/blog/event-loop) and [async/await](/blog/async-await). Understanding those concepts will help you see why Web Workers solve problems that async code can't.
 </Warning>
 
 ---
@@ -1619,16 +1619,16 @@ worker.onmessage = (e) => console.log(e.data)  // [2, 4, 6]
 ## Related Concepts
 
 <CardGroup cols={2}>
-  <Card title="Event Loop" icon="arrows-spin" href="/concepts/event-loop">
+  <Card title="Event Loop" icon="arrows-spin" href="/blog/event-loop">
     How JavaScript handles async on a single thread. Workers bypass this limitation.
   </Card>
-  <Card title="Promises" icon="handshake" href="/concepts/promises">
+  <Card title="Promises" icon="handshake" href="/blog/promises">
     The foundation of async JavaScript. Workers use postMessage, not Promises, for communication.
   </Card>
-  <Card title="async/await" icon="hourglass" href="/concepts/async-await">
+  <Card title="async/await" icon="hourglass" href="/blog/async-await">
     Modern async syntax. Great for I/O, but workers handle CPU-bound tasks better.
   </Card>
-  <Card title="Callbacks" icon="phone" href="/concepts/callbacks">
+  <Card title="Callbacks" icon="phone" href="/blog/callbacks">
     The original async pattern. Workers use message callbacks for communication.
   </Card>
 </CardGroup>
