@@ -515,7 +515,7 @@ When you call `new Player("Alice")`, JavaScript performs **4 steps**:
 </Steps>
 
 <Tip>
-**Want to dive deeper?** For a detailed explanation of how `new` works under the hood, including how to simulate it yourself, see [Object Creation & Prototypes](/concepts/object-creation-prototypes).
+**Want to dive deeper?** For a detailed explanation of how `new` works under the hood, including how to simulate it yourself, see [Object Creation & Prototypes](/blog/object-creation-prototypes).
 </Tip>
 
 ### Adding Methods to the [Prototype](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/Object_prototypes)
@@ -881,7 +881,7 @@ console.log(temp.celsius);     // ~37.78 (converted)
 
 ### [Private Fields (#)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_class_fields) — True Privacy
 
-ES2020 introduced **private fields** with the `#` prefix. Unlike the `_underscore` convention, these are **truly private**:
+ES2022 introduced **private fields** with the `#` prefix. Unlike the `_underscore` convention, these are **truly private**:
 
 ```javascript
 class BankAccount {
@@ -1135,8 +1135,9 @@ counter.increment();  // Works
 console.log(counter.count);  // 1
 
 const increment = counter.increment;
-increment();  // 'this' is undefined or global!
-console.log(counter.count);  // Still 1 - didn't work!
+increment();  // Strict mode: TypeError ('this' is undefined)
+              // Sloppy mode: increments globalThis.count (NaN)
+console.log(counter.count);  // Still 1 (if no error was thrown)
 
 // ✓ CORRECT - Use closure to avoid 'this' issues
 function createSafeCounter() {
@@ -1969,7 +1970,7 @@ const cache = createCache({ maxSize: 100, ttl: 3600 });
   </Accordion>
 
   <Accordion title="What are private fields in JavaScript classes?">
-    Private fields, prefixed with `#`, are truly private properties that cannot be accessed outside the class body. They were standardized in ECMAScript 2022 and are enforced by the JavaScript engine at the language level. Unlike the underscore convention (`_name`), private fields throw a `SyntaxError` if accessed externally.
+    Private fields, prefixed with `#`, are truly private properties that cannot be accessed outside the class body. They were standardized in ECMAScript 2022 and are enforced by the JavaScript engine at the language level. Unlike the underscore convention (`_name`), external access to a private field is a syntax error detected at parse time.
   </Accordion>
 
   <Accordion title="When should I use a factory function instead of a class?">
