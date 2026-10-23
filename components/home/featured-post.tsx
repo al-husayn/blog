@@ -32,6 +32,7 @@ export function FeaturedPost({ blog }: { blog: BlogPage }) {
                                     src={blog.data.thumbnail}
                                     alt={blog.data.title}
                                     fill
+                                    priority
                                     style={{ objectFit: 'cover' }}
                                     className='object-cover transition-transform duration-300 group-hover:scale-[1.02] dark:brightness-[0.86] dark:contrast-110 dark:saturate-90'
                                     sizes='(max-width: 768px) 100vw, 50vw'
