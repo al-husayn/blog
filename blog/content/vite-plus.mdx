@@ -120,7 +120,7 @@ For example, if a project prefers no semicolons, configure that preference in th
 
 ### Git hooks and staged checks
 
-Vite+ can configure a Git hook dispatcher and staged-file checks. This lets a repository run the same quality rules before a commit. A hook configured to run `vp check --fix` can automatically correct supported formatting and lint issues; a strict check without `--fix` can reject a commit until the contributor corrects them.
+Vite+ can configure a Git hook dispatcher and staged-file checks. This lets a repository run the same quality rules before a commit. Run `vp staged` from the pre-commit hook to check files currently staged in Git. Configure `'*': 'vp check --fix'` in the `staged` block of `vite.config.ts` to apply supported formatting and lint fixes to those files. Running `vp check --fix` directly from a hook does not limit checks to staged files and can modify unstaged files in the working tree. A strict staged check without `--fix` can reject a commit until the contributor corrects the staged files.
 
 Choose deliberately between those behaviors. Automatic fixes are convenient, but they modify files during a commit. A non-fixing check makes the required changes visible but can slow down committing if the rules are not also integrated into the editor. Either way, the hook complements CI; it does not replace a CI run that checks the final branch or pull request.
 
