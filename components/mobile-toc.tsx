@@ -13,7 +13,7 @@ import {
 import { TableOfContents } from '@/components/table-of-contents';
 import { PromoContent } from '@/components/promo-content';
 
-export function MobileTableOfContents() {
+export function MobileTableOfContents({ rotationKey }: { rotationKey: string }) {
     return (
         <Drawer>
             <DrawerTrigger
@@ -35,7 +35,7 @@ export function MobileTableOfContents() {
                 </DrawerBody>
 
                 <DrawerFooter>
-                    <PromoContent variant='mobile' />
+                    <PromoContent variant='mobile' rotationKey={rotationKey} />
                 </DrawerFooter>
             </DrawerContent>
         </Drawer>
