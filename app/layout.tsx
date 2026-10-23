@@ -172,6 +172,7 @@ export default function RootLayout({
         <html
             lang='en'
             className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}
+            data-scroll-behavior='smooth'
             suppressHydrationWarning
         >
             <body suppressHydrationWarning>
