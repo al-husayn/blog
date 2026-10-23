@@ -5,6 +5,9 @@ const withMDX = createMDX();
 
 const nextConfig: NextConfig = {
     transpilePackages: ['geist'],
+    turbopack: {
+        root: process.cwd(),
+    },
 };
 
 export default withMDX(nextConfig);
