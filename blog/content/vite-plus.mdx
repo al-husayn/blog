@@ -1,0 +1,194 @@
+---
+title: "I Will Never Use Prettier or ESLint Again? A Practical Guide to Vite+"
+description: "Vite+ brings development, tests, linting, formatting, package builds, tasks, and runtime management under the vp CLI. Learn how it works and what migration really involves."
+date: "2026-10-23"
+tags: ["Dev Tools", "Frontend", "JavaScript"]
+featured: true
+readTime: "10 min read"
+author: "al"
+thumbnail: "/thumbnails/vite-plus.jpg"
+---
+
+Web projects rarely use just one tool. A typical setup has a development server and bundler, a test runner, a linter, a formatter, a package manager, and scripts for builds and continuous integration. Add Git hooks and a separate library build when you need them, and the project can end up with a stack of tools that each have their own commands, configuration, and version requirements.
+
+Vite+ is an effort to make that stack work as one toolchain. The `vp` command brings together Vite, Rolldown, Vitest, Oxlint, Oxfmt, tsdown, and Vite Task. Its global CLI can also manage Node.js and package managers. The appeal is straightforward: a consistent way to create, develop, check, test, build, and run tasks in a web project.
+
+ “I Will Never Use Prettier or ESLint Again.” Vite+ can replace a conventional Prettier and ESLint setup with Oxfmt and Oxlint, but a tool migration is not automatically a perfect one-to-one conversion. This guide explains what Vite+ does, how to start a project, how the unified configuration and checks work, and what to expect when migrating a real application.
+
+## The project toolchain Vite+ is trying to unify
+
+Most developers think first about the tools that touch application code directly:
+
+- **Development and bundling:** Vite provides the development server and build workflow, with Rolldown as the bundler.
+- **Testing:** Vitest runs unit and browser tests and shares a close relationship with the Vite ecosystem.
+- **Linting and formatting:** Oxlint and Oxfmt provide fast code checks and formatting.
+- **Library builds:** tsdown handles building and packaging JavaScript and TypeScript libraries.
+
+But a working project also depends on the less visible parts of the workflow: which Node.js version to use, which package manager to install dependencies, how workspace tasks run, and what checks must pass before a commit. Vite+ brings these into the same command surface. Vite Task can run scripts and workspace tasks with dependency-aware execution and caching; the global CLI can manage runtime and package-manager versions; and the project configuration can define checks and Git hook behavior.
+
+| Vite+ component | What it does |
+| --- | --- |
+| Vite and Rolldown | Develop and build web applications |
+| Vitest | Run tests |
+| Oxlint | Find code quality issues |
+| Oxfmt | Format code |
+| tsdown | Build libraries and packages |
+| Vite Task | Run and cache project tasks |
+| Global `vp` CLI | Manage Node.js and package-manager environments |
+
+The value is coordination: a shared interface and a toolchain designed to fit together. You still need to decide what your project should check and how its build should behave.
+
+## Install Vite+ and create a project
+
+Vite+ has a global CLI and a project-local package. The global CLI is convenient if you want `vp` available across projects and want it to manage Node.js or package-manager versions. The local `vite-plus` package pins the toolchain in the repository, which can make the project setup easier to reproduce for a team. A global installation is optional.
+
+Install the global CLI with the official installer for your platform:
+
+```bash
+# macOS and Linux
+curl -fsSL https://vite.plus | bash
+```
+
+```powershell
+# Windows PowerShell
+irm https://vite.plus/ps1 | iex
+```
+
+Open a new terminal and check the CLI:
+
+```bash
+vp help
+```
+
+You can also run `vp` on its own to open the interactive command picker. To create a project from the command line, run:
+
+```bash
+vp create
+```
+
+The create flow can scaffold an application, library, or monorepo. It asks for project details such as the package manager and can set up Git, editor configuration, agent instructions, and pre-commit hooks. Review the choices for your team; a generated editor or agent setup should not be committed blindly if the repository already has conventions.
+
+The basic project workflow then looks like this:
+
+```bash
+vp install
+vp dev
+```
+
+If you do not want to install the global CLI, you can create a project with a package manager, for example `pnpm create vite-plus`, and run the local command through it, such as `pnpm exec vp dev`.
+
+## One place to configure quality checks
+
+Vite+ centralizes toolchain configuration in `vite.config.ts`. A generated project can configure linting, formatting, tests, build options, and Git hook behavior there rather than spreading settings across separate configuration files. The exact properties depend on the features and template you choose, but a simplified example looks like this:
+
+```ts
+import { defineConfig } from 'vite-plus'
+
+export default defineConfig({
+  lint: {
+    // Oxlint options and rules
+  },
+  fmt: {
+    // Oxfmt options, such as semicolon preference
+  },
+  test: {
+    // Vitest options
+  },
+  staged: {
+    // Checks to run on staged files
+  },
+})
+```
+
+The unified configuration is useful when the tools' responsibilities are clear. It does not mean every upstream option belongs under one generic setting: use the Vite+ configuration reference for supported fields and the relevant tool docs for details.
+
+### Lint, format, and type-check
+
+You can run an individual check or run the combined `vp check` command:
+
+```bash
+vp lint
+vp fmt
+vp check
+```
+
+Oxlint is the linter, and Oxfmt is the formatter. Both are written in Rust and aim to make common linting and formatting workflows fast. Oxlint includes many ESLint-compatible rules, but compatibility depends on the rules and plugins your project uses. Oxfmt aims for Prettier-compatible formatting, but formatting output can still differ depending on your existing options and ignored files.
+
+Vite+ can also include type checking in the check workflow. In the setup shown in the video, type-aware linting and type checking are enabled in the Vite+ configuration, so `vp check` checks more than formatting and lint rules. Confirm which checks are enabled in your project instead of assuming that every template uses identical settings.
+
+For example, if a project prefers no semicolons, configure that preference in the formatter settings and run `vp fmt`. The formatter applies the chosen style consistently across supported files. For teams moving from Prettier, compare a representative set of files and review ignored paths before formatting the entire repository.
+
+### Git hooks and staged checks
+
+Vite+ can configure a Git hook dispatcher and staged-file checks. This lets a repository run the same quality rules before a commit. Run `vp staged` from the pre-commit hook to check files currently staged in Git. Configure `'*': 'vp check --fix'` in the `staged` block of `vite.config.ts` to apply supported formatting and lint fixes to those files. Running `vp check --fix` directly from a hook does not limit checks to staged files and can modify unstaged files in the working tree. A strict staged check without `--fix` can reject a commit until the contributor corrects the staged files.
+
+Choose deliberately between those behaviors. Automatic fixes are convenient, but they modify files during a commit. A non-fixing check makes the required changes visible but can slow down committing if the rules are not also integrated into the editor. Either way, the hook complements CI; it does not replace a CI run that checks the final branch or pull request.
+
+In VS Code, the Vite+ extension pack can connect editor formatting and lint feedback to the project's configuration. This helps make saved files match the command-line checks. Team members should use the supported extension and settings consistently if they expect the same on-save behavior.
+
+## Migrating an existing project
+
+`vp migrate` can move an existing project toward the Vite+ setup. It updates supported dependencies, rewrites certain imports and scripts, merges tool configuration, and can set up Git hooks, editor configuration, and agent instructions. For a monorepo, run migration from the workspace root because package-manager configuration and lockfiles are shared.
+
+Before migrating a project that is not already on Vite+, the current guide calls for Vite 7 or later and Vitest 4 or later. Complete those upgrades first and keep the old lockfile and installed dependencies available so the migrator can identify the original Vitest version. Use the intended Vite+ CLI and check its migration help. Do not migrate using an old local `vp` binary from the project being migrated.
+
+For example, with the global CLI:
+
+```bash
+vp help migrate
+vp migrate
+```
+
+In automated environments, use `vp migrate --no-interactive`. If you do not have the global CLI, run the target Vite+ release through your package manager as described in the [migration guide](https://viteplus.dev/guide/migrate).
+
+### A simple Vite project
+
+For a small Vite project with conventional ESLint configuration, migration may be relatively direct. The migrator can carry rules into the Vite+ lint configuration, remove the old ESLint setup, update scripts, and add formatter settings. Afterward, inspect the generated `vite.config.ts` and run the new commands:
+
+```bash
+vp install
+vp check
+vp test
+vp build
+```
+
+The generated config may be much larger than the original. That can be expected when Vite+ is preserving a large set of existing lint rules. Read any report about skipped or unsupported rules: a rule omitted because it is covered by another rule has a different impact from a plugin rule with no equivalent.
+
+### A larger project or a non-Vite framework
+
+The vite+ also supports Astro and Svelte with a complex ESLint and Prettier setup. Vite+ can be used with frameworks built on Vite, but that does not mean every framework plugin or lint plugin has a direct equivalent in Oxlint or Oxfmt.
+
+Expect more migration warnings in a project with custom plugins, ignored file types, framework-specific rules, or existing hooks. For example, a missing Astro lint rule or a Markdown formatter plugin that does not map cleanly needs a manual decision. Some settings may migrate, some may need replacement rules, and some may remain outside the Vite+ checks.
+
+Treat migration as a first pass, then work through the results:
+
+1. Review every changed manifest, lockfile, script, import, and config file.
+2. Read the migrator's skipped-rule and manual-review reports.
+3. Check whether any new formatter behavior applies to files that were previously ignored.
+4. Fix unsupported or invalid rules and confirm framework plugins initialize correctly.
+5. Run `vp check`, `vp test`, and `vp build` (or `vp pack` for a library), then compare behavior with the old workflow.
+
+Migration can provide a strong starting point, including a close approximation of the old lint rules. It cannot promise exact parity for every third-party plugin. Keep the old setup available until the new checks and builds have passed review.
+
+## Why this matters for AI-assisted development
+
+AI can generate code quickly, but it does not automatically follow a project's style, type constraints, or testing expectations. A repeatable `vp check`, test command, and pre-commit or CI workflow gives generated code the same feedback as code written by a person. Shared rules also make it easier for an agent to learn how a repository expects changes to look.
+
+That does not make the tools a guarantee of correctness. Lint and format checks cannot establish that a feature is right, and tests only cover behaviors they actually assert. Vite+ gives a project one way to run these checks consistently; the project still needs thoughtful rules and useful tests.
+
+## Is Vite+ a good fit?
+
+Vite+ is compelling if you are starting a web project and want a coordinated default toolchain, or if an existing project already uses several of the included tools and you want a common command surface. It can also make runtime and package-manager setup more consistent across contributors when you choose to use the global CLI's environment management.
+
+The case is less straightforward when a project relies on specialized ESLint plugins, custom formatters, bespoke build steps, or a carefully tuned test setup. In those cases, review the tool support and migration report before replacing anything. You can adopt parts of the workflow incrementally and retain tools that still serve a specific need.
+
+Vite+ does not make every web project identical. Its promise is that common pieces can work together behind one CLI and a central configuration. Whether that simplifies your project depends on how closely its defaults and supported integrations match the tools you already rely on.
+
+## Further reading
+
+- [Vite+ guide](https://viteplus.dev/guide)
+- [Migrate to Vite+](https://viteplus.dev/guide/migrate)
+- [Migration rules](https://viteplus.dev/guide/migrate-rules)
+- [Upgrade to Vitest 5 with Vite+](https://viteplus.dev/guide/vitest-v5)
+- [Vitest migration guide](https://vitest.dev/guide/migration/)
+- [tsdown v0.23.0 release notes](https://github.com/rolldown/tsdown/releases/tag/v0.23.0)

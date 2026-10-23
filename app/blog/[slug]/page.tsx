@@ -194,8 +194,8 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
                                 alt={page.data.title}
                                 fill
                                 className='object-cover md:object-cover'
-                                sizes='100vw'
-                                priority
+                                sizes='(max-width: 767px) calc(100vw - 2rem), (max-width: 1280px) 100vw, 1280px'
+                                loading='eager'
                             />
                         </div>
                     )}
