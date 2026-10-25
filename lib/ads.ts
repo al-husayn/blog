@@ -35,9 +35,9 @@ export const promoAds: PromoAd[] = [
     },
     {
         id: 'expedited-visa',
-        title: 'Stucked with a USA Visa Appointment Date? We can help!',
+        title: 'Stuck with a USA Visa Appointment Date? We can help!',
         description:
-            "Link up with us to get your USA Visa appointment date expedited. Don't change youur travelplans because of delayed visa appointment. Just link up",
+            "Contact us to get your USA visa appointment date expedited. Don't change your travel plans because of a delayed visa appointment. Just get in touch.",
         image: '/thumbnails/US Visa.jpg',
         imageAlt: 'Visa App advertisement',
         href: `https://wa.me/${whatsappNumber}?text=Hi%2C%20I%27d%20like%20to%20ask%20about%20an%20earlier%20visa%20appointment.`,
