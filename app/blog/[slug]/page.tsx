@@ -219,12 +219,12 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
                         <div className='border border-border rounded-lg p-6 bg-card'>
                             <TableOfContents />
                         </div>
-                        <PromoContent variant='desktop' />
+                        <PromoContent variant='desktop' rotationKey={slug} />
                     </div>
                 </aside>
             </div>
 
-            <MobileTableOfContents />
+            <MobileTableOfContents rotationKey={slug} />
             <ArticleBackToTop />
         </main>
     );
